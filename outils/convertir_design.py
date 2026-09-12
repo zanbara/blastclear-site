@@ -790,6 +790,28 @@ a{color:var(--bc-bleu);text-decoration:none;transition:color .18s ease}
    chargement de chaque page. */
 .dc-langues-panneau[hidden]{display:none !important}
 .dc-langues-panneau{animation:dc-deplier .18s ease both}
+
+/* ── LE PANNEAU SORTAIT DE L'ÉCRAN SUR TÉLÉPHONE ──────────────────────────
+   La maquette l'ancre par la DROITE du bouton, ce qui convient sur un écran
+   large où le sélecteur est à droite de la barre. Sur téléphone la barre passe
+   à la ligne, le sélecteur se retrouve à gauche, et un panneau de 360 px ancré
+   par sa droite déborde alors HORS DE L'ÉCRAN par la gauche : sept langues sur
+   treize devenaient illisibles, coupées au bord.
+
+   On l'ancre donc par la gauche et on borne sa largeur à celle de l'écran. Le
+   !important est requis : le positionnement vient d'un style en ligne. */
+@media (max-width:719px){
+  .dc-langues-panneau{
+    left:0 !important; right:auto !important;
+    width:min(360px,calc(100vw - 32px)) !important;
+    grid-template-columns:1fr 1fr !important;
+    max-height:60vh !important;
+  }
+}
+/* Sous 380 px, deux colonnes rogneraient les noms les plus longs. */
+@media (max-width:379px){
+  .dc-langues-panneau{grid-template-columns:1fr !important}
+}
 @keyframes dc-deplier{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 
 /* ══ APPARITION AU DÉFILEMENT ══════════════════════════════════════════════
