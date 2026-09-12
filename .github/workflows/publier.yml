@@ -1,0 +1,61 @@
+# ════════════════════════════════════════════════════════════════════════════════
+#  PUBLICATION DU SITE SUR GITHUB PAGES
+#
+#  ─── POURQUOI UN WORKFLOW, ET NON LE RÉGLAGE SIMPLE ───────────────────────────
+#  GitHub Pages, dans son mode « une branche et un dossier », n'accepte que DEUX
+#  dossiers : la racine du dépôt, ou /docs. Rien d'autre. Or ce qui doit être publié
+#  vit dans /site, et /docs porte déjà les procédures d'exploitation.
+#
+#  Les deux seules issues sans workflow seraient de publier la racine, ce qui
+#  servirait aussi le README, les scripts et la charte, ou de renommer /site en
+#  /docs, ce qui obligerait à déplacer les procédures et rendrait le dépôt
+#  illisible.
+#
+#  Le workflow lève la contrainte : il n'envoie à Pages que le contenu de /site.
+#
+#  ─── CE QU'IL NE FAIT PAS ─────────────────────────────────────────────────────
+#  Il ne relance PAS la conversion des canevas. Ceux-ci ne sont pas versionnés, et
+#  les pages de /site sont générées sur le poste puis validées. Ce workflow ne fait
+#  que publier ce qui est déjà dans le dépôt.
+# ════════════════════════════════════════════════════════════════════════════════
+
+name: Publier le site
+
+on:
+  push:
+    branches: [main]
+  # Permet de republier à la demande, sans avoir à pousser un commit vide.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication à la fois. cancel-in-progress reste à false : interrompre
+# un déploiement en cours laisserait le site dans un état intermédiaire.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Préparer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Téléverser le dossier site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Déployer
+        id: deploiement
+        uses: actions/deploy-pages@v4
