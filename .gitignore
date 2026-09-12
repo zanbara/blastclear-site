@@ -1,0 +1,55 @@
+# ════════════════════════════════════════════════════════════════════════════════
+#  CE QUI NE DOIT PAS ENTRER DANS LE DÉPÔT
+# ════════════════════════════════════════════════════════════════════════════════
+
+# ── DOCUMENTS CONFIDENTIELS ─────────────────────────────────────────────────────
+#
+# CECI N'EST PAS UNE QUESTION DE PROPRETÉ, MAIS DE CONFIDENTIALITÉ.
+#
+# Ces documents de travail commerciaux n'ont rien à faire dans un dépôt. Un dépôt
+# public les rendrait publics, et l'historique git les conserverait même après
+# suppression.
+#
+# L'exclusion vaut QUELLE QUE SOIT la visibilité choisie : un dépôt privé aujourd'hui
+# peut être rendu public demain, et personne ne repensera à ces fichiers à ce
+# moment-là.
+BLASTCLEAR_MONETIZATION_STRATEGY.md
+BLASTCLEAR_MARKETING_BRIEF.md
+*Pricing_Calculator*
+*Retours_Utilisateurs*
+
+# ── L'EXPORT CLAUDE DESIGN, EN ENTIER ───────────────────────────────────────────
+#
+# LES CANEVAS PORTENT CE QUE LE SITE NE PUBLIE PAS.
+#
+# Le site repose sur deux décisions : ne pas afficher la grille tarifaire, et ne
+# nommer aucun tiers. Les canevas source contiennent l'une et l'autre. La section
+# tarifaire y figure en clair dans les quatorze fichiers, simplement MASQUÉE par un
+# réglage de l'éditeur ; les variantes du dépliant portent des coordonnées
+# commerciales nominatives.
+#
+# Masqué à l'affichage n'est pas absent du fichier. Les publier reviendrait à défaire
+# par le code source la décision prise sur la page, et l'historique git conserve ce
+# qu'on y met, même retiré ensuite.
+#
+# CONSÉQUENCE ASSUMÉE : la conversion ne se rejoue pas depuis un clone nu. Les
+# canevas se réexportent depuis Claude Design, et le rôle de ce dépôt est de publier
+# le site, non d'archiver la maquette.
+#
+# LA BARRE OBLIQUE INITIALE EST INDISPENSABLE. Sans elle, le motif désignerait tout
+# dossier nommé « design » à n'importe quelle profondeur, et emporterait au passage
+# site/assets/design/, qui contient les images de la page.
+/design/
+
+# ── OUTILLAGE LOCAL ────────────────────────────────────────────────────────────
+venv*/
+.venv/
+__pycache__/
+*.pyc
+
+# ── SYSTÈME ────────────────────────────────────────────────────────────────────
+Thumbs.db
+desktop.ini
+.DS_Store
+*.tmp
+~$*

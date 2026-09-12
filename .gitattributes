@@ -1,0 +1,16 @@
+# Fins de ligne normalisées en LF dans le dépôt.
+#
+# Les scripts écrivent en LF, Windows rend en CRLF : sans cette règle, git signale
+# une modification sur chaque fichier à chaque passage, et les vraies différences se
+# noient dans le bruit.
+* text=auto eol=lf
+
+# Binaires : aucune conversion, sous peine de les corrompre.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.woff2 binary
+*.pdf   binary
+*.ai    binary
+*.xlsx  binary

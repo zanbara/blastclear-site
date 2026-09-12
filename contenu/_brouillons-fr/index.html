@@ -1,0 +1,233 @@
+titre: BlastClear | Périmètres d'évacuation 3D pour tirs miniers
+description: BlastClear calcule les périmètres d'évacuation des tirs miniers en trois dimensions, à partir du contour réel du tir et de la topographie du site. Plans, DXF et analyse des vibrations dans une seule interface.
+slug: index
+
+  <!-- ══ BANDEAU ═════════════════════════════════════════════════════════════
+       Fond anthracite : version officielle de la charte, section 7. C'est aussi
+       le seul fond sur lequel le jaune peut porter du texte (11,11:1). -->
+  <section class="bandeau">
+    <div class="enveloppe bandeau__grille">
+      <div>
+        <h1>Le périmètre d'évacuation, calculé sur le tir <span class="accent">réel</span>.</h1>
+        <p class="bandeau__promesse">
+          BlastClear construit le périmètre à partir du contour du tir et de la topographie
+          du site, en trois dimensions. Pas d'un cercle tracé autour d'un point. Une seule
+          interface, du contour importé jusqu'au plan signé.
+        </p>
+        <div class="boutons" style="margin-top:2rem">
+          <a class="bouton bouton--accent" href="contact.html">Demander une démonstration</a>
+          <a class="bouton bouton--contour" style="color:#EDF0F4;border-color:rgba(255,255,255,.3)" href="fonctionnalites.html">Voir les fonctionnalités</a>
+        </div>
+        <ul class="bandeau__preuves">
+          <li><b>3D</b><span>Dôme sur contour, pas un cercle</span></li>
+          <li><b>3 types</b><span>Production, pré-découpage, pétardage</span></li>
+          <li><b>PDF · DXF · PNG</b><span>Livrables générés</span></li>
+        </ul>
+      </div>
+      <div class="bandeau__visuel">
+        <!-- CAPTURE À FOURNIR : vue 3D, dôme sur topographie texturée GeoTIFF.
+             Déposer le fichier en site/assets/img/accueil-dome-3d.png, environ
+             1600 x 1000, puis remplacer tout le bloc .visuel-attendu par :
+             <img src="../assets/img/accueil-dome-3d.png" alt="Vue 3D d'un dôme d'évacuation posé sur la topographie de la fosse" width="1600" height="1000"> -->
+        <div class="visuel-attendu">
+          <b>Capture à insérer</b>
+          Vue 3D : dôme d'évacuation sur topographie GeoTIFF
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LE PROBLÈME ═════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Le problème</span>
+        <h2>Un périmètre d'évacuation ne se dessine pas dans quatre logiciels</h2>
+        <p>
+          La pratique courante fait passer la topographie par un logiciel, le contour du tir
+          par un deuxième, le tracé du périmètre par un troisième, et la mise en plan par un
+          quatrième. Chaque passage est une recopie, et chaque recopie est une occasion
+          d'erreur sur une donnée qui commande l'évacuation de personnes.
+        </p>
+      </div>
+      <div class="grille">
+        <div class="carte">
+          <span class="carte__numero">1</span>
+          <h3>Le rayon unique ignore le relief</h3>
+          <p>
+            Un cercle de rayon constant traite de la même façon un tir en fond de fosse et un
+            tir sur banquette haute. Le relief, lui, ne les traite pas de la même façon.
+          </p>
+        </div>
+        <div class="carte">
+          <span class="carte__numero">2</span>
+          <h3>L'arrière du tir est surprotégé</h3>
+          <p>
+            Les projections ne partent pas également dans toutes les directions. Évacuer à
+            l'arrière le même rayon qu'à l'avant immobilise des zones sans raison.
+          </p>
+        </div>
+        <div class="carte">
+          <span class="carte__numero">3</span>
+          <h3>Les tirs voisins se recouvrent</h3>
+          <p>
+            Quand plusieurs tirs se suivent, les périmètres se chevauchent et leur fusion se
+            fait à la main, sur un plan, sans contrôle possible.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LA RÉPONSE ══════════════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">La réponse</span>
+        <h2>Une seule interface, du contour au plan</h2>
+        <p>
+          BlastClear importe le contour du tir et la topographie, calcule l'enveloppe de
+          sûreté en trois dimensions, l'intersecte avec le terrain, et produit le plan.
+        </p>
+      </div>
+      <div class="grille">
+        <div class="carte carte--accent">
+          <span class="carte__numero">A</span>
+          <h3>Dôme épousant le contour</h3>
+          <p>
+            L'enveloppe est construite sur la forme réelle du tir, puis intersectée avec la
+            surface topographique importée. Le périmètre obtenu est celui du terrain, pas
+            celui d'un plan horizontal théorique.
+          </p>
+        </div>
+        <div class="carte carte--accent">
+          <span class="carte__numero">B</span>
+          <h3>Cadrans de réduction</h3>
+          <p>
+            Le rayon se module par secteur autour du tir : entier vers l'avant, réduit
+            latéralement, davantage réduit à l'arrière. Les coefficients sont vos réglages,
+            pas des constantes cachées.
+          </p>
+        </div>
+        <div class="carte carte--accent">
+          <span class="carte__numero">C</span>
+          <h3>Fusion des tirs simultanés</h3>
+          <p>
+            Plusieurs tirs d'une même volée donnent un périmètre unique, calculé, sans
+            raccord manuel et sans zone oubliée entre deux tracés.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TYPES DE TIRS ═══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Couverture</span>
+        <h2>Les trois familles de tirs, dans le même projet</h2>
+      </div>
+      <div class="grille">
+        <div class="carte">
+          <h3>Tirs de production</h3>
+          <p>Contours complexes, charges par délai, séquence de mise à feu. L'orientation du tir est déduite du séquencement plutôt que saisie à la main.</p>
+        </div>
+        <div class="carte">
+          <h3>Pré-découpage</h3>
+          <p>Traitement dédié aux polylignes, avec un rayon propre à ce type de tir. Pas de fichier séparé ni de projet distinct.</p>
+        </div>
+        <div class="carte">
+          <h3>Pétardage et tri de blocs</h3>
+          <p>Périmètres individuels autour de points, avec les petits rayons qui conviennent, et l'étiquetage de chaque point sur le plan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ VIBRATIONS ══════════════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="bandeau__grille">
+        <div>
+          <span class="surtitre">Vibrations et bruit</span>
+          <h2>Une loi de site que le logiciel refuse d'inventer</h2>
+          <p>
+            BlastClear ajuste la loi d'atténuation sur vos propres mesures et affiche les
+            critères de qualification : nombre d'observations, étendue des distances
+            réduites, coefficient de détermination, plage de l'exposant.
+          </p>
+          <p>
+            Quand ces critères ne sont pas réunis, le module écrit que la loi n'est pas
+            qualifiée et dit lequel manque. Il ne produit pas une constante par défaut qui
+            aurait toutes les apparences d'un résultat.
+          </p>
+          <div class="boutons" style="margin-top:1.6rem">
+            <a class="bouton bouton--premier" href="vibrations.html">Le module vibrations</a>
+          </div>
+        </div>
+        <div>
+          <div class="encart encart--alerte">
+            <p><b>Pourquoi cela compte</b></p>
+            <p style="margin-bottom:0">
+              Une loi ajustée sur des distances réduites trop resserrées produit une pente qui
+              n'est pas déterminable. Le calcul aboutit quand même, et le chiffre obtenu a
+              l'air d'un résultat. C'est exactement ce cas que le module signale au lieu de
+              le laisser passer.
+            </p>
+          </div>
+          <ul class="liste-cochee" style="margin-top:1.4rem">
+            <li>Courbe d'atténuation en échelles logarithmiques, avec la borne de prédiction à 95 %</li>
+            <li>Abaque de vitesse admissible selon la fréquence, d'après le rapport USBM RI 8507</li>
+            <li>Histogramme des dépassements et statistiques par fosse et par phase</li>
+            <li>Contrôles de cohérence sur la saisie, de la distance au délai</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LIVRABLES ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Livrables</span>
+        <h2>Ce qui sort du logiciel</h2>
+      </div>
+      <div class="grille">
+        <div class="carte">
+          <h3>Plans PDF</h3>
+          <p>Cartouche personnalisable, pictogrammes de sécurité, cotation, nord et coordonnées. Prêt à signer et à afficher.</p>
+        </div>
+        <div class="carte">
+          <h3>Export DXF</h3>
+          <p>Le périmètre repart vers AutoCAD, Surpac ou Geovia pour s'intégrer aux plans du site.</p>
+        </div>
+        <div class="carte">
+          <h3>Images PNG</h3>
+          <p>Fond transparent ou plein, en haute résolution, pour l'affichage sur site et les documents internes.</p>
+        </div>
+        <div class="carte">
+          <h3>Import sans conversion</h3>
+          <p>Contours et topographies en DXF, coordonnées en CSV, textures de drone en GeoTIFF. Pas d'étape de préparation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ APPEL ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="appel">
+        <h2>Voir BlastClear sur vos propres données</h2>
+        <p>
+          Envoyez un contour de tir et une topographie : la démonstration se fait sur votre
+          fosse, pas sur un jeu d'exemple.
+        </p>
+        <div class="boutons">
+          <a class="bouton bouton--accent" href="contact.html">Demander une démonstration</a>
+          <a class="bouton bouton--contour" style="color:#EDF0F4;border-color:rgba(255,255,255,.3)" href="tarifs.html">Voir les tarifs</a>
+        </div>
+      </div>
+    </div>
+  </section>

@@ -1,0 +1,82 @@
+{
+  "_lisez_moi": [
+    "Tout ce qui se répète d'une page à l'autre est ici, et nulle part ailleurs.",
+    "Modifier le menu ou le pied de page se fait dans ce fichier, puis on relance",
+    "outils/assembler.py. Ne jamais corriger une page de site/ à la main : la",
+    "prochaine génération écraserait la correction."
+  ],
+
+  "fr": {
+    "og_locale": "fr_FR",
+    "saut_contenu": "Aller au contenu",
+    "logo_alt": "BlastClear, accueil",
+    "menu_label": "Ouvrir le menu",
+    "nav_label": "Navigation principale",
+    "langue_label": "Choix de la langue",
+    "nav": [
+      ["index",           "./",                    "Accueil"],
+      ["fonctionnalites", "fonctionnalites.html",  "Fonctionnalités"],
+      ["vibrations",      "vibrations.html",       "Vibrations"],
+      ["essakane",        "essakane.html",         "Terrain"],
+      ["tarifs",          "tarifs.html",           "Tarifs"],
+      ["contact",         "contact.html",          "Contact"]
+    ],
+    "pied_baratin": "Générateur de périmètres d'évacuation en trois dimensions pour les tirs miniers.",
+    "pied_colonnes": [
+      ["Le logiciel", [
+        ["fonctionnalites.html", "Fonctionnalités"],
+        ["vibrations.html",      "Vibrations et bruit"],
+        ["essakane.html",        "Sur le terrain"],
+        ["tarifs.html",          "Tarifs"]
+      ]],
+      ["Contact", [
+        ["mailto:contact@blastclear.com", "contact@blastclear.com"],
+        ["mailto:support@blastclear.com", "support@blastclear.com"],
+        ["contact.html",                  "Demander une démonstration"]
+      ]],
+      ["Informations", [
+        ["mentions-legales.html",       "Mentions légales"],
+        ["mentions-legales.html#usage", "Conditions d'utilisation"]
+      ]]
+    ],
+    "pied_droits": "© 2026 Anouar Zanbara. BlastClear est une marque d'Anouar Zanbara.",
+    "pied_avertissement": "Outil d'aide à la décision. La responsabilité du périmètre appliqué reste celle de l'exploitant."
+  },
+
+  "en": {
+    "og_locale": "en_US",
+    "saut_contenu": "Skip to content",
+    "logo_alt": "BlastClear, home",
+    "menu_label": "Open menu",
+    "nav_label": "Main navigation",
+    "langue_label": "Language",
+    "nav": [
+      ["index",           "./",                    "Home"],
+      ["fonctionnalites", "fonctionnalites.html",  "Features"],
+      ["vibrations",      "vibrations.html",       "Vibration"],
+      ["essakane",        "essakane.html",         "In the field"],
+      ["tarifs",          "tarifs.html",           "Pricing"],
+      ["contact",         "contact.html",          "Contact"]
+    ],
+    "pied_baratin": "Three-dimensional blast exclusion zone generator for mining operations.",
+    "pied_colonnes": [
+      ["Software", [
+        ["fonctionnalites.html", "Features"],
+        ["vibrations.html",      "Vibration and airblast"],
+        ["essakane.html",        "In the field"],
+        ["tarifs.html",          "Pricing"]
+      ]],
+      ["Contact", [
+        ["mailto:contact@blastclear.com", "contact@blastclear.com"],
+        ["mailto:support@blastclear.com", "support@blastclear.com"],
+        ["contact.html",                  "Request a demonstration"]
+      ]],
+      ["Information", [
+        ["mentions-legales.html",       "Legal notice"],
+        ["mentions-legales.html#usage", "Terms of use"]
+      ]]
+    ],
+    "pied_droits": "© 2026 Anouar Zanbara. BlastClear is a trademark of Anouar Zanbara.",
+    "pied_avertissement": "Decision support tool. Responsibility for the exclusion zone applied on site remains with the operator."
+  }
+}

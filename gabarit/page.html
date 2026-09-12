@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITRE}}</title>
+<meta name="description" content="{{DESCRIPTION}}">
+<link rel="canonical" href="https://blastclear.com/{{LANG}}/{{FICHIER_CANONIQUE}}">
+<link rel="alternate" hreflang="fr" href="https://blastclear.com/fr/{{FICHIER_CANONIQUE}}">
+<link rel="alternate" hreflang="en" href="https://blastclear.com/en/{{FICHIER_CANONIQUE}}">
+<link rel="alternate" hreflang="x-default" href="https://blastclear.com/fr/{{FICHIER_CANONIQUE}}">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="{{OG_LOCALE}}">
+<meta property="og:site_name" content="BlastClear">
+<meta property="og:title" content="{{TITRE}}">
+<meta property="og:description" content="{{DESCRIPTION}}">
+<meta property="og:url" content="https://blastclear.com/{{LANG}}/{{FICHIER_CANONIQUE}}">
+<meta property="og:image" content="https://blastclear.com/assets/img/partage.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../assets/logo/favicon.ico" sizes="any">
+<link rel="icon" href="../assets/logo/BlastClear_B_bleu_256.png" type="image/png">
+<link rel="apple-touch-icon" href="../assets/logo/BlastClear_B_bleu_512.png">
+<link rel="preload" href="../assets/fonts/poppins-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+<a class="saut-au-contenu" href="#contenu">{{SAUT_CONTENU}}</a>
+
+<header class="entete">
+  <div class="enveloppe entete__barre">
+    <a class="entete__logo" href="./" aria-label="{{LOGO_ALT}}">
+      <img class="logo--clair" src="../assets/logo/Logo_BlastClear_web.svg" alt="BlastClear" width="176" height="30">
+      <img class="logo--sombre" src="../assets/logo/Logo_BlastClear_FondSombre_web.svg" alt="BlastClear" width="176" height="30">
+    </a>
+    <button class="menu-bouton" type="button" aria-expanded="false" aria-controls="nav-principale" aria-label="{{MENU_LABEL}}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <nav class="nav" id="nav-principale" aria-label="{{NAV_LABEL}}">
+      <ul class="nav__liste">
+{{NAV}}
+      </ul>
+    </nav>
+    <div class="entete__actions">
+      <div class="langue" role="group" aria-label="{{LANGUE_LABEL}}">
+{{LANGUES}}
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="contenu">
+{{CORPS}}
+</main>
+
+<footer class="pied">
+  <div class="enveloppe">
+    <div class="pied__grille">
+      <div>
+        <div class="pied__logo">
+          <img src="../assets/logo/Logo_BlastClear_FondSombre_web.svg" alt="BlastClear" width="152" height="26">
+        </div>
+        <p style="max-width:34ch">{{PIED_BARATIN}}</p>
+      </div>
+{{PIED_COLONNES}}
+    </div>
+    <div class="pied__bas">
+      <span>{{PIED_DROITS}}</span>
+      <span>{{PIED_AVERTISSEMENT}}</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/site.js" defer></script>
+</body>
+</html>

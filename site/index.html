@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BlastClear</title>
+<link rel="canonical" href="https://blastclear.com/fr/">
+<!--
+  AIGUILLAGE DE LANGUE.
+
+  La racine ne porte aucun contenu : elle oriente vers l'une des treize versions.
+  Le choix suit la langue déclarée par le navigateur, et il est mémorisé pour que
+  le visiteur qui a basculé en anglais ne soit pas renvoyé au français ensuite.
+
+  LA BALISE REFRESH N'EST PAS UN DOUBLON DU SCRIPT. Sans elle, un visiteur dont
+  le script ne s'exécute pas resterait sur une page pratiquement vide. Les liens
+  visibles servent au même cas, et aux robots d'indexation qui ne suivent ni
+  l'un ni l'autre.
+-->
+<meta http-equiv="refresh" content="0; url=/fr/">
+<link rel="icon" href="/assets/logo/favicon.ico" sizes="any">
+<link rel="icon" href="/assets/logo/BlastClear_B_bleu_256.png" type="image/png">
+<style>
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#25498A;color:#fff;margin:0;
+       min-height:100vh;display:grid;place-content:center;gap:1.2rem;text-align:center;padding:24px}
+  a{color:#FDC30E;font-weight:600}
+  ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;justify-content:center}
+  p{margin:0;color:#D5DCE6}
+</style>
+</head>
+<body>
+  <p>Redirection en cours.</p>
+  <ul>
+    <li><a href="/fr/" hreflang="fr">Français</a></li>
+    <li><a href="/en/" hreflang="en">English</a></li>
+    <li><a href="/es/" hreflang="es">Español</a></li>
+    <li><a href="/pt/" hreflang="pt">Português</a></li>
+    <li><a href="/it/" hreflang="it">Italiano</a></li>
+    <li><a href="/de/" hreflang="de">Deutsch</a></li>
+    <li><a href="/nl/" hreflang="nl">Nederlands</a></li>
+    <li><a href="/sv/" hreflang="sv">Svenska</a></li>
+    <li><a href="/no/" hreflang="no">Norsk</a></li>
+    <li><a href="/da/" hreflang="da">Dansk</a></li>
+    <li><a href="/af/" hreflang="af">Afrikaans</a></li>
+    <li><a href="/tr/" hreflang="tr">Türkçe</a></li>
+    <li><a href="/zh/" hreflang="zh">中文</a></li>
+  </ul>
+<script>
+  (function () {
+    var connues = ['fr','en','es','pt','it','de','nl','sv','no','da','af','tr','zh'];
+    var choix = null;
+    try { choix = localStorage.getItem('bc-langue'); } catch (e) { /* navigation privée */ }
+    if (connues.indexOf(choix) < 0) {
+      var declarees = navigator.languages || [navigator.language || 'fr'];
+      choix = 'en';
+      for (var i = 0; i < declarees.length; i++) {
+        var deux = (declarees[i] || '').toLowerCase().slice(0, 2);
+        if (connues.indexOf(deux) >= 0) { choix = deux; break; }
+      }
+    }
+    location.replace('/' + choix + '/');
+  })();
+</script>
+</body>
+</html>

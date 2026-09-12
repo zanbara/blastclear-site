@@ -1,0 +1,204 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   HABILLAGE COMMUN DES PAGES ISSUES DE LA MAQUETTE.
+
+   Les canevas portent leur mise en forme en style en ligne, élément par
+   élément. Ce fichier ne contient donc que ce qu'un style en ligne ne sait pas
+   exprimer : les polices, les survols, les seuils d'écran, et les animations.
+   ════════════════════════════════════════════════════════════════════════ */
+
+@font-face{font-family:'Poppins';font-style:normal;font-weight:300;font-display:swap;
+  src:url('../assets/fonts/poppins-300.woff2') format('woff2')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:400;font-display:swap;
+  src:url('../assets/fonts/poppins-400.woff2') format('woff2')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:600;font-display:swap;
+  src:url('../assets/fonts/poppins-600.woff2') format('woff2')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:700;font-display:swap;
+  src:url('../assets/fonts/poppins-700.woff2') format('woff2')}
+
+:root{
+  --bc-bleu:#25498A; --bc-jaune:#FDC30E; --bc-anthracite:#14171C;
+  --bc-ocre:#8A6200; --bc-magenta:#FF1493;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#ffffff;font-family:'Poppins','Segoe UI',system-ui,sans-serif}
+img,svg{max-width:100%}
+a{color:var(--bc-bleu);text-decoration:none;transition:color .18s ease}
+
+/* Le contour de focus doit se voir sur le bleu comme sur le blanc. */
+:focus-visible{outline:3px solid var(--bc-jaune);outline-offset:3px;border-radius:2px}
+
+.saut-au-contenu{position:absolute;left:-9999px;top:0;z-index:100;background:var(--bc-jaune);
+  color:var(--bc-anthracite);padding:.7rem 1.2rem;font-weight:600}
+.saut-au-contenu:focus{left:0}
+
+/* ══ SEUIL D'ÉCRAN ═════════════════════════════════════════════════════════
+   La maquette basculait entre deux rendus par une mesure de largeur faite en
+   JavaScript. Ici c'est une requête de média : le bon rendu est déjà en place
+   au premier affichage, sans attendre l'exécution d'un script. */
+.dc-petit{display:none !important}
+@media (max-width:719px){
+  .dc-large{display:none !important}
+  .dc-petit{display:flex !important}
+}
+
+/* ══ LE MENU DES LANGUES ═══════════════════════════════════════════════════
+   Le !important n'est pas une facilité : le panneau porte un display:grid EN
+   STYLE EN LIGNE, hérité de la maquette, et un style en ligne l'emporte sur
+   toute règle de feuille. Sans lui, le menu des langues s'affiche déplié au
+   chargement de chaque page. */
+.dc-langues-panneau[hidden]{display:none !important}
+.dc-langues-panneau{animation:dc-deplier .18s ease both}
+@keyframes dc-deplier{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* ══ APPARITION AU DÉFILEMENT ══════════════════════════════════════════════
+   Le repère est posé dans le HTML (data-anime) et l'état visible est ajouté par
+   le script. Conséquence voulue : sans JavaScript, RIEN n'est masqué, parce que
+   la règle de départ n'est appliquée que lorsque le script a marqué la page. */
+html.dc-anime [data-anime]{opacity:0;transform:translateY(26px);
+  transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
+html.dc-anime [data-anime].dc-vu{opacity:1;transform:none}
+
+/* ══ BARRE DE NAVIGATION ═══════════════════════════════════════════════════ */
+nav[style*="sticky"]{transition:padding .25s ease,box-shadow .25s ease,background-color .25s ease}
+nav[style*="sticky"].dc-defile{padding-top:8px !important;padding-bottom:8px !important;
+  box-shadow:0 6px 22px rgba(20,23,28,.28)}
+nav[style*="sticky"] img{transition:height .25s ease}
+nav[style*="sticky"].dc-defile img{height:26px !important}
+
+/* Le trait jaune qui se remplit sous la barre à mesure qu'on descend. */
+.dc-progression{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+  background:var(--bc-jaune);transition:width .1s linear}
+
+/* ══ SURVOLS AJOUTÉS ═══════════════════════════════════════════════════════
+   La maquette n'animait pas les colonnes de fonctionnalités. Le mouvement reste
+   discret : trois pixels et une ombre, rien qui déplace le texte sous le
+   curseur au point de le rendre difficile à viser. */
+section#fonctionnalites>div>div{transition:transform .22s ease,box-shadow .22s ease}
+@media (hover:hover){
+  section#fonctionnalites>div>div:hover{transform:translateY(-3px);
+    box-shadow:0 12px 30px rgba(20,23,28,.10)}
+}
+section#preuves>div>div>div{transition:transform .22s ease}
+@media (hover:hover){section#preuves>div>div>div:hover{transform:translateX(3px)}}
+
+a[style*="border-radius:2px"]{transition:background-color .18s ease,color .18s ease,
+  opacity .18s ease,transform .18s ease}
+a[style*="border-radius:2px"]:active{transform:translateY(1px)}
+
+/* ══ FAISCEAU BALISTIQUE : LA PROJECTION DES BLOCS ═════════════════════════
+   Chaque trajectoire se trace depuis le point de tir vers son point de chute,
+   les dix se succèdent, le faisceau s'efface et le cycle reprend.
+
+   ─── C'EST LE CSS QUI ANIME, ET NON LE SCRIPT ────────────────────────────
+   Une première version pilotait les dix décalages image par image en
+   JavaScript. Le script ne fait plus que MESURER chaque courbe et déclarer sa
+   longueur, son sens et son retard ; l'animation, sa boucle et son rythme sont
+   décrits ici. Trois raisons : le navigateur peut alors la confier au
+   compositeur, elle continue de tourner quand le fil principal est occupé, et
+   elle s'interrompt d'elle-même sur un réglage système d'animations réduites.
+
+   ─── LE SENS DU TRACÉ VIENT DU SCRIPT ────────────────────────────────────
+   --depart vaut la longueur de la courbe, positive ou NÉGATIVE. Le signe fait
+   apparaître le trait par l'un ou l'autre bout, ce qui permet de partir du
+   point de tir même quand le fichier décrit la courbe à l'envers. */
+
+.dc-traits{opacity:1}
+
+.dc-traits path{
+  stroke-linecap:round;
+  stroke-dasharray:var(--L) var(--L);
+  stroke-dashoffset:var(--depart);
+  opacity:0;
+  animation:dc-projection var(--cycle,7.5s) linear var(--retard,0s) infinite both;
+  animation-play-state:paused;
+}
+/* On ne fait tourner le faisceau que lorsqu'il est à l'écran. */
+.dc-traits.dc-tire path{animation-play-state:running}
+
+@keyframes dc-projection{
+  /* Le vol : rapide au départ, ralenti à l'approche du point de chute. */
+  0%   {stroke-dashoffset:var(--depart);opacity:0;   animation-timing-function:cubic-bezier(.16,.62,.28,1)}
+  3%   {opacity:.45;                                 animation-timing-function:cubic-bezier(.16,.62,.28,1)}
+  40%  {stroke-dashoffset:0;opacity:.45;             animation-timing-function:linear}
+  /* La retombée reste affichée : c'est l'enveloppe que le logiciel calcule. */
+  80%  {stroke-dashoffset:0;opacity:.45}
+  94%  {stroke-dashoffset:0;opacity:0}
+  /* Le retour au départ se fait hors de vue, sinon la courbe s'effacerait
+     à rebours et donnerait un bloc qui revient au trou de mine. */
+  100% {stroke-dashoffset:var(--depart);opacity:0}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .dc-traits path{animation:none;stroke-dashoffset:0;opacity:.38}
+}
+
+/* ══ CARROUSEL ═════════════════════════════════════════════════════════════
+   La bande défile par scroll-snap, ce qui lui donne son glissement natif au
+   doigt et à la molette sans une ligne de script. Le script ne fait que
+   commander ce même défilement depuis les flèches et les pastilles : il n'y a
+   donc qu'un seul mécanisme de déplacement, et pas deux à tenir d'accord. */
+
+.dc-surtitre{font-size:12px;letter-spacing:2px;font-weight:600;color:var(--bc-bleu);
+  text-transform:uppercase;margin-bottom:16px}
+
+.dc-carrousel-corps{position:relative}
+
+.dc-bande{display:flex;gap:18px;list-style:none;margin:0;padding:0 0 4px;
+  overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  scrollbar-width:thin;scrollbar-color:var(--bc-bleu) #E4E8EC}
+.dc-bande::-webkit-scrollbar{height:6px}
+.dc-bande::-webkit-scrollbar-thumb{background:var(--bc-bleu);border-radius:3px}
+.dc-bande::-webkit-scrollbar-track{background:#E4E8EC}
+
+.dc-vue{flex:0 0 100%;scroll-snap-align:center;min-width:0}
+.dc-vue-cadre{aspect-ratio:16/10;border:2px solid var(--bc-bleu);background:#14171C;
+  overflow:hidden}
+.dc-vue-cadre img{transition:transform 6s ease-out}
+.dc-carrousel:hover .dc-vue-cadre img{transform:scale(1.03)}
+.dc-vue-legende{margin:12px 0 0;font-size:13px;color:#5A6572;letter-spacing:.2px}
+
+/* Ce qui tient la place d'une capture encore absente. Un cadre vide passerait
+   pour une image qui n'a pas chargé ; celui-ci dit ce qu'il attend. */
+.dc-vue-attendue{width:100%;height:100%;display:grid;place-content:center;gap:8px;
+  text-align:center;padding:24px;color:#C3CBD4;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 14px,transparent 14px 28px),#14171C}
+.dc-vue-attendue span{font-size:15px;font-weight:600;color:#EDF0F4;max-width:30ch}
+.dc-vue-attendue em{font-style:normal;font-size:12px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--bc-jaune)}
+
+.dc-fleche{position:absolute;top:calc(50% - 34px);transform:translateY(-50%);
+  width:44px;height:44px;display:grid;place-content:center;cursor:pointer;
+  border:none;border-radius:50%;background:var(--bc-bleu);color:#ffffff;
+  box-shadow:0 6px 20px rgba(20,23,28,.28);
+  transition:background-color .18s ease,color .18s ease,transform .18s ease,opacity .18s ease}
+.dc-fleche--avant{left:-10px}
+.dc-fleche--apres{right:-10px}
+@media (hover:hover){
+  .dc-fleche:hover{background:var(--bc-jaune);color:var(--bc-anthracite);transform:translateY(-50%) scale(1.07)}
+}
+.dc-fleche[disabled]{opacity:.35;cursor:default}
+@media (max-width:719px){.dc-fleche{display:none}}
+
+.dc-pastilles{display:flex;justify-content:center;gap:9px;margin-top:18px}
+.dc-pastille{width:9px;height:9px;padding:0;border:none;border-radius:50%;cursor:pointer;
+  background:#C3CBD4;transition:background-color .2s ease,width .2s ease}
+.dc-pastille[aria-current="true"]{background:var(--bc-jaune);width:26px;border-radius:5px}
+
+/* ══ PAGE DE DEMANDE ═══════════════════════════════════════════════════════ */
+.dc-merci[hidden]{display:none}
+.dc-merci{animation:dc-deplier .25s ease both}
+form select:focus,form input:focus,form textarea:focus{border-color:var(--bc-bleu);outline-offset:1px}
+form input,form textarea,form select{font-family:'Poppins','Segoe UI',system-ui,sans-serif}
+
+/* ══ RESPECT DU RÉGLAGE SYSTÈME ════════════════════════════════════════════
+   Ce n'est pas une politesse : le mouvement déclenche des malaises chez les
+   personnes sujettes aux troubles vestibulaires, et le système le signale. */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  html.dc-anime [data-anime]{opacity:1 !important;transform:none !important;transition:none}
+  .dc-bande{scroll-behavior:auto}
+  .dc-vue-cadre img,.dc-carrousel:hover .dc-vue-cadre img{transition:none;transform:none}
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}

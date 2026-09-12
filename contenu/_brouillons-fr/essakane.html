@@ -1,0 +1,194 @@
+titre: Sur le terrain | BlastClear
+description: Ce que l'analyse de près de deux mille mesures sismographiques d'une mine d'or à ciel ouvert a révélé sur la loi d'atténuation en service, et pourquoi le logiciel refuse désormais de conclure sans critères.
+slug: essakane
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     AVERTISSEMENT AVANT PUBLICATION
+
+     Cette page est volontairement ANONYMISÉE. Ni le nom de l'exploitant, ni
+     celui du site, ni celui des fosses n'y figurent, et les chiffres sont donnés
+     en ordre de grandeur.
+
+     Raison : les résultats présentés ici portent sur des données d'exploitation
+     d'un tiers, et l'un d'eux dit que la loi d'atténuation en service sur ce site
+     ne reposait sur aucun calcul valide. Publier cela sous le nom de l'exploitant
+     sans son accord écrit est un risque contractuel et commercial sérieux.
+
+     POUR NOMMER LE SITE : obtenir l'accord écrit de l'exploitant, puis remplacer
+     les mentions génériques. Tant que cet accord n'est pas obtenu, laisser en
+     l'état.
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Sur le terrain</span>
+        <h1>Ce qu'on trouve en reprenant un historique complet</h1>
+        <p>
+          BlastClear est né d'une exploitation à ciel ouvert, pas d'un cahier des charges.
+          Le module vibrations, lui, est né d'une découverte faite en reprenant l'historique
+          sismographique d'un de ces sites. Voici laquelle, et ce qu'elle a changé dans le
+          logiciel.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LE POINT DE DÉPART ══════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Le point de départ</span>
+        <h2>Un classeur de suivi, tenu depuis des années</h2>
+        <p>
+          Une mine d'or à ciel ouvert d'Afrique de l'Ouest, quatre périmètres d'exploitation,
+          un historique de près de deux mille mesures sismographiques accumulées tir après
+          tir. Le suivi se faisait dans un classeur, et la loi d'atténuation qu'il contenait
+          servait au dimensionnement des charges.
+        </p>
+      </div>
+      <div class="grille">
+        <div class="carte">
+          <span class="carte__numero">1</span>
+          <h3>La régression ne portait que sur un cinquième des lignes</h3>
+          <p>
+            La plage de calcul s'arrêtait à quelques centaines de lignes, figée à la création
+            du classeur, alors que l'historique avait continué de croître pendant des années.
+            Rien dans la feuille ne le signalait.
+          </p>
+        </div>
+        <div class="carte">
+          <span class="carte__numero">2</span>
+          <h3>Les formules ne produisaient plus rien</h3>
+          <p>
+            À l'ouverture, les cellules de régression renvoyaient une erreur. Les constantes
+            employées au quotidien, elles, restaient affichées ailleurs dans le classeur, et
+            continuaient donc d'être lues comme valides.
+          </p>
+        </div>
+        <div class="carte">
+          <span class="carte__numero">3</span>
+          <h3>Le périmètre le mieux fourni n'avait pas de loi</h3>
+          <p>
+            Sur le périmètre comptant le plus d'observations, de loin, le coefficient de
+            détermination tombait sous 0,03. Ce n'est pas une loi imprécise, c'est l'absence
+            de relation entre les variables.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LE RÉSULTAT ═════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Le résultat</span>
+        <h2>Deux périmètres sur quatre portaient une loi exploitable</h2>
+        <p>
+          La reprise de l'historique complet, avec les garde-fous du classeur lui-même,
+          donne un verdict différent selon le périmètre. C'est précisément ce qu'une
+          constante unique appliquée partout empêchait de voir.
+        </p>
+      </div>
+      <div class="tableau-cadre">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Périmètre</th>
+              <th scope="col">Observations</th>
+              <th scope="col">Qualité de l'ajustement</th>
+              <th scope="col">Verdict</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A</td>
+              <td>quelques dizaines</td>
+              <td>correcte</td>
+              <td class="oui">Loi qualifiée</td>
+            </tr>
+            <tr>
+              <td>B</td>
+              <td>quelques dizaines</td>
+              <td>correcte</td>
+              <td class="oui">Loi qualifiée</td>
+            </tr>
+            <tr>
+              <td>C</td>
+              <td>plus d'un millier</td>
+              <td>quasi nulle</td>
+              <td class="non">Non qualifiée</td>
+            </tr>
+            <tr>
+              <td>Ensemble du site</td>
+              <td>plus d'un millier</td>
+              <td>quasi nulle</td>
+              <td class="non">Non qualifiée</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="encart encart--alerte" style="margin-top:1.6rem">
+        <p><b>Le nombre d'observations ne fait pas la qualité de la loi</b></p>
+        <p style="margin-bottom:0">
+          Le périmètre le plus fourni est celui qui ne porte pas de loi, et les deux
+          périmètres qualifiés comptent chacun moins d'une centaine d'observations. La cause
+          probable n'est pas le massif : c'est l'étalement des distances réduites, resserré
+          autour d'un facteur deux, qui ne permet pas de déterminer une pente. Mille mesures
+          toutes prises à la même distance réduite n'en valent pas plus que deux.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CE QUE CELA A CHANGÉ ════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Ce que cela a changé dans le logiciel</span>
+        <h2>Trois règles, tirées de ce seul cas</h2>
+      </div>
+      <div class="grille">
+        <div class="carte carte--accent">
+          <h3>Aucune constante par défaut</h3>
+          <p>
+            Le logiciel ne propose jamais un couple de coefficients pour démarrer. Une valeur
+            par défaut finit toujours par être employée telle quelle, et plus personne ne
+            sait d'où elle vient.
+          </p>
+        </div>
+        <div class="carte carte--accent">
+          <h3>Les critères sont affichés avec la loi</h3>
+          <p>
+            Nombre d'observations, étendue des distances réduites, coefficient de
+            détermination et exposant apparaissent à côté des coefficients, pas dans une
+            annexe qu'on ne consulte pas.
+          </p>
+        </div>
+        <div class="carte carte--accent">
+          <h3>Le refus est nommé</h3>
+          <p>
+            Quand un critère manque, le module écrit lequel. « Non qualifiée » sans motif
+            serait aussi inexploitable qu'un chiffre sans justification.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="enveloppe">
+      <div class="appel">
+        <h2>Passer votre historique au même examen</h2>
+        <p>
+          La question n'est pas de savoir si vos mesures donnent une loi. C'est de savoir si
+          la loi que vous employez en vient.
+        </p>
+        <div class="boutons">
+          <a class="bouton bouton--accent" href="contact.html">Nous écrire</a>
+          <a class="bouton bouton--contour" style="color:#EDF0F4;border-color:rgba(255,255,255,.3)" href="vibrations.html">Le module vibrations</a>
+        </div>
+      </div>
+    </div>
+  </section>

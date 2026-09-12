@@ -1,0 +1,642 @@
+/* ════════════════════════════════════════════════════════════════════════════════
+   BLASTCLEAR — FEUILLE DE STYLE UNIQUE DU SITE
+
+   ─── POURQUOI UNE SEULE FEUILLE, SANS CADRICIEL ───────────────────────────────
+   Les pages arrivent de Claude Design en HTML autonome. Tout cadriciel imposerait
+   de les réécrire au lieu de les reprendre. Et un site de huit pages n'a pas de
+   quoi justifier une étape de compilation, ni les mises à jour de sécurité d'une
+   chaîne d'outils qu'il faudrait entretenir pour publier une correction de texte.
+
+   ─── LES COULEURS SONT CELLES DE LA CHARTE, PAS DES APPROXIMATIONS ────────────
+   Bleu #25498A, jaune #FDC30E, anthracite #14171C. Elles sont déclarées une fois
+   ici, en variables, et jamais réécrites en dur dans une page. Le jour où une
+   nuance bouge, elle bouge à un seul endroit.
+
+   ─── LA RÈGLE LA PLUS FACILE À ENFREINDRE ─────────────────────────────────────
+   Jaune sur blanc donne un contraste de 1,62:1. La charte l'interdit pour du
+   texte, et aucune règle de ce fichier ne doit le produire. Sur fond clair, une
+   alerte s'écrit en ocre #8A6200, ou en anthracite sur aplat jaune.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ══ LA POLICE EST SERVIE PAR LE SITE, PAS PAR GOOGLE ═══════════════════════════
+   La licence SIL Open Font License l'autorise expressément. Cela supprime une
+   requête vers fonts.gstatic.com, donc la transmission de l'adresse IP du
+   visiteur à un tiers, et supprime aussi une dépendance réseau au chargement.
+   Les fichiers sont sous-ensemblés au latin : 8,5 ko par graisse. */
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../assets/fonts/poppins-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/poppins-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../assets/fonts/poppins-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../assets/fonts/poppins-700.woff2') format('woff2');
+}
+
+/* ══ LES JETONS DE LA CHARTE ═══════════════════════════════════════════════════ */
+
+:root {
+  /* Couleurs officielles, section 5 de la charte. */
+  --bc-bleu: #25498A;
+  --bc-bleu-clair: #3A64AD;
+  --bc-bleu-sombre: #1A3568;
+  --bc-jaune: #FDC30E;
+  --bc-ocre: #8A6200;        /* le jaune lisible sur fond clair */
+  --bc-anthracite: #14171C;
+  --bc-anthracite-clair: #2A3038;
+
+  /* Gris de la charte graphique elle-même. */
+  --gris-900: #1B2129;
+  --gris-700: #39424E;
+  --gris-600: #5A6572;
+  --gris-400: #8A93A0;
+  --gris-300: #C3CBD4;
+  --gris-200: #E4E8EC;
+  --gris-100: #EEF1F4;
+  --gris-050: #F4F6F8;
+
+  --succes: #1E9E5A;
+  --danger: #D14343;
+
+  /* Rôles. C'est ce que les règles emploient, jamais les couleurs brutes. */
+  --fond: #FFFFFF;
+  --fond-doux: var(--gris-050);
+  --fond-carte: #FFFFFF;
+  --texte: var(--gris-900);
+  --texte-doux: var(--gris-600);
+  --titre: var(--bc-bleu);
+  --bordure: var(--gris-200);
+  --accent: var(--bc-bleu);
+  --accent-texte: #FFFFFF;
+  --alerte-texte: var(--bc-ocre);
+
+  --largeur: 1120px;
+  --rayon: 10px;
+  --ombre: 0 1px 2px rgba(20, 23, 28, .06), 0 8px 24px rgba(20, 23, 28, .06);
+  --transition: 160ms ease;
+}
+
+/* ── Thème sombre ────────────────────────────────────────────────────────────
+   Le fond anthracite est une version officielle de la charte, section 7, pas une
+   coquetterie. Seuls les rôles changent ; les couleurs de marque ne bougent pas.
+   Sur fond sombre le bleu #25498A devient illisible en texte, d'où le bleu clair. */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) {
+    --fond: var(--bc-anthracite);
+    --fond-doux: var(--bc-anthracite-clair);
+    --fond-carte: #1D222A;
+    --texte: #EDF0F4;
+    --texte-doux: var(--gris-400);
+    --titre: #FFFFFF;
+    --bordure: #333B47;
+    --accent: var(--bc-jaune);
+    --accent-texte: var(--bc-anthracite);
+    /* Sur fond sombre, le jaune passe à 11,11:1 : il redevient lisible en texte. */
+    --alerte-texte: var(--bc-jaune);
+    --ombre: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+  }
+}
+
+:root[data-theme='sombre'] {
+  --fond: var(--bc-anthracite);
+  --fond-doux: var(--bc-anthracite-clair);
+  --fond-carte: #1D222A;
+  --texte: #EDF0F4;
+  --texte-doux: var(--gris-400);
+  --titre: #FFFFFF;
+  --bordure: #333B47;
+  --accent: var(--bc-jaune);
+  --accent-texte: var(--bc-anthracite);
+  --alerte-texte: var(--bc-jaune);
+  --ombre: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+/* ══ SOCLE ═════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* La charte impose 14 px minimum pour le texte courant. */
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--texte);
+  background: var(--fond);
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg, video { max-width: 100%; height: auto; }
+
+a { color: var(--bc-bleu); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--bc-bleu-clair); }
+
+:root[data-theme='sombre'] a,
+:where(:root:not([data-theme='clair'])) a { }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) a { color: #8FB3F0; }
+  :root:not([data-theme='clair']) a:hover { color: var(--bc-jaune); }
+}
+:root[data-theme='sombre'] a { color: #8FB3F0; }
+:root[data-theme='sombre'] a:hover { color: var(--bc-jaune); }
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--titre);
+  margin: 0 0 .6em;
+  letter-spacing: -.015em;
+}
+
+h1 { font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.1rem); font-weight: 700; }
+h2 { font-size: clamp(1.4rem, 1.05rem + 1.4vw, 2rem); }
+h3 { font-size: clamp(1.08rem, .98rem + .45vw, 1.25rem); }
+
+p { margin: 0 0 1.1em; }
+p:last-child { margin-bottom: 0; }
+
+/* Focus visible : obligation d'accessibilité, et le contour doit se voir sur les
+   deux fonds, d'où l'ombre blanche qui le détoure. */
+:focus-visible {
+  outline: 3px solid var(--bc-jaune);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.saut-au-contenu {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--bc-jaune);
+  color: var(--bc-anthracite);
+  padding: .7rem 1.2rem;
+  font-weight: 600;
+  z-index: 100;
+}
+.saut-au-contenu:focus { left: 0; }
+
+/* ══ GABARIT ═══════════════════════════════════════════════════════════════════ */
+
+.enveloppe {
+  width: 100%;
+  max-width: var(--largeur);
+  margin-inline: auto;
+  /* La gouttière est posée ici, une seule fois, et jamais par un raccourci
+     `padding` qui remettrait les côtés à zéro. */
+  padding-inline: 20px;
+}
+
+.section { padding-block: clamp(3rem, 1.5rem + 5vw, 5.5rem); }
+.section--douce { background: var(--fond-doux); }
+.section--bordee { border-top: 1px solid var(--bordure); }
+
+.section__intro { max-width: 62ch; margin-bottom: 2.5rem; }
+.section__intro p { color: var(--texte-doux); font-size: 1.05rem; }
+
+.surtitre {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--texte-doux);
+  margin-bottom: .8rem;
+}
+
+/* ══ EN-TÊTE ═══════════════════════════════════════════════════════════════════ */
+
+.entete {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--fond) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--bordure);
+}
+
+.entete__barre {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 66px;
+}
+
+.entete__logo { display: inline-flex; align-items: center; flex: 0 0 auto; }
+/* Le logo fait 5,84 fois plus large que haut. On fixe la hauteur, jamais la
+   largeur, pour que le rapport reste celui du fichier maître. */
+.entete__logo svg, .entete__logo img { height: 30px; width: auto; display: block; }
+.entete__logo .logo--sombre { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) .entete__logo .logo--clair { display: none; }
+  :root:not([data-theme='clair']) .entete__logo .logo--sombre { display: block; }
+}
+:root[data-theme='sombre'] .entete__logo .logo--clair { display: none; }
+:root[data-theme='sombre'] .entete__logo .logo--sombre { display: block; }
+
+.nav { margin-left: auto; }
+.nav__liste {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav__lien {
+  display: block;
+  padding: .5rem .8rem;
+  border-radius: 7px;
+  font-size: .93rem;
+  font-weight: 500;
+  color: var(--texte);
+  text-decoration: none;
+  transition: background var(--transition), color var(--transition);
+}
+.nav__lien:hover { background: var(--fond-doux); color: var(--titre); }
+.nav__lien[aria-current='page'] {
+  color: var(--bc-bleu);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--bc-jaune);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) .nav__lien[aria-current='page'] { color: #FFFFFF; }
+}
+:root[data-theme='sombre'] .nav__lien[aria-current='page'] { color: #FFFFFF; }
+
+.entete__actions { display: flex; align-items: center; gap: .5rem; }
+
+.langue {
+  display: inline-flex;
+  border: 1px solid var(--bordure);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.langue a {
+  padding: .3rem .6rem;
+  font-size: .8rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--texte-doux);
+  background: transparent;
+}
+.langue a[aria-current='true'] { background: var(--bc-bleu); color: #FFFFFF; }
+
+.menu-bouton {
+  display: none;
+  background: none;
+  border: 1px solid var(--bordure);
+  border-radius: 7px;
+  padding: .45rem .6rem;
+  cursor: pointer;
+  color: var(--texte);
+  line-height: 0;
+}
+
+/* ══ BOUTONS ═══════════════════════════════════════════════════════════════════ */
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .78rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .97rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+.bouton:active { transform: translateY(1px); }
+
+.bouton--premier { background: var(--bc-bleu); color: #FFFFFF; }
+.bouton--premier:hover { background: var(--bc-bleu-clair); color: #FFFFFF; }
+
+/* Le jaune en aplat avec du texte anthracite : la seule façon autorisée par la
+   charte d'employer le jaune sur fond clair. */
+.bouton--accent { background: var(--bc-jaune); color: var(--bc-anthracite); }
+.bouton--accent:hover { background: #FFD23F; color: var(--bc-anthracite); }
+
+.bouton--contour {
+  background: transparent;
+  border-color: var(--gris-300);
+  color: var(--texte);
+}
+.bouton--contour:hover { border-color: var(--bc-bleu); color: var(--bc-bleu); }
+
+.boutons { display: flex; flex-wrap: wrap; gap: .8rem; }
+
+/* ══ BANDEAU D'ACCUEIL ═════════════════════════════════════════════════════════
+   Fond anthracite : version officielle de la charte, et le seul fond sur lequel
+   le jaune peut porter du texte (11,11:1). */
+
+.bandeau {
+  background: linear-gradient(160deg, var(--bc-anthracite) 0%, #1C2A46 55%, var(--bc-bleu-sombre) 100%);
+  color: #EDF0F4;
+  padding-block: clamp(3.5rem, 2rem + 7vw, 7rem);
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+.bandeau h1 { color: #FFFFFF; max-width: 17ch; }
+.bandeau .accent { color: var(--bc-jaune); }
+.bandeau__grille {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(2rem, 1rem + 3vw, 3.5rem);
+  align-items: center;
+}
+.bandeau__promesse {
+  font-size: clamp(1.02rem, .96rem + .3vw, 1.18rem);
+  color: #C3CBD4;
+  max-width: 46ch;
+}
+.bandeau__preuves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem 2.4rem;
+  margin-top: 2.4rem;
+  padding-top: 1.8rem;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  list-style: none;
+  padding-inline: 0;
+}
+.bandeau__preuves b {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bc-jaune);
+  line-height: 1.1;
+}
+.bandeau__preuves span { font-size: .87rem; color: var(--gris-400); }
+
+.bandeau__visuel {
+  border-radius: var(--rayon);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .14);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+  background: #0E1116;
+}
+.bandeau__visuel img { display: block; width: 100%; }
+
+/* Le cadre qui remplace une capture d'écran encore absente. Il dit ce qui
+   manque au lieu d'afficher un rectangle vide qui passerait pour une panne. */
+.visuel-attendu {
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-content: center;
+  gap: .5rem;
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--gris-400);
+  font-size: .87rem;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, .025) 0 12px, transparent 12px 24px),
+    #0E1116;
+}
+.visuel-attendu b { color: var(--gris-300); font-weight: 600; }
+
+/* ══ GRILLES ET CARTES ═════════════════════════════════════════════════════════ */
+
+.grille {
+  display: grid;
+  gap: 1.3rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
+}
+.grille--deux { grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+
+.carte {
+  background: var(--fond-carte);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  padding: 1.6rem;
+  box-shadow: var(--ombre);
+}
+.carte h3 { margin-bottom: .5rem; }
+.carte p { color: var(--texte-doux); font-size: .95rem; margin-bottom: 0; }
+.carte__numero {
+  display: inline-grid;
+  place-content: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  background: var(--bc-bleu);
+  color: #FFFFFF;
+  font-size: .9rem;
+  font-weight: 700;
+}
+.carte--accent { border-color: var(--bc-jaune); border-width: 1px; }
+.carte--accent .carte__numero { background: var(--bc-jaune); color: var(--bc-anthracite); }
+
+.liste-cochee { list-style: none; margin: 0; padding: 0; }
+.liste-cochee li {
+  position: relative;
+  padding-left: 1.7rem;
+  margin-bottom: .6rem;
+  color: var(--texte-doux);
+  font-size: .95rem;
+}
+.liste-cochee li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .52em;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--bc-jaune);
+}
+
+/* ══ TABLEAUX ══════════════════════════════════════════════════════════════════
+   Un tableau est le seul contenu autorisé à dépasser en largeur, et seulement
+   dans son propre conteneur défilant. Le corps de page, lui, ne défile jamais
+   horizontalement. */
+
+.tableau-cadre {
+  overflow-x: auto;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--fond-carte);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .93rem;
+  min-width: 480px;
+}
+th, td {
+  padding: .8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--bordure);
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  color: var(--titre);
+  background: var(--fond-doux);
+  white-space: nowrap;
+}
+tbody tr:last-child td { border-bottom: none; }
+td.oui { color: var(--succes); font-weight: 600; }
+td.non { color: var(--gris-400); }
+
+/* ══ ENCARTS ═══════════════════════════════════════════════════════════════════ */
+
+.encart {
+  border-left: 3px solid var(--bc-bleu);
+  background: var(--fond-doux);
+  padding: 1.2rem 1.4rem;
+  border-radius: 0 var(--rayon) var(--rayon) 0;
+  font-size: .95rem;
+  color: var(--texte-doux);
+}
+.encart--alerte { border-left-color: var(--bc-jaune); }
+/* Le libellé de l'alerte prend l'ocre sur fond clair, le jaune sur fond sombre.
+   Jamais de jaune sur blanc : 1,62:1, interdit par la charte. */
+.encart--alerte b { color: var(--alerte-texte); }
+
+.appel {
+  background: var(--bc-anthracite);
+  color: #EDF0F4;
+  border-radius: var(--rayon);
+  padding: clamp(2rem, 1.2rem + 3vw, 3.2rem);
+  text-align: center;
+}
+.appel h2 { color: #FFFFFF; }
+.appel p { color: var(--gris-300); max-width: 52ch; margin-inline: auto; }
+.appel .boutons { justify-content: center; margin-top: 1.8rem; }
+
+/* ══ FORMULAIRE ════════════════════════════════════════════════════════════════ */
+
+.champ { margin-bottom: 1.1rem; }
+.champ label {
+  display: block;
+  font-size: .88rem;
+  font-weight: 600;
+  margin-bottom: .35rem;
+  color: var(--titre);
+}
+.champ input, .champ select, .champ textarea {
+  width: 100%;
+  padding: .7rem .9rem;
+  font-family: inherit;
+  font-size: .95rem;
+  color: var(--texte);
+  background: var(--fond);
+  border: 1px solid var(--gris-300);
+  border-radius: 8px;
+}
+.champ textarea { min-height: 140px; resize: vertical; }
+.champ input:focus, .champ select:focus, .champ textarea:focus {
+  border-color: var(--bc-bleu);
+}
+.champ__aide { font-size: .8rem; color: var(--texte-doux); margin-top: .3rem; }
+
+/* ══ PIED DE PAGE ══════════════════════════════════════════════════════════════ */
+
+.pied {
+  background: var(--bc-anthracite);
+  color: var(--gris-400);
+  padding-block: 3rem 2rem;
+  font-size: .9rem;
+}
+.pied a { color: var(--gris-300); text-decoration: none; }
+.pied a:hover { color: var(--bc-jaune); text-decoration: underline; }
+.pied__grille {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+.pied h4 {
+  color: #FFFFFF;
+  font-size: .8rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: .9rem;
+}
+.pied ul { list-style: none; margin: 0; padding: 0; }
+.pied li { margin-bottom: .45rem; }
+.pied__logo svg, .pied__logo img { height: 26px; width: auto; margin-bottom: .9rem; }
+.pied__bas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem 1.5rem;
+  justify-content: space-between;
+  padding-top: 1.5rem;
+  font-size: .82rem;
+}
+
+/* ══ DEUX ADAPTATIONS, PAS DAVANTAGE ═══════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .bandeau__grille { grid-template-columns: 1fr; }
+  .bandeau h1 { max-width: none; }
+
+  .menu-bouton { display: block; order: 3; margin-left: auto; }
+  .nav { order: 4; margin-left: 0; flex-basis: 100%; display: none; }
+  .nav[data-ouvert='oui'] { display: block; }
+  .entete__barre { flex-wrap: wrap; padding-block: .7rem; }
+  .nav__liste {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding-bottom: .6rem;
+  }
+  .nav__lien { padding: .7rem .5rem; border-radius: 0; }
+  .nav__lien[aria-current='page'] { box-shadow: inset 3px 0 0 var(--bc-jaune); }
+}
+
+@media (max-width: 600px) {
+  .enveloppe { padding-inline: 16px; }
+  .carte { padding: 1.3rem; }
+  .bandeau__preuves { gap: 1.2rem 1.8rem; }
+  .bandeau__preuves b { font-size: 1.3rem; }
+  .boutons .bouton { flex: 1 1 100%; }
+}
+
+/* ══ IMPRESSION ════════════════════════════════════════════════════════════════ */
+
+@media print {
+  .entete, .pied, .menu-bouton, .langue { display: none; }
+  body { color: #000; background: #fff; font-size: 11pt; }
+  .bandeau { background: none; color: #000; }
+  .bandeau h1, .appel h2 { color: #000; }
+  a[href^='http']::after { content: ' (' attr(href) ')'; font-size: .85em; color: #555; }
+}

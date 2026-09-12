@@ -1,0 +1,244 @@
+titre: Fonctionnalités | BlastClear
+description: Géométrie 3D du périmètre, cadrans de réduction, fusion des tirs simultanés, import DXF et GeoTIFF, plans PDF, export DXF et analyse des vibrations. Le détail de ce que fait BlastClear.
+slug: fonctionnalites
+
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Fonctionnalités</span>
+        <h1>Ce que le logiciel fait, et comment il le fait</h1>
+        <p>
+          BlastClear couvre la chaîne complète : import des données du tir et du terrain,
+          calcul de l'enveloppe de sûreté, tracé du périmètre, mise en plan, et suivi des
+          vibrations. Chaque étape est décrite ci-dessous avec ses réglages.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ GÉOMÉTRIE ═══════════════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">1. Géométrie en trois dimensions</span>
+        <h2>Le périmètre suit le tir et le terrain</h2>
+      </div>
+      <div class="grille">
+        <div class="carte">
+          <h3>Enveloppe construite sur le contour</h3>
+          <p>
+            L'enveloppe de sûreté est bâtie sur la forme réelle du tir importée en DXF.
+            Un contour allongé ne donne pas la même enveloppe qu'un contour ramassé, ce
+            qu'un dôme générique centré sur un point ne sait pas représenter.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Intersection avec la topographie</h3>
+          <p>
+            La surface du site, importée en DXF ou habillée d'une orthophotographie GeoTIFF,
+            coupe l'enveloppe. Le périmètre tracé est celui du terrain, avec ses banquettes
+            et ses ruptures de pente.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Orientation déduite du séquencement</h3>
+          <p>
+            La direction principale de projection se lit dans l'ordre de mise à feu plutôt
+            qu'elle ne se saisit. Une orientation entrée à la main est une occasion d'erreur
+            de plus, sur une donnée qui décide de l'asymétrie du périmètre.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Cadrans de réduction par secteur</h3>
+          <p>
+            Le rayon se module secteur par secteur : entier vers l'avant du tir, réduit sur
+            les côtés, davantage à l'arrière. Les coefficients sont des réglages du projet,
+            visibles et modifiables, jamais des constantes enfouies dans le code.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Fusion des tirs simultanés</h3>
+          <p>
+            Plusieurs tirs d'une même volée produisent un périmètre unique. La fusion est
+            calculée, donc reproductible, et ne laisse pas de zone non couverte entre deux
+            tracés raccordés à la main.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Simulation prospective</h3>
+          <p>
+            Le calcul s'applique à une fosse en étude aussi bien qu'à une fosse en
+            exploitation, pour mesurer l'emprise des tirs futurs sur les infrastructures
+            avant de décider de leur implantation.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TYPES DE TIRS ═══════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">2. Types de tirs</span>
+        <h2>Production, pré-découpage, pétardage</h2>
+        <p>Les trois familles cohabitent dans le même projet et sur le même plan.</p>
+      </div>
+      <div class="tableau-cadre">
+        <table>
+          <caption class="visually-hidden"></caption>
+          <thead>
+            <tr>
+              <th scope="col">Type de tir</th>
+              <th scope="col">Donnée d'entrée</th>
+              <th scope="col">Traitement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Production</b></td>
+              <td>Contour fermé en DXF, charges et délais</td>
+              <td>Enveloppe sur contour, orientation déduite du séquencement, cadrans de réduction</td>
+            </tr>
+            <tr>
+              <td><b>Pré-découpage</b></td>
+              <td>Polylignes en DXF</td>
+              <td>Rayon propre à ce type de tir, sans projet ni fichier distinct</td>
+            </tr>
+            <tr>
+              <td><b>Pétardage, tri de blocs</b></td>
+              <td>Points en DXF ou coordonnées CSV</td>
+              <td>Périmètre individuel par point, petits rayons, étiquetage sur le plan</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ IMPORT ══════════════════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">3. Import</span>
+        <h2>Les formats que le site produit déjà</h2>
+      </div>
+      <div class="grille">
+        <div class="carte">
+          <h3>DXF</h3>
+          <p>Contours de tir, polylignes de pré-découpage, points, surfaces topographiques et infrastructures. Le format d'échange que produisent AutoCAD, Surpac et Geovia.</p>
+        </div>
+        <div class="carte">
+          <h3>CSV</h3>
+          <p>Listes de coordonnées, avec choix du séparateur, de la convention décimale et de la correspondance des colonnes.</p>
+        </div>
+        <div class="carte">
+          <h3>GeoTIFF</h3>
+          <p>Orthophotographie de drone appliquée en texture sur la topographie, pour reconnaître le terrain d'un coup d'œil sur la vue 3D.</p>
+        </div>
+        <div class="carte">
+          <h3>Excel</h3>
+          <p>Historique des mesures de vibration lu directement depuis le classeur, sans export intermédiaire ni recopie.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LIVRABLES ═══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">4. Livrables</span>
+        <h2>Des documents prêts à être diffusés</h2>
+      </div>
+      <div class="grille grille--deux">
+        <div class="carte">
+          <h3>Plan PDF avec cartouche</h3>
+          <p>
+            Cartouche personnalisable au nom de la mine, avec date, auteur, échelle, nord et
+            coordonnées. Pictogrammes de sécurité, cotation automatique, étiquettes des
+            points de tir. Le document sort signable, sans reprise dans un logiciel de
+            dessin.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Export DXF</h3>
+          <p>
+            Le périmètre calculé repart vers les plans du site en DXF, et reste exploitable
+            dans les chaînes existantes du service topographie.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Image PNG haute résolution</h3>
+          <p>
+            Fond transparent ou plein, pour l'affichage sur site, la note de service et la
+            présentation interne.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Vue 3D et vue en plan</h3>
+          <p>
+            Les deux vues cohabitent dans la même fenêtre et se scindent verticalement ou
+            horizontalement. Ce que l'on voit en 3D est ce que l'on imprime en plan.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ VIBRATIONS ══════════════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">5. Vibrations et nuisance sonore</span>
+        <h2>Le suivi sismographique intégré au même projet</h2>
+        <p>
+          Base de mesures relationnelle, contrôles de cohérence à la saisie, ajustement des
+          lois d'atténuation, graphiques et abaque réglementaire.
+        </p>
+      </div>
+      <div class="boutons">
+        <a class="bouton bouton--premier" href="vibrations.html">Le détail du module vibrations</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ EXPLOITATION ════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">6. Conditions d'exploitation</span>
+        <h2>Ce qu'il faut pour l'installer</h2>
+      </div>
+      <div class="tableau-cadre">
+        <table>
+          <tbody>
+            <tr><th scope="row">Système</th><td>Windows 10 ou 11, 64 bits</td></tr>
+            <tr><th scope="row">Installation</th><td>Programme d'installation classique, par poste</td></tr>
+            <tr><th scope="row">Réseau</th><td>Fonctionne hors ligne. Aucune donnée du site ne quitte le poste.</td></tr>
+            <tr><th scope="row">Données</th><td>Les projets restent sur vos disques, dans vos dossiers, dans des formats ouverts</td></tr>
+            <tr><th scope="row">Licence</th><td>Liée au poste, activée par clé</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="encart" style="margin-top:1.6rem">
+        <p style="margin-bottom:0">
+          L'absence de dépendance à un service en ligne n'est pas un détail sur un site
+          minier : elle garantit que la production d'un plan d'évacuation ne dépend ni de la
+          liaison satellite, ni de la disponibilité d'un serveur distant.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="enveloppe">
+      <div class="appel">
+        <h2>Une démonstration sur votre fosse</h2>
+        <p>Envoyez un contour de tir et une topographie, le reste suit.</p>
+        <div class="boutons">
+          <a class="bouton bouton--accent" href="contact.html">Demander une démonstration</a>
+        </div>
+      </div>
+    </div>
+  </section>

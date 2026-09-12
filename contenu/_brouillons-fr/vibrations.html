@@ -1,0 +1,232 @@
+titre: Vibrations et nuisance sonore | BlastClear
+description: Base de mesures sismographiques, contrôles de cohérence, ajustement des lois d'atténuation avec critères de qualification, abaque USBM RI 8507 et graphiques. Le module vibrations de BlastClear.
+slug: vibrations
+
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Vibrations et nuisance sonore</span>
+        <h1>Une loi de site, ou l'aveu qu'il n'y en a pas</h1>
+        <p>
+          Le module reprend l'historique sismographique du site, l'ordonne en base de
+          données, contrôle sa cohérence, puis ajuste la loi d'atténuation. Sa particularité
+          tient en une phrase : quand les données ne permettent pas de conclure, il l'écrit.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LE REFUS DE CONCLURE ════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="bandeau__grille">
+        <div>
+          <span class="surtitre">Le principe</span>
+          <h2>Une régression aboutit toujours. Cela ne la rend pas valable.</h2>
+          <p>
+            Ajuster une droite sur un nuage de points donne des coefficients dans tous les
+            cas, y compris quand le nuage n'a aucune structure. Le résultat a l'aspect d'un
+            résultat : deux constantes, une courbe, un graphique. Rien à sa lecture ne dit
+            qu'il ne veut rien dire.
+          </p>
+          <p>
+            BlastClear affiche donc systématiquement les critères de qualification à côté de
+            la loi, et prononce un verdict. Quand un critère manque, le module nomme lequel
+            et refuse de livrer la loi comme utilisable.
+          </p>
+        </div>
+        <div>
+          <div class="tableau-cadre">
+            <table>
+              <thead>
+                <tr><th scope="col">Critère</th><th scope="col">Seuil</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Nombre d'observations</td><td>au moins 8</td></tr>
+                <tr><td>Étendue des distances réduites</td><td>facteur 2 au minimum</td></tr>
+                <tr><td>Coefficient de détermination</td><td>au moins 0,4</td></tr>
+                <tr><td>Exposant d'atténuation</td><td>entre 0,5 et 3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="champ__aide" style="margin-top:.8rem">
+            Les seuils sont des réglages du projet. Ce qui n'est pas réglable, c'est le fait
+            qu'ils soient affichés et que leur non-respect soit signalé.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LES FORMULATIONS ════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Formulations</span>
+        <h2>Le choix de la loi est explicite, jamais implicite</h2>
+        <p>
+          Quatre formulations sont disponibles, et celle qui est employée est écrite sur
+          chaque sortie. Un résultat qui ne dit pas quelle loi l'a produit n'est pas
+          exploitable en contradictoire.
+        </p>
+      </div>
+      <div class="tableau-cadre">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Formulation</th>
+              <th scope="col">Facteur d'échelle</th>
+              <th scope="col">Emploi courant</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Racine carrée</b></td>
+              <td>distance divisée par la racine de la charge par délai</td>
+              <td>La plus répandue pour la vitesse particulaire</td>
+            </tr>
+            <tr>
+              <td><b>Racine cubique</b></td>
+              <td>distance divisée par la racine cubique de la charge</td>
+              <td>Surpression aérienne, plusieurs référentiels normatifs</td>
+            </tr>
+            <tr>
+              <td><b>Langefors et Kihlström</b></td>
+              <td>charge rapportée à la distance à la puissance trois demis</td>
+              <td>Pratique scandinave</td>
+            </tr>
+            <tr>
+              <td><b>Loi de site à deux exposants</b></td>
+              <td>charge et distance ajustées séparément</td>
+              <td>Éprouve le facteur d'échelle au lieu de le postuler</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="encart encart--alerte" style="margin-top:1.6rem">
+        <p><b>Pourquoi la dernière existe</b></p>
+        <p style="margin-bottom:0">
+          Les trois premières supposent que la charge intervient par sa racine carrée ou
+          cubique. La quatrième ne le suppose pas : elle ajuste les deux exposants et
+          permet de vérifier si l'hypothèse tenait. C'est la seule façon de distinguer un
+          massif qui se comporte autrement d'une donnée mal renseignée.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SORTIES ═════════════════════════════════════════════════════════════ -->
+  <section class="section section--douce section--bordee">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">Sorties graphiques</span>
+        <h2>Quatre représentations, et ce qu'elles servent à décider</h2>
+      </div>
+      <div class="grille grille--deux">
+        <div class="carte">
+          <h3>Courbe d'atténuation</h3>
+          <p>
+            Nuage des observations en échelles logarithmiques, loi ajustée, et
+            <b>borne de prédiction à 95 %</b> d'une observation future. La borne, et non la
+            seule courbe moyenne : concevoir sur la moyenne revient à accepter un
+            dépassement une fois sur deux.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Abaque de vitesse admissible</h3>
+          <p>
+            Vitesse limite en fonction de la fréquence dominante, d'après la figure dérivée
+            du rapport USBM RI 8507. Sans fréquence mesurée, l'abaque ne rend aucun verdict
+            plutôt que de conclure à la conformité par défaut d'information.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Iso-valeurs</h3>
+          <p>
+            Charge admissible par délai en fonction de la distance, pour un seuil donné.
+            C'est la sortie qui sert à la conception du plan de tir, pas au constat.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Histogramme et statistiques</h3>
+          <p>
+            Répartition des vitesses mesurées, dépassements, comparaison entre fosses et
+            entre phases. Ce qui permet de voir qu'une fosse se comporte autrement, avant
+            de chercher pourquoi.
+          </p>
+        </div>
+      </div>
+      <!-- CAPTURE À FOURNIR : l'onglet des graphiques vibrations.
+           Déposer en site/assets/img/vibrations-graphiques.png puis remplacer ce bloc. -->
+      <div class="bandeau__visuel" style="margin-top:2rem">
+        <div class="visuel-attendu">
+          <b>Capture à insérer</b>
+          Onglet graphiques : courbe log-log et abaque USBM
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LA BASE ═════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="enveloppe">
+      <div class="section__intro">
+        <span class="surtitre">La base de mesures</span>
+        <h2>Une base relationnelle, pas un classeur de plus</h2>
+        <p>
+          Les tirs, les bases de mesure, les sismographes et les opérateurs sont des tables
+          distinctes qui se référencent. Une base de mesure déplacée se corrige une fois, et
+          toutes les distances se recalculent.
+        </p>
+      </div>
+      <div class="grille">
+        <div class="carte">
+          <h3>Distances recalculées</h3>
+          <p>
+            La distance entre le tir et le sismographe se calcule sur les coordonnées.
+            Lorsqu'une distance saisie diverge de la distance calculée au-delà de la
+            tolérance, l'écart est signalé au lieu d'être arbitré en silence.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Calibrage des appareils</h3>
+          <p>
+            L'échéance de calibrage de chaque sismographe est suivie. Un appareil périmé est
+            marqué en rouge, et l'alerte se répète à l'ouverture du module : une mesure prise
+            avec un appareil hors calibrage n'est pas opposable.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Contrôles de cohérence</h3>
+          <p>
+            Neuf contrôles s'appliquent à la saisie : distance, charge, écart entre deux
+            bases d'un même tir, fenêtre de délai, conformité à la loi du site. Chaque
+            anomalie cite les valeurs qui l'ont déclenchée.
+          </p>
+        </div>
+        <div class="carte">
+          <h3>Saisie assistée</h3>
+          <p>
+            Listes déroulantes alimentées par les tables de référence, calendrier pour les
+            dates, numérotation des lignes, enregistrement automatique à la fermeture.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="enveloppe">
+      <div class="appel">
+        <h2>Faire passer votre historique dans le module</h2>
+        <p>
+          L'import lit les classeurs Excel existants. La première question à laquelle il
+          répond est de savoir si vos données portent une loi, ou pas encore.
+        </p>
+        <div class="boutons">
+          <a class="bouton bouton--accent" href="contact.html">Nous écrire</a>
+          <a class="bouton bouton--contour" style="color:#EDF0F4;border-color:rgba(255,255,255,.3)" href="essakane.html">Voir un cas réel</a>
+        </div>
+      </div>
+    </div>
+  </section>
