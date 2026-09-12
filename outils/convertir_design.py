@@ -1472,7 +1472,11 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     alternats = '\n'.join(
         f'<link rel="alternate" hreflang="{c}" href="https://blastclear.com/{c}/">'
         for c in LANGUES
-    ) + '\n<link rel="alternate" hreflang="x-default" href="https://blastclear.com/fr/">'
+    # x-default désigne la page servie à qui ne correspond à aucune des langues
+    # listées. C'est l'anglais, comme la racine du site : les deux doivent dire la
+    # même chose, sans quoi un moteur annoncerait une destination et le visiteur en
+    # trouverait une autre.
+    ) + '\n<link rel="alternate" hreflang="x-default" href="https://blastclear.com/en/">'
 
     return GABARIT.format(
         source=chemin.name, lang=code, locale=langue['locale'],
@@ -1666,7 +1670,7 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> str:
     alternats = '\n'.join(
         f'<link rel="alternate" hreflang="{c}" href="https://blastclear.com/{c}/demo.html"/>'
         for c in LANGUES
-    ) + '\n<link rel="alternate" hreflang="x-default" href="https://blastclear.com/fr/demo.html"/>'
+    ) + '\n<link rel="alternate" hreflang="x-default" href="https://blastclear.com/en/demo.html"/>'
 
     # Une page de formulaire n'a rien à faire dans un index de moteur de
     # recherche : elle n'apporte aucun contenu et dilue les pages qui comptent.

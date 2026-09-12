@@ -1,16 +1,26 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BlastClear</title>
-<link rel="canonical" href="https://blastclear.com/fr/">
+<link rel="canonical" href="https://blastclear.com/en/">
 <!--
   AIGUILLAGE DE LANGUE.
 
   La racine ne porte aucun contenu : elle oriente vers l'une des treize versions.
-  Le choix suit la langue déclarée par le navigateur, et il est mémorisé pour que
-  le visiteur qui a basculé en anglais ne soit pas renvoyé au français ensuite.
+
+  ─── L'ANGLAIS EST LA DESTINATION PAR DÉFAUT ─────────────────────────────────
+  Et non la langue déclarée par le navigateur, comme c'était le cas d'abord.
+  blastclear.com est l'adresse qui se communique, s'imprime et se transmet : elle
+  s'adresse au marché minier international, qui travaille en anglais. Détecter la
+  langue du visiteur envoyait un prospect australien ou sud-africain sur la page
+  française au seul motif que son navigateur la déclarait quelque part dans ses
+  préférences.
+
+  LE CHOIX DÉJÀ FAIT RESTE PRIORITAIRE. Un visiteur qui a basculé vers une autre
+  langue y revient : ce serait une régression de le ramener à l'anglais à chaque
+  visite. Seule la PREMIÈRE arrivée est orientée vers l'anglais.
 
   LA BALISE REFRESH N'EST PAS UN DOUBLON DU SCRIPT. Sans elle, un visiteur dont
   le script ne s'exécute pas resterait sur une page pratiquement vide. Les liens
@@ -28,7 +38,7 @@
   Les chemins relatifs conviennent aux deux cas, et cette page est précisément celle
   que l'on ouvre pour vérifier une mise en ligne.
 -->
-<meta http-equiv="refresh" content="0; url=fr/">
+<meta http-equiv="refresh" content="0; url=en/">
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any">
 <link rel="icon" href="assets/logo/BlastClear_B_bleu_256.png" type="image/png">
 <style>
@@ -40,10 +50,10 @@
 </style>
 </head>
 <body>
-  <p>Redirection en cours.</p>
+  <p>Redirecting to English. Choose another language below.</p>
   <ul>
-    <li><a href="fr/" hreflang="fr">Français</a></li>
     <li><a href="en/" hreflang="en">English</a></li>
+    <li><a href="fr/" hreflang="fr">Français</a></li>
     <li><a href="es/" hreflang="es">Español</a></li>
     <li><a href="pt/" hreflang="pt">Português</a></li>
     <li><a href="it/" hreflang="it">Italiano</a></li>
@@ -58,17 +68,16 @@
   </ul>
 <script>
   (function () {
-    var connues = ['fr','en','es','pt','it','de','nl','sv','no','da','af','tr','zh'];
+    var connues = ['en','fr','es','pt','it','de','nl','sv','no','da','af','tr','zh'];
+
+    // Le choix déjà fait par le visiteur, s'il existe.
     var choix = null;
     try { choix = localStorage.getItem('bc-langue'); } catch (e) { /* navigation privée */ }
-    if (connues.indexOf(choix) < 0) {
-      var declarees = navigator.languages || [navigator.language || 'fr'];
-      choix = 'en';
-      for (var i = 0; i < declarees.length; i++) {
-        var deux = (declarees[i] || '').toLowerCase().slice(0, 2);
-        if (connues.indexOf(deux) >= 0) { choix = deux; break; }
-      }
-    }
+
+    // À défaut, l'anglais. La langue déclarée par le navigateur N'EST PAS
+    // consultée : voir le commentaire en tête de page.
+    if (connues.indexOf(choix) < 0) choix = 'en';
+
     location.replace(choix + '/');
   })();
 </script>
