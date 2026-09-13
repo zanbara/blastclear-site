@@ -46,6 +46,8 @@ import re
 import shutil
 import unicodedata
 
+from pourquoi import POURQUOI
+
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 SOURCE = RACINE / 'design' / 'BlastClear v2.0 flyer'
 SITE = RACINE / 'site'
@@ -488,6 +490,66 @@ DEFINITION = {
 }
 
 
+def construire_pourquoi(corps_accueil: str, code: str) -> str | None:
+    """La page « Pourquoi BlastClear », bâtie sur l'habillage de l'accueil.
+
+    ─── POURQUOI ON DÉCOUPE L'ACCUEIL PLUTÔT QUE DE REFAIRE UNE PAGE ─────────
+    La barre de navigation porte le logo, le menu, le sélecteur de treize langues
+    et son panneau déroulant ; le pied porte la version et l'adresse. Recomposer
+    tout cela à la main donnerait deux habillages qui divergeraient dès la
+    première retouche de la maquette. On garde donc la tête et le pied de
+    l'accueil, et on remplace ce qu'il y a entre les deux.
+    """
+    t = POURQUOI.get(code)
+    if not t:
+        return None
+
+    fin_nav = corps_accueil.find('</nav>')
+    debut_pied = corps_accueil.find('<footer')
+    if fin_nav < 0 or debut_pied < 0 or debut_pied < fin_nav:
+        return None
+
+    e = htmlmod.escape
+    morceaux = []
+
+    morceaux.append(f'''
+  <section style="max-width:900px;margin:0 auto;padding:{VALEURS['padSection']} 5cqw 0">
+    <div class="dc-surtitre">{e(t['surtitre'])}</div>
+    <h1 style="margin:0 0 22px;font-size:clamp(28px,4cqw,44px);font-weight:700;letter-spacing:-1.2px;line-height:1.1">{e(t['titre'])}</h1>
+    <p style="margin:0;font-size:clamp(17px,1.9cqw,20px);line-height:1.55;color:#1B2129">{e(t['chapo'])}</p>
+  </section>
+''')
+
+    for titre, paragraphes, liste in t['sections']:
+        blocs = ''.join(
+            f'<p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#39424E">{p}</p>'
+            for p in paragraphes
+        )
+        if liste:
+            items = ''.join(
+                f'<li style="margin:0 0 12px;padding-left:2px">{x}</li>' for x in liste
+            )
+            blocs += ('<ul style="margin:8px 0 0;padding-left:20px;font-size:16px;'
+                      f'line-height:1.65;color:#39424E">{items}</ul>')
+        morceaux.append(f'''
+  <section style="max-width:900px;margin:0 auto;padding:38px 5cqw 0">
+    <h2 style="margin:0 0 14px;font-size:clamp(19px,2.2cqw,25px);font-weight:700;letter-spacing:-.4px;color:#25498A">{e(titre)}</h2>
+    {blocs}
+  </section>
+''')
+
+    morceaux.append(f'''
+  <section style="max-width:900px;margin:0 auto;padding:34px 5cqw {VALEURS['padSection']}">
+    <p style="margin:0 0 24px;padding:16px 18px;border-left:3px solid #FDC30E;background:#F4F6F8;font-size:14px;line-height:1.6;color:#5A6572">{e(t['note'])}</p>
+    <a href="demo.html" style="display:inline-flex;align-items:center;background:#FDC30E;color:#14171C;font-weight:600;font-size:15px;padding:11px 22px;border-radius:2px;text-decoration:none">{e(t['appel'])}</a>
+  </section>
+''')
+
+    return (corps_accueil[:fin_nav + len('</nav>')]
+            + ''.join(morceaux)
+            + corps_accueil[debut_pied:])
+
+
 def inserer_definition(corps: str, code: str) -> str:
     """Pose la définition JUSTE AVANT la section « avant / avec ».
 
@@ -507,6 +569,20 @@ def inserer_definition(corps: str, code: str) -> str:
         return corps
 
     e = htmlmod.escape
+    # Le bouton mène à l'argumentaire complet. Il est posé ICI, au bout de la
+    # définition : c'est l'endroit où le lecteur vient d'apprendre ce que fait le
+    # logiciel et où la question « pourquoi ainsi » se pose d'elle-même.
+    libelle = POURQUOI.get(code, {}).get('bouton')
+    savoir_plus = (
+        f'<a href="pourquoi.html" style="margin-top:26px;display:inline-flex;'
+        'align-items:center;gap:8px;border:1px solid #25498A;color:#25498A;'
+        'font-weight:600;font-size:15px;padding:10px 20px;border-radius:2px;'
+        f'text-decoration:none">{e(libelle)}'
+        '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        '<polyline points="9 5 16 12 9 19"/></svg></a>'
+    ) if libelle else ''
+
     bloc = f'''
   <section style="max-width:1120px;margin:0 auto;padding:{VALEURS['padSection']} 5cqw">
     <div class="dc-surtitre">{e(surtitre)}</div>
@@ -516,6 +592,7 @@ def inserer_definition(corps: str, code: str) -> str:
       <p style="margin:0;font-size:16px;line-height:1.6;color:#39424E">{e(p2)}</p>
       <p style="margin:0;font-size:16px;line-height:1.6;color:#39424E">{e(p3)}</p>
     </div>
+    {savoir_plus}
   </section>
 '''
     return corps[:debut] + bloc + corps[debut:]
@@ -2179,6 +2256,33 @@ def main() -> int:
         cible.write_text(page, encoding='utf-8', newline='\n')
         total += 1
         print(f'  écrit  site/{code}/index.html   ({len(page) // 1024} Ko)')
+
+        # ── LA PAGE « POURQUOI », BÂTIE SUR L'HABILLAGE DE CELLE-CI ─────────
+        # On repart de la page qu'on vient d'écrire plutôt que de recomposer une
+        # barre et un pied : les deux resteront identiques quoi qu'il advienne de
+        # la maquette.
+        m_corps = re.search(r'<div id="contenu">\n(.*)\n</div>\n<script', page, re.S)
+        t = POURQUOI.get(code)
+        if m_corps and t:
+            corps_pq = construire_pourquoi(m_corps.group(1), code)
+            if corps_pq:
+                survols = re.search(r'<style>\n(.*?)\n</style>', page, re.S)
+                alternats = '\n'.join(
+                    f'<link rel="alternate" hreflang="{c}" href="https://www.blastclear.com/{c}/pourquoi.html"/>'
+                    for c in LANGUES
+                ) + '\n<link rel="alternate" hreflang="x-default" href="https://www.blastclear.com/en/pourquoi.html"/>'
+                page_pq = GABARIT.format(
+                    source=canevas.name + ' + outils/pourquoi.py',
+                    lang=code, locale=langue['locale'],
+                    titre=htmlmod.escape(f"{t['titre']} | BlastClear", quote=True),
+                    description=htmlmod.escape(t['chapo'][:180], quote=True),
+                    fichier='pourquoi.html', alternats=alternats,
+                    survols=survols.group(1) if survols else '',
+                    saut=htmlmod.escape(SAUT.get(code, 'Skip to content')),
+                    corps=corps_pq,
+                )
+                (SITE / code / 'pourquoi.html').write_text(page_pq, encoding='utf-8', newline='\n')
+                total += 1
 
     # La page de demande existe en un seul canevas qui porte les treize langues ;
     # on en tire treize pages, une par dossier, pour qu'elles soient indexables
