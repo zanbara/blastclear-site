@@ -520,6 +520,108 @@ def respecter_taille_minimale_logo(corps: str) -> str:
     return re.sub(r'<img\b[^>]*Logo_BlastClear[^>]*>', remplacer, corps)
 
 
+# ══ LA BARRE NE TENAIT PAS EN HAUT ════════════════════════════════════════════
+#
+# ─── LE SYMPTÔME ET SA CAUSE, QUI N'EST PAS DANS LA BARRE ─────────────────────
+# La barre porte pourtant `position:sticky;top:0`. Elle remontait quand même avec
+# la page. La règle n'est pas en cause : c'est SON ENVELOPPE qui la désarme.
+#
+# Le cadre de la maquette porte `overflow-x:hidden`. Or une valeur `hidden` sur un
+# seul axe force l'autre axe, déclaré `visible`, à devenir `auto` : le cadre se
+# transforme en conteneur de défilement. Un élément collant se cale sur le plus
+# proche conteneur de défilement qui l'englobe, donc sur ce cadre, et non plus sur
+# la fenêtre. Comme ce cadre ne défile jamais lui-même, la barre n'a rien à quoi se
+# tenir et suit le contenu.
+#
+# ─── POURQUOI `clip` ET NON LA SUPPRESSION DE LA RÈGLE ────────────────────────
+# Le rognage sert : plusieurs éléments de la maquette débordent volontairement en
+# largeur. `overflow-x:clip` rogne exactement comme `hidden`, à une différence
+# près, qui est celle qu'on cherche : il ne crée PAS de conteneur de défilement, et
+# n'entraîne donc pas l'autre axe. La barre retrouve la fenêtre pour référence.
+
+def liberer_barre_collante(corps: str) -> str:
+    """Rend à la barre son point d'ancrage, en changeant le rognage du cadre."""
+    return corps.replace('overflow-x:hidden', 'overflow-x:clip')
+
+
+# ══ LES RÉSEAUX, DANS LE PIED DE PAGE ═════════════════════════════════════════
+#
+# ─── LES TRACÉS SONT CEUX DES MARQUES, NON DES APPROXIMATIONS ─────────────────
+# Chaque glyphe est le tracé officiel de la marque, sur une grille de 24. Les
+# redessiner « à peu près » se voit immédiatement : ces quatre symboles sont parmi
+# les formes les plus reconnues qui soient, et un rayon faux les fait paraître
+# contrefaits.
+#
+# ─── CE QUI RESTE À CONFIRMER ─────────────────────────────────────────────────
+# Les adresses ci-dessous sont les formes attendues des comptes. Elles sont
+# rassemblées ICI, en un seul endroit, précisément parce qu'elles devront être
+# corrigées une fois les comptes ouverts : un lien de pied de page qui tombe sur
+# une page absente coûte plus cher en crédibilité qu'un lien manquant.
+RESEAUX = [
+    ('LinkedIn', 'https://www.linkedin.com/company/blastclear',
+     'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 '
+     '2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 '
+     '4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 '
+     '2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 '
+     '13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 '
+     '24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'),
+    ('Facebook', 'https://www.facebook.com/blastclear',
+     'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 '
+     '11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 '
+     '2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 '
+     '23.027 24 18.062 24 12.073z'),
+    ('Instagram', 'https://www.instagram.com/blastclear',
+     'M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 '
+     '1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 '
+     '4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 '
+     '1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 '
+     '2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 '
+     '1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 '
+     '1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 '
+     '2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 '
+     '1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 '
+     '4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 '
+     '0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.166-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 '
+     '0-3.196.016-3.586.061-4.861.061-1.17.254-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 '
+     '1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 '
+     '3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 '
+     '6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 '
+     '4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 '
+     '0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z'),
+    ('YouTube', 'https://www.youtube.com/@blastclear',
+     'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 '
+     '0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 '
+     '0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 '
+     '2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'),
+]
+
+
+def poser_reseaux(corps: str) -> str:
+    """Ajoute les quatre liens de réseaux à la fin du pied de page.
+
+    ─── POURQUOI LE NOM DU RÉSEAU N'EST PAS TRADUIT ─────────────────────────
+    Le lien n'a pas de texte visible : son intitulé accessible est donc le seul que
+    lise un lecteur d'écran. Ce sont des noms propres, identiques dans les treize
+    langues du site. Les traduire inventerait des mots qui n'existent pas.
+
+    ─── LA CIBLE DU DOIGT FAIT 40 px, PAS 20 ────────────────────────────────
+    Le symbole est dessiné à 20 px, mais la zone cliquable en fait le double par le
+    rembourrage. Quatre cibles de 20 px espacées de quelques pixels, au bas d'une
+    page consultée au pouce, se manquent une fois sur deux."""
+    if '</footer>' not in corps or 'dc-reseaux' in corps:
+        return corps
+
+    liens = ''.join(
+        f'<a class="dc-reseau" href="{url}" target="_blank" rel="noopener" '
+        f'aria-label="{nom}"><svg viewBox="0 0 24 24" width="20" height="20" '
+        f'fill="currentColor" aria-hidden="true" focusable="false">'
+        f'<path d="{trace}"/></svg></a>'
+        for nom, url, trace in RESEAUX
+    )
+    return corps.replace(
+        '</footer>', f'    <div class="dc-reseaux">{liens}</div>\n  </footer>', 1)
+
+
 # ══ LA DÉFINITION, EN TÊTE DE PAGE ════════════════════════════════════════════
 #
 # ─── POURQUOI ELLE MANQUAIT ────────────────────────────────────────────────────
@@ -638,20 +740,31 @@ def b_du_logo() -> str | None:
 
 
 def nom_avec_b_du_logo(texte: str) -> str:
-    """Remplace « BlastClear » par le nom composé avec le B du logo.
+    """Remplace « BlastClear » par le nom composé à l'identique du logotype.
 
     Le reste des lettres demeure du texte : le nom se sélectionne, se recherche, et
     un lecteur d'écran l'énonce. Seule la lettre dessinée passe en image, et elle
     est marquée décorative, le mot complet restant lisible sans elle.
 
-    « Clear » NE PASSE PAS EN JAUNE ici. Le titre est sur fond blanc, où le jaune de
-    la charte tombe à 1,62:1 : elle l'y interdit expressément pour du texte."""
+    ─── LA COUPURE EST CELLE DU LOGOTYPE, RELEVÉE DANS LE FICHIER ────────────
+    Les deux exports ne portent que deux couleurs de lettres, cinq glyphes chacune :
+    « Blast » dans la couleur dominante (blanc sur fond sombre, bleu sur fond clair)
+    et « Clear » en #FDC30E. Le titre reprend donc exactement cette coupure, et
+    « Clear » y passe en graisse normale, comme dans le logo.
+
+    ─── LE JAUNE SUR BLANC, ICI SEULEMENT ────────────────────────────────────
+    Le jaune de la charte tombe à 1,62:1 sur blanc, et la charte l'interdit pour du
+    texte. L'exception vaut pour CE mot et lui seul : un nom de marque composé en
+    logotype relève de l'exception de la règle 1.4.3, qui ne fixe aucun contraste au
+    texte faisant partie d'un logo. La règle reste entière partout ailleurs, et rien
+    d'informatif ne repose sur cette couleur : le mot est le même en noir et blanc."""
     b = b_du_logo()
     if not b or 'BlastClear' not in texte:
         return texte
     return texte.replace(
         'BlastClear',
-        f'<span class="dc-nom"><span class="dc-b-lettre">B</span>{b}lastClear</span>', 1)
+        f'<span class="dc-nom"><span class="dc-b-lettre">B</span>{b}last'
+        f'<span class="dc-clear">Clear</span></span>', 1)
 
 
 def construire_pourquoi(corps_accueil: str, code: str) -> str | None:
@@ -751,7 +864,7 @@ def inserer_definition(corps: str, code: str) -> str:
     bloc = f'''
   <section style="max-width:1120px;margin:0 auto;padding:{VALEURS['padSection']} 5cqw">
     <div class="dc-surtitre">{e(surtitre)}</div>
-    <h2 style="margin:0 0 20px;font-size:clamp(24px,3.4cqw,40px);font-weight:700;letter-spacing:-1px">{e(titre)}</h2>
+    <h2 style="margin:0 0 20px;font-size:clamp(24px,3.4cqw,40px);font-weight:700;letter-spacing:-1px">{nom_avec_b_du_logo(e(titre))}</h2>
     <p style="margin:0;font-size:clamp(17px,1.9cqw,21px);line-height:1.5;color:#1B2129;max-width:62ch">{e(p1)}</p>
     <div style="margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:28px">
       <p style="margin:0;font-size:16px;line-height:1.6;color:#39424E">{e(p2)}</p>
@@ -1404,6 +1517,36 @@ nav[style*="sticky"].dc-defile img{height:38px !important}
 .dc-progression{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
   background:var(--bc-jaune);transition:width .1s linear}
 
+/* ── LA BARRE RESTE EN HAUT, QUOI QU'IL ARRIVE AU CADRE ───────────────────
+   Le cadre de la maquette est corrigé à la conversion, où `overflow-x:hidden`
+   devient `overflow-x:clip` : `hidden` sur un seul axe entraîne l'autre en
+   `auto`, ce qui fait du cadre un conteneur de défilement et prive la barre de
+   son ancrage à la fenêtre.
+
+   Cette règle est le filet : si une future retouche de la maquette réintroduit
+   un rognage sur un ancêtre de la barre, elle la remet hors du flux plutôt que
+   de la laisser repartir avec la page. Le rembourrage compense alors la hauteur
+   qu'elle n'occupe plus. */
+@supports not (overflow-x:clip){
+  nav[style*="sticky"]{position:fixed !important;left:0;right:0;top:0}
+  nav[style*="sticky"]+*{padding-top:78px}
+}
+
+/* ══ LES RÉSEAUX DU PIED DE PAGE ═══════════════════════════════════════════
+   Les symboles sont en blanc sur le bleu de la charte, à 9,1:1. Le survol les
+   passe en jaune : sur CE fond, le jaune tient 8,2:1, alors qu'il tomberait à
+   1,62:1 sur blanc. C'est la seule raison pour laquelle il est employé ici.
+
+   La zone cliquable fait 40 px pour un symbole de 20. */
+.dc-reseaux{display:flex;align-items:center;gap:4px}
+.dc-reseau{display:inline-flex;align-items:center;justify-content:center;
+  width:40px;height:40px;color:#ffffff;opacity:.88;border-radius:2px;
+  text-decoration:none;transition:color .18s ease,opacity .18s ease,background-color .18s ease}
+@media (hover:hover){
+  .dc-reseau:hover{color:var(--bc-jaune);opacity:1;background:rgba(255,255,255,.10)}
+}
+.dc-reseau:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:2px;opacity:1}
+
 /* ══ SURVOLS AJOUTÉS ═══════════════════════════════════════════════════════
    La maquette n'animait pas les colonnes de fonctionnalités. Le mouvement reste
    discret : trois pixels et une ombre, rien qui déplace le texte sous le
@@ -1522,6 +1665,16 @@ img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
 .dc-b-lettre{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .dc-b{height:.705em;width:auto;vertical-align:baseline;fill:currentColor;
       margin-right:.012em;shape-rendering:geometricPrecision}
+
+/* ── « CLEAR », COMME DANS LE LOGOTYPE ────────────────────────────────────
+   Le logo compose « Blast » dans sa couleur dominante et « Clear » en jaune, en
+   graisse normale. Le titre reprend les deux.
+
+   Le crénage du titre est ANNULÉ sur ces cinq lettres. Un titre serré à -1,2 px
+   convient à du 700, où les pleins sont larges ; appliqué à du 400, il colle les
+   fûts du l et du e. Remettre la valeur normale sur le seul mot concerné garde le
+   resserrement du reste du titre. */
+.dc-clear{font-weight:400;color:var(--bc-jaune);letter-spacing:normal}
 
 /* ══ LE FAISCEAU TENAIT MAL DANS SA SECTION ════════════════════════════════
    La maquette l'étale sur 170 % de la largeur. Le dessin ayant un rapport de
@@ -2227,6 +2380,8 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
         corps = remplacer_section_application(corps, code)
     corps = rectifier_formulaire(corps, code)
     corps = poser_animations(corps)
+    corps = liberer_barre_collante(corps)
+    corps = poser_reseaux(corps)
     verifier_liens(corps, chemin.name, code)
 
     titre, description = extraire_metadonnees(corps)
@@ -2430,6 +2585,8 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> tuple[str, str]:
     corps = respecter_taille_minimale_logo(corps)
     corps = rectifier_formulaire(corps, code)
     corps = poser_animations(corps)
+    corps = liberer_barre_collante(corps)
+    corps = poser_reseaux(corps)
     verifier_liens(corps, chemin.name, code)
 
     # ── DEUX PAGES SONT TIRÉES DU MÊME CORPS ────────────────────────────────

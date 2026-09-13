@@ -93,6 +93,36 @@ nav[style*="sticky"].dc-defile img{height:38px !important}
 .dc-progression{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
   background:var(--bc-jaune);transition:width .1s linear}
 
+/* ── LA BARRE RESTE EN HAUT, QUOI QU'IL ARRIVE AU CADRE ───────────────────
+   Le cadre de la maquette est corrigé à la conversion, où `overflow-x:hidden`
+   devient `overflow-x:clip` : `hidden` sur un seul axe entraîne l'autre en
+   `auto`, ce qui fait du cadre un conteneur de défilement et prive la barre de
+   son ancrage à la fenêtre.
+
+   Cette règle est le filet : si une future retouche de la maquette réintroduit
+   un rognage sur un ancêtre de la barre, elle la remet hors du flux plutôt que
+   de la laisser repartir avec la page. Le rembourrage compense alors la hauteur
+   qu'elle n'occupe plus. */
+@supports not (overflow-x:clip){
+  nav[style*="sticky"]{position:fixed !important;left:0;right:0;top:0}
+  nav[style*="sticky"]+*{padding-top:78px}
+}
+
+/* ══ LES RÉSEAUX DU PIED DE PAGE ═══════════════════════════════════════════
+   Les symboles sont en blanc sur le bleu de la charte, à 9,1:1. Le survol les
+   passe en jaune : sur CE fond, le jaune tient 8,2:1, alors qu'il tomberait à
+   1,62:1 sur blanc. C'est la seule raison pour laquelle il est employé ici.
+
+   La zone cliquable fait 40 px pour un symbole de 20. */
+.dc-reseaux{display:flex;align-items:center;gap:4px}
+.dc-reseau{display:inline-flex;align-items:center;justify-content:center;
+  width:40px;height:40px;color:#ffffff;opacity:.88;border-radius:2px;
+  text-decoration:none;transition:color .18s ease,opacity .18s ease,background-color .18s ease}
+@media (hover:hover){
+  .dc-reseau:hover{color:var(--bc-jaune);opacity:1;background:rgba(255,255,255,.10)}
+}
+.dc-reseau:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:2px;opacity:1}
+
 /* ══ SURVOLS AJOUTÉS ═══════════════════════════════════════════════════════
    La maquette n'animait pas les colonnes de fonctionnalités. Le mouvement reste
    discret : trois pixels et une ombre, rien qui déplace le texte sous le
@@ -211,6 +241,16 @@ img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
 .dc-b-lettre{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .dc-b{height:.705em;width:auto;vertical-align:baseline;fill:currentColor;
       margin-right:.012em;shape-rendering:geometricPrecision}
+
+/* ── « CLEAR », COMME DANS LE LOGOTYPE ────────────────────────────────────
+   Le logo compose « Blast » dans sa couleur dominante et « Clear » en jaune, en
+   graisse normale. Le titre reprend les deux.
+
+   Le crénage du titre est ANNULÉ sur ces cinq lettres. Un titre serré à -1,2 px
+   convient à du 700, où les pleins sont larges ; appliqué à du 400, il colle les
+   fûts du l et du e. Remettre la valeur normale sur le seul mot concerné garde le
+   resserrement du reste du titre. */
+.dc-clear{font-weight:400;color:var(--bc-jaune);letter-spacing:normal}
 
 /* ══ LE FAISCEAU TENAIT MAL DANS SA SECTION ════════════════════════════════
    La maquette l'étale sur 170 % de la largeur. Le dessin ayant un rapport de
