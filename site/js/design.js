@@ -162,7 +162,7 @@
 
   if (traits) {
     var courbes = [].slice.call(traits.querySelectorAll('path'));
-    var parentTraits = traits.parentElement;
+    var parentTraits = traits.closest('.dc-zone-traits') || traits.parentElement;
 
     // Le point de tir : celui des vingt extrémités qui a le plus de voisines
     // proches. Une moyenne serait attirée par les points de chute, qui sont

@@ -223,7 +223,11 @@ img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
    Deux corrections, et la section respire : le faisceau est ramené à une
    largeur qui le fait tenir, et la section reçoit une hauteur minimale. */
 .dc-traits{opacity:1;width:118% !important}
-section:has(> .dc-traits){min-height:clamp(460px,42vh,600px);display:flex;align-items:center}
+
+/* L'enveloppe couvre la définition ET la comparaison ; le faisceau y monte donc
+   derrière le texte au lieu de s'arrêter à la frontière entre les deux. */
+.dc-zone-traits>section{position:relative;z-index:1}
+.dc-zone-traits>.dc-traits{z-index:0}
 
 .dc-traits path{
   stroke-linecap:round;

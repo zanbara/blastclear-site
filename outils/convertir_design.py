@@ -731,6 +731,7 @@ def inserer_definition(corps: str, code: str) -> str:
     debut = corps.rfind('<section', 0, m.end())
     if debut < 0:
         return corps
+    _, _, fin_section = bloc_equilibre(corps, debut, 'section')
 
     e = htmlmod.escape
     # Le bouton mène à l'argumentaire complet. Il est posé ICI, au bout de la
@@ -759,7 +760,33 @@ def inserer_definition(corps: str, code: str) -> str:
     {savoir_plus}
   </section>
 '''
-    return corps[:debut] + bloc + corps[debut:]
+
+    # ── LE FAISCEAU DOIT COUVRIR LES DEUX SECTIONS, PAS UNE ─────────────────
+    #
+    # Il vivait DANS la section « avant / avec », qui le rogne à son bord haut :
+    # ses arcs s'interrompaient donc net sous la rubrique de définition, et la
+    # définition paraissait les masquer. Aucun réglage de taille ou de position
+    # n'y pouvait rien — le rognage tient à l'endroit où le faisceau est posé.
+    #
+    # On le sort de cette section et on l'installe dans une enveloppe qui contient
+    # les deux. Ses arcs montent alors derrière le texte de la définition, ce qui
+    # est précisément l'effet recherché.
+    section = corps[debut:fin_section]
+    m_svg = re.search(r'<svg\b[^>]*id="traits-balistiques"', section)
+    faisceau = ''
+    if m_svg:
+        _, _, fin_svg = bloc_equilibre(section, m_svg.start(), 'svg')
+        faisceau = section[m_svg.start():fin_svg]
+        section = section[:m_svg.start()] + section[fin_svg:]
+
+    enveloppe = (
+        '\n  <div class="dc-zone-traits" style="position:relative;overflow:hidden">\n'
+        + faisceau
+        + bloc
+        + section
+        + '\n  </div>\n'
+    )
+    return corps[:debut] + enveloppe + corps[fin_section:]
 
 
 # ══ LE CARROUSEL DE LA PAGE D'ACCUEIL ═════════════════════════════════════════
@@ -1507,7 +1534,11 @@ img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
    Deux corrections, et la section respire : le faisceau est ramené à une
    largeur qui le fait tenir, et la section reçoit une hauteur minimale. */
 .dc-traits{opacity:1;width:118% !important}
-section:has(> .dc-traits){min-height:clamp(460px,42vh,600px);display:flex;align-items:center}
+
+/* L'enveloppe couvre la définition ET la comparaison ; le faisceau y monte donc
+   derrière le texte au lieu de s'arrêter à la frontière entre les deux. */
+.dc-zone-traits>section{position:relative;z-index:1}
+.dc-zone-traits>.dc-traits{z-index:0}
 
 .dc-traits path{
   stroke-linecap:round;
@@ -1771,7 +1802,7 @@ JS_COMMUN = """/* ════════════════════�
 
   if (traits) {
     var courbes = [].slice.call(traits.querySelectorAll('path'));
-    var parentTraits = traits.parentElement;
+    var parentTraits = traits.closest('.dc-zone-traits') || traits.parentElement;
 
     // Le point de tir : celui des vingt extrémités qui a le plus de voisines
     // proches. Une moyenne serait attirée par les points de chute, qui sont
