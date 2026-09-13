@@ -376,18 +376,18 @@
         '?subject=' + encodeURIComponent('BlastClear - demande de demonstration') +
         '&body=' + encodeURIComponent(lignes.join('\r\n'));
 
-      // Le panneau de remerciement s'affiche, mais un instant plus tard : le
-      // temps que le logiciel de messagerie s'ouvre. Remplacer le formulaire
-      // immédiatement donnerait l'impression que l'envoi est parti alors qu'il
-      // reste à confirmer dans le client de messagerie.
-      var merci = document.getElementById('panneau-merci');
-      if (!merci) return;
-      setTimeout(function () {
-        merci.hidden = false;
-        formulaire.hidden = true;
-        merci.setAttribute('tabindex', '-1');
-        merci.focus();
-      }, 900);
+      // ── LA PAGE DE REMERCIEMENT VIENT APRÈS, ET NON AUSSITÔT ─────────────
+      //
+      // Le délai n'est pas cosmétique : le navigateur doit avoir le temps de
+      // passer la main au logiciel de messagerie. Naviguer immédiatement
+      // annulerait cette ouverture sur certains navigateurs, et la demande ne
+      // partirait jamais.
+      //
+      // C'est une page, et non un panneau qui se dévoile : elle a sa propre
+      // adresse, donc elle se partage, se met en favori, et servira de
+      // destination telle quelle le jour où un service de collecte remplacera
+      // l'ouverture de la messagerie.
+      setTimeout(function () { window.location.href = 'merci.html'; }, 1200);
     });
   }
 })();

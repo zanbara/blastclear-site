@@ -240,24 +240,21 @@ def nettoyer_typographie(corps: str) -> str:
 
 
 def completer_formulaire(corps: str, mots: dict) -> str:
-    """Pose les textes indicatifs que la maquette avait prévus sans les poser.
+    """LES CHAMPS RESTENT VIDES. SEUL LE MESSAGE GARDE SON INDICATION.
 
-    La table de traduction définit pNom, pSociete, pPoste et pEmail pour les
-    treize langues, mais aucun de ces textes n'est branché sur son champ : les
-    quatre premiers champs du formulaire sont vides et rien n'indique ce qu'on
-    y attend. Seul le message en avait un."""
-    correspondances = {
-        'nom': 'pNom', 'societe': 'pSociete', 'poste': 'pPoste',
-        'email': 'pEmail', 'telephone': 'pTel',
-    }
-    for champ, cle in correspondances.items():
-        texte = mots.get(cle)
-        if not texte:
-            continue
-        corps = re.sub(
-            rf'(<input name="{champ}"(?![^>]*placeholder))',
-            rf'\1 placeholder="{htmlmod.escape(str(texte), quote=True)}"',
-            corps, count=1)
+    ─── CE QUI A ÉTÉ POSÉ, PUIS RETIRÉ ────────────────────────────────────────
+    La table de traduction prévoit un exemple pour chaque champ : « Jean Dupont »,
+    « Nom de la mine ou du bureau d'études », et ainsi de suite. Les afficher en
+    texte indicatif paraissait utile. À l'usage, cinq champs porteurs d'un texte
+    gris se lisent comme un formulaire déjà rempli, et l'étiquette placée au-dessus
+    de chacun dit déjà ce qu'on y attend.
+
+    Le message fait exception et garde le sien : son étiquette, « Votre message »,
+    n'indique pas ce qu'il serait utile d'écrire. Cette indication vient du canevas
+    et n'a jamais eu besoin d'être posée ici.
+
+    La fonction subsiste, sans effet, pour que le point d'insertion reste visible et
+    documenté plutôt que de disparaître dans l'historique."""
     return corps
 
 
@@ -630,12 +627,102 @@ def rectifier_liens(corps: str, langue_courante: str) -> str:
         for variante in (nom, nom.replace(' ', '%20')):
             corps = corps.replace(f'href="{variante}"', f'href="{cible}"')
 
-    # Le canevas de demande porte les treize langues dans un seul fichier ; on
-    # en tire une page par dossier, donc chaque langue reste chez elle.
-    for variante in ('Demande de démo.dc.html', 'Demande%20de%20d%C3%A9mo.dc.html',
-                     'Demande de d%C3%A9mo.dc.html'):
-        corps = corps.replace(f'href="{variante}"', 'href="demo.html"')
+    # Le canevas de demande porte les treize langues dans un seul fichier ; on en
+    # tire une page par dossier, donc chaque langue reste chez elle.
+    #
+    # LA SUBSTITUTION DOIT ABSORBER LE PARAMÈTRE D'URL. Les douze canevas traduits
+    # écrivent « …dc.html?lang=EN » là où le français écrit « …dc.html ». Une
+    # comparaison sur la chaîne exacte ne reconnaissait donc que le français, et les
+    # douze autres pages conservaient un lien vers un fichier qui n'existe pas : le
+    # bouton « Demander une démo » n'y menait nulle part, sans le moindre message.
+    #
+    # Le paramètre lui-même n'a plus d'objet : il servait à dire au canevas unique
+    # quelle langue afficher, alors qu'il y a désormais une page par langue.
+    corps = re.sub(
+        r'href="Demande(?:%20| )de(?:%20| )d(?:%C3%A9|é)mo\.dc\.html(?:\?[^"]*)?"',
+        'href="demo.html"', corps)
     return corps
+
+
+MAISON_SVG = (
+    '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+    'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" '
+    'style="flex:none"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/>'
+    '<path d="M9.75 20v-5.5h4.5V20"/></svg>'
+)
+
+
+def retour_accueil(mots: dict) -> str:
+    """Le bouton qui clôt la page de remerciement.
+
+    Une page de remerciement sans issue laisse le visiteur sur une impasse : il n'a
+    plus qu'à employer le bouton Précédent, qui le ramènerait au formulaire qu'il
+    vient d'envoyer. Ce bouton lui rend l'accueil."""
+    texte = str(mots.get('retour', '')).lstrip('←⟵<- ').strip() or 'Home'
+    return (
+        '<a class="dc-retour" href="./" style="margin-top:28px;display:inline-flex;'
+        'align-items:center;gap:8px;background:#FDC30E;color:#14171C;font-weight:600;'
+        'font-size:15px;padding:11px 22px;border-radius:2px;text-decoration:none">'
+        + MAISON_SVG + '<span>' + htmlmod.escape(texte) + '</span></a>'
+    )
+
+
+def poser_lien_accueil(corps: str, mots: dict) -> str:
+    """Remplace la flèche du lien de retour par une maison.
+
+    ─── POURQUOI UNE MAISON PLUTÔT QU'UNE FLÈCHE ──────────────────────────────
+    « ← » dit « en arrière », ce qui se confond avec le bouton Précédent du
+    navigateur. Or ce lien ne revient pas d'un pas : il ramène à l'accueil, quel
+    que soit le chemin emprunté pour arriver là. La maison dit exactement cela,
+    dans les treize langues, sans dépendre du texte.
+
+    Le libellé reste, amputé de sa flèche : une icône seule oblige à deviner, et
+    les treize traductions du texte existent déjà.
+    """
+    texte = str(mots.get('retour', '')).lstrip('←⟵<- ').strip()
+    if not texte:
+        return corps
+
+    # La substitution vise le lien du bandeau, reconnu à son libellé de retour.
+    # On le reconstruit en ligne flexible, pour que l'icône et le texte restent
+    # alignés sur leur ligne médiane quelle que soit la taille de police.
+    motif = re.compile(
+        r'(<a\b[^>]*href="\./"[^>]*style=")([^"]*)("[^>]*>)\s*'
+        + re.escape(htmlmod.escape(str(mots.get('retour', ''))))
+        + r'\s*(</a>)')
+
+    def remplacer(m):
+        style = m.group(2).rstrip(';')
+        style += ';display:inline-flex;align-items:center;gap:7px'
+        return (m.group(1) + style + m.group(3)
+                + MAISON_SVG + '<span>' + htmlmod.escape(texte) + '</span>' + m.group(4))
+
+    return motif.sub(remplacer, corps, count=1)
+
+
+def verifier_liens(corps: str, source: str, code: str) -> None:
+    """AUCUN LIEN NE DOIT ENCORE DÉSIGNER UN CANEVAS.
+
+    ─── LE DÉFAUT QUE CE CONTRÔLE AURAIT ÉVITÉ ────────────────────────────────
+    Le contrôle des marqueurs ne voit que les {{ }}. Un lien vers un fichier
+    .dc.html, lui, est du HTML parfaitement valide : il passait sans rien
+    déclencher, et la page publiée portait un bouton qui ne menait nulle part.
+
+    C'est ce qui est arrivé aux douze pages traduites. Leur lien de demande de
+    démonstration comportait un paramètre, « ?lang=EN », que la substitution ne
+    reconnaissait pas : elle ne traitait que la forme exacte, sans paramètre, celle
+    du seul canevas français. Douze pages sur treize ont donc été mises en ligne
+    avec un appel à l'action inerte, et rien ne l'a signalé.
+
+    À appeler EN FIN de conversion, une fois les liens réécrits.
+    """
+    canevas = sorted(set(re.findall(r'href="([^"]*\.dc\.html[^"]*)"', corps)))
+    if canevas:
+        raise SystemExit(
+            f'{source} [{code}] : lien(s) vers un canevas non réécrit(s) :\n  '
+            + '\n  '.join(canevas)
+            + '\nCompléter rectifier_liens.'
+        )
 
 
 def rectifier_ressources(corps: str) -> str:
@@ -1357,18 +1444,18 @@ JS_COMMUN = """/* ════════════════════�
         '?subject=' + encodeURIComponent('BlastClear - demande de demonstration') +
         '&body=' + encodeURIComponent(lignes.join('\\r\\n'));
 
-      // Le panneau de remerciement s'affiche, mais un instant plus tard : le
-      // temps que le logiciel de messagerie s'ouvre. Remplacer le formulaire
-      // immédiatement donnerait l'impression que l'envoi est parti alors qu'il
-      // reste à confirmer dans le client de messagerie.
-      var merci = document.getElementById('panneau-merci');
-      if (!merci) return;
-      setTimeout(function () {
-        merci.hidden = false;
-        formulaire.hidden = true;
-        merci.setAttribute('tabindex', '-1');
-        merci.focus();
-      }, 900);
+      // ── LA PAGE DE REMERCIEMENT VIENT APRÈS, ET NON AUSSITÔT ─────────────
+      //
+      // Le délai n'est pas cosmétique : le navigateur doit avoir le temps de
+      // passer la main au logiciel de messagerie. Naviguer immédiatement
+      // annulerait cette ouverture sur certains navigateurs, et la demande ne
+      // partirait jamais.
+      //
+      // C'est une page, et non un panneau qui se dévoile : elle a sa propre
+      // adresse, donc elle se partage, se met en favori, et servira de
+      // destination telle quelle le jour où un service de collecte remplacera
+      // l'ouverture de la messagerie.
+      setTimeout(function () { window.location.href = 'merci.html'; }, 1200);
     });
   }
 })();
@@ -1460,6 +1547,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
             "Ajouter la valeur dans VALEURS, ou le traitement dans CONDITIONS."
         )
 
+
     corps, survols = convertir_survols(corps)
 
     for motif, valeur in COULEURS:
@@ -1480,6 +1568,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
         corps = remplacer_section_application(corps, code)
     corps = rectifier_formulaire(corps)
     corps = poser_animations(corps)
+    verifier_liens(corps, chemin.name, code)
 
     titre, description = extraire_metadonnees(corps)
 
@@ -1610,7 +1699,8 @@ def selecteur_pays(dial: list, defaut: str, libelle: str) -> str:
     )
 
 
-def convertir_demo(chemin: pathlib.Path, code: str) -> str:
+def convertir_demo(chemin: pathlib.Path, code: str) -> tuple[str, str]:
+    """Rend deux pages : la demande de démonstration, et le remerciement."""
     # Déclaré ici, avant toute lecture : Python refuse un `global` placé après
     # le premier usage du nom dans la fonction.
     global CONDITIONS
@@ -1673,31 +1763,85 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> str:
         corps = corps.replace(ancienne, nouvelle)
 
     corps = completer_formulaire(corps, mots)
+    corps = poser_lien_accueil(corps, mots)
     corps = aligner_adresse_affichee(corps)
     corps = nettoyer_typographie(corps)
     corps = rectifier_ressources(corps)
     corps = rectifier_formulaire(corps)
     corps = poser_animations(corps)
+    verifier_liens(corps, chemin.name, code)
 
-    titre = f"BlastClear | {mots.get('titre', 'Demo')}"
-    description = str(mots.get('intro', ''))[:180]
+    # ── DEUX PAGES SONT TIRÉES DU MÊME CORPS ────────────────────────────────
+    #
+    # La page de demande porte le formulaire ; la page de remerciement porte le
+    # message de confirmation. Toutes deux sont produites en RETIRANT un bloc du
+    # même corps converti, plutôt qu'en composant une seconde page à la main.
+    #
+    # C'est ce qui garantit qu'elles partagent exactement le même habillage :
+    # barre, logo, lien de retour, pied de page, styles de survol. Une page de
+    # remerciement écrite séparément aurait divergé à la première retouche.
+    bloc_merci = ''
+    m = re.search(r'<div class="dc-merci" id="panneau-merci" hidden', corps)
+    if m:
+        _, _, fin = bloc_equilibre(corps, m.start(), 'div')
+        bloc_merci = corps[m.start():fin].replace(' hidden', '', 1)
+        corps_demande = corps[:m.start()] + corps[fin:]
+    else:
+        corps_demande = corps
 
-    alternats = '\n'.join(
-        f'<link rel="alternate" hreflang="{c}" href="https://www.blastclear.com/{c}/demo.html"/>'
-        for c in LANGUES
-    ) + '\n<link rel="alternate" hreflang="x-default" href="https://www.blastclear.com/en/demo.html"/>'
+    # ── LA PAGE DE REMERCIEMENT PARLE DE REMERCIEMENT, PAS DE DEMANDE ───────
+    #
+    # Retirer le formulaire ne suffisait pas : la page gardait le titre « Demander
+    # une démo » et son texte d'introduction, suivis du pavé « Demande envoyée ».
+    # Elle demandait et confirmait à la fois.
+    #
+    # Le titre et l'introduction prennent donc les textes de remerciement, et le
+    # pavé disparaît : son contenu vient de remonter à sa place.
+    corps_merci = corps_demande
+    f = re.search(r'<form\b', corps_merci)
+    if f:
+        _, _, fin_f = bloc_equilibre(corps_merci, f.start(), 'form')
+        corps_merci = corps_merci[:f.start()] + retour_accueil(mots) + corps_merci[fin_f:]
 
-    # Une page de formulaire n'a rien à faire dans un index de moteur de
-    # recherche : elle n'apporte aucun contenu et dilue les pages qui comptent.
-    entete_sup = '<meta name="robots" content="noindex,follow">'
+    corps_merci = re.sub(
+        r'(<h1\b[^>]*>).*?(</h1>)',
+        lambda m: m.group(1) + htmlmod.escape(str(mots.get('merciTitre', ''))) + m.group(2),
+        corps_merci, count=1, flags=re.S)
+    corps_merci = re.sub(
+        r'(</h1>\s*<p\b[^>]*>).*?(</p>)',
+        lambda m: m.group(1) + htmlmod.escape(str(mots.get('merciTexte', ''))) + m.group(2),
+        corps_merci, count=1, flags=re.S)
 
-    return GABARIT.format(
-        source=chemin.name, lang=code, locale=langue['locale'],
-        titre=htmlmod.escape(titre, quote=True),
-        description=htmlmod.escape(description, quote=True),
-        fichier='demo.html', alternats=alternats + '\n' + entete_sup,
-        survols=survols, saut=htmlmod.escape(SAUT.get(code, 'Skip to content')),
-        corps=corps,
+    def page(fichier: str, titre_page: str, description_page: str, corps_page: str) -> str:
+        alternats = '\n'.join(
+            f'<link rel="alternate" hreflang="{c}" href="https://www.blastclear.com/{c}/{fichier}"/>'
+            for c in LANGUES
+        ) + f'\n<link rel="alternate" hreflang="x-default" href="https://www.blastclear.com/en/{fichier}"/>'
+
+        # Ni le formulaire ni le remerciement n'ont leur place dans un index de
+        # moteur de recherche : ils n'apportent aucun contenu et diluent les pages
+        # qui comptent. Une page de remerciement indexée se retrouve même parfois
+        # en résultat de recherche, où elle n'a aucun sens.
+        entete_sup = '<meta name="robots" content="noindex,follow">'
+
+        return GABARIT.format(
+            source=chemin.name, lang=code, locale=langue['locale'],
+            titre=htmlmod.escape(titre_page, quote=True),
+            description=htmlmod.escape(description_page, quote=True),
+            fichier=fichier, alternats=alternats + '\n' + entete_sup,
+            survols=survols, saut=htmlmod.escape(SAUT.get(code, 'Skip to content')),
+            corps=corps_page,
+        )
+
+    return (
+        page('demo.html',
+             f"BlastClear | {mots.get('titre', 'Demo')}",
+             str(mots.get('intro', ''))[:180],
+             corps_demande),
+        page('merci.html',
+             f"BlastClear | {mots.get('merciTitre', 'Thank you')}",
+             str(mots.get('merciTexte', ''))[:180],
+             corps_merci),
     )
 
 
@@ -1731,12 +1875,13 @@ def main() -> int:
     demo = SOURCE / 'Demande de démo.dc.html'
     if demo.exists():
         for code in LANGUES:
-            page = convertir_demo(demo, code)
-            cible = SITE / code / 'demo.html'
-            cible.parent.mkdir(parents=True, exist_ok=True)
-            cible.write_text(page, encoding='utf-8', newline='\n')
-            total += 1
-        print(f'  écrit  site/<langue>/demo.html  ({len(LANGUES)} pages)')
+            page_demande, page_merci = convertir_demo(demo, code)
+            dossier = SITE / code
+            dossier.mkdir(parents=True, exist_ok=True)
+            (dossier / 'demo.html').write_text(page_demande, encoding='utf-8', newline='\n')
+            (dossier / 'merci.html').write_text(page_merci, encoding='utf-8', newline='\n')
+            total += 2
+        print(f'  écrit  site/<langue>/demo.html et merci.html  ({len(LANGUES) * 2} pages)')
     else:
         print('  ABSENT Demande de démo.dc.html')
 
