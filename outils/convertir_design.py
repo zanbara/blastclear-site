@@ -397,9 +397,9 @@ def renforcer_bandeau(corps: str) -> str:
 # correspond donc à 34,3 px de haut, et les trois emplois ci-dessous étaient en
 # dessous. Les nouvelles valeurs laissent une marge plutôt que de frôler la limite.
 HAUTEURS_LOGO = {
-    '34': '46',   # bandeau de l'accueil : 199 px -> 269 px
-    '32': '36',   # bandeau des pages de formulaire : 187 px -> 210 px
-    '28': '36',   # pied de page : 163 px -> 210 px
+    '34': '58',   # bandeau de l'accueil : 199 px -> 339 px
+    '32': '48',   # bandeau des pages de formulaire : 187 px -> 280 px
+    '28': '44',   # pied de page : 163 px -> 257 px
 }
 
 
@@ -1869,7 +1869,12 @@ GABARIT = """<!doctype html>
 <meta property="og:description" content="{description}">
 <meta property="og:url" content="https://www.blastclear.com/{lang}/{fichier}">
 <meta property="og:image" content="https://www.blastclear.com/assets/design/app-screen.jpg">
+<meta property="og:image:width" content="1500">
+<meta property="og:image:height" content="900">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="{titre}">
 <meta name="twitter:card" content="summary_large_image">
+{DONNEES_STRUCTUREES}
 <meta name="theme-color" content="#25498A">
 <link rel="icon" href="../assets/logo/favicon.ico" sizes="any">
 <link rel="icon" href="../assets/logo/BlastClear_B_bleu_256.png" type="image/png">
@@ -1890,6 +1895,49 @@ GABARIT = """<!doctype html>
 </body>
 </html>
 """
+
+def donnees_structurees(code: str, titre: str, description: str, fichier: str) -> str:
+    """Les données structurées, à destination des moteurs de recherche.
+
+    ─── CE QU'ELLES CHANGENT, ET CE QU'ELLES NE CHANGENT PAS ──────────────────
+    Elles ne font pas monter un site dans les résultats. Elles disent ce qu'EST la
+    page, dans un vocabulaire que les moteurs comprennent : un logiciel, son
+    éditeur, la plateforme qu'il exige. C'est ce qui permet à une recherche
+    « logiciel périmètre évacuation tir minier » de reconnaître un logiciel plutôt
+    qu'un article qui en parle.
+
+    ─── POURQUOI SEULEMENT SUR LA PAGE D'ACCUEIL ──────────────────────────────
+    Déclarer le même logiciel sur cinquante pages n'apporte rien et brouille la
+    lecture. Une page, une déclaration.
+
+    Aucun prix n'y figure : la grille n'est pas publiée, et annoncer un prix dans
+    les données structurées le rendrait visible dans les résultats de recherche,
+    ce qui reviendrait à le publier par une autre porte.
+    """
+    if fichier:          # seules les pages d'accueil portent la déclaration
+        return ''
+
+    import json
+    bloc = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "BlastClear",
+        "url": f"https://www.blastclear.com/{code}/",
+        "inLanguage": code,
+        "description": description,
+        "applicationCategory": "EngineeringApplication",
+        "applicationSubCategory": "Mining and blasting engineering",
+        "operatingSystem": "Windows 10, Windows 11",
+        "softwareVersion": "2.2",
+        "image": "https://www.blastclear.com/assets/design/app-screen.jpg",
+        "author": {"@type": "Person", "name": "Anouar Zanbara"},
+        "publisher": {"@type": "Person", "name": "Anouar Zanbara"},
+        "offers": {"@type": "Offer", "availability": "https://schema.org/InStock"},
+    }
+    return ('<script type="application/ld+json">'
+            + json.dumps(bloc, ensure_ascii=False, separators=(',', ':'))
+            + '</script>')
+
 
 SAUT = {
     'fr': 'Aller au contenu', 'en': 'Skip to content', 'es': 'Ir al contenido',
@@ -1974,6 +2022,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
         description=htmlmod.escape(description, quote=True),
         fichier='' if fichier == 'index.html' else fichier,
         alternats=alternats, survols=survols,
+        DONNEES_STRUCTUREES=donnees_structurees(code, titre, description, '' if fichier == 'index.html' else fichier),
         saut=htmlmod.escape(SAUT.get(code, 'Skip to content')),
         corps=corps,
     )
@@ -2217,6 +2266,7 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> tuple[str, str]:
             titre=htmlmod.escape(titre_page, quote=True),
             description=htmlmod.escape(description_page, quote=True),
             fichier=fichier, alternats=alternats + '\n' + entete_sup,
+            DONNEES_STRUCTUREES='',
             survols=survols, saut=htmlmod.escape(SAUT.get(code, 'Skip to content')),
             corps=corps_page,
         )
@@ -2277,6 +2327,7 @@ def main() -> int:
                     titre=htmlmod.escape(f"{t['titre']} | BlastClear", quote=True),
                     description=htmlmod.escape(t['chapo'][:180], quote=True),
                     fichier='pourquoi.html', alternats=alternats,
+                    DONNEES_STRUCTUREES='',
                     survols=survols.group(1) if survols else '',
                     saut=htmlmod.escape(SAUT.get(code, 'Skip to content')),
                     corps=corps_pq,
