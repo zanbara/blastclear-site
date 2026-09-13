@@ -143,11 +143,16 @@ langue enregistrée est bien `en`.
 
 ## Ce qu'il faut savoir avant de basculer
 
-**Une mention devient nécessaire sur la page.** Tant que le formulaire ouvre la
-messagerie du visiteur, rien n'est collecté et il n'y a rien à déclarer. Dès que les
-données sont enregistrées, il faut dire sur la page qui les reçoit, pourquoi, combien
-de temps elles sont conservées, et comment en demander la suppression. Une ligne sous
-le bouton d'envoi suffit ; elle reste à rédiger.
+**La mention de traitement s'affiche toute seule.** Tant que le formulaire ouvre la
+messagerie du visiteur, rien n'est collecté et il n'y a rien à déclarer. Dès que
+`COLLECTE_URL` est renseignée, la phrase apparaît sous le bouton d'envoi, dans les
+treize langues : finalité, conservation trois ans, aucune cession, adresse pour
+demander la suppression. Elle est dans `MENTION_DONNEES`, au même endroit du
+convertisseur que l'interrupteur, et rien n'est à faire pour la déclencher.
+
+> **Trois ans courent depuis le dernier contact.** Si vous changez cette durée,
+> changez-la dans les treize phrases ET tenez-la dans la feuille. Une durée annoncée
+> et non respectée vaut moins que pas de durée annoncée.
 
 **Le courriel de notification part de votre compte Google.** Il porte donc votre
 adresse Gmail comme expéditeur, et non `contact@blastclear.com`, tant que la

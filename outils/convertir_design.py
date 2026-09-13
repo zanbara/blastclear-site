@@ -1474,6 +1474,59 @@ def poser_animations(corps: str) -> str:
 COLLECTE_URL = ''
 JETON_FORMULAIRE = 'REMPLACER_PAR_UNE_CHAINE_A_VOUS'
 
+# ══ LA MENTION DE TRAITEMENT DES DONNÉES ══════════════════════════════════════
+#
+# ─── ELLE N'APPARAÎT QUE QUAND ELLE EST DUE ───────────────────────────────────
+# Tant que le formulaire ouvre la messagerie du visiteur, le site n'enregistre
+# rien : c'est le visiteur qui envoie, depuis sa propre boîte. Il n'y a alors
+# aucun traitement à déclarer, et une mention affirmant le contraire serait fausse.
+#
+# Dès que COLLECTE_URL est renseignée, les coordonnées sont enregistrées dans une
+# feuille et transmises par courriel. La mention devient alors obligatoire, et
+# s'affiche du même mouvement : elle est liée à l'interrupteur, non à une décision
+# qu'il faudrait penser à prendre le jour venu.
+#
+# ─── CE QU'ELLE DOIT DIRE, ET RIEN DE PLUS ────────────────────────────────────
+# La finalité, la durée de conservation, l'absence de cession, et le moyen d'obtenir
+# la suppression. Quatre points, une phrase. Un pavé juridique sous un bouton
+# d'envoi n'est lu par personne et n'informe donc personne.
+#
+# TROIS ANS COURENT DEPUIS LE DERNIER CONTACT. C'est la durée usuelle pour une
+# donnée de prospection commerciale. Si vous la changez, changez-la aussi dans la
+# feuille : une durée annoncée et non tenue vaut moins que pas de durée du tout.
+
+MENTION_DONNEES = {
+    'fr': "Vos coordonnées servent uniquement à répondre à cette demande. Elles sont conservées trois ans, ne sont ni cédées ni revendues, et vous pouvez en demander la suppression à tout moment à contact@blastclear.com.",
+    'en': "Your details are used only to answer this request. They are kept for three years, are never shared or sold, and you may ask for them to be deleted at any time at contact@blastclear.com.",
+    'es': "Sus datos se utilizan únicamente para responder a esta solicitud. Se conservan durante tres años, no se ceden ni se venden, y puede solicitar su supresión en cualquier momento en contact@blastclear.com.",
+    'pt': "Os seus dados são utilizados apenas para responder a este pedido. São conservados durante três anos, não são cedidos nem vendidos, e pode solicitar a sua eliminação a qualquer momento em contact@blastclear.com.",
+    'it': "I suoi dati sono utilizzati solo per rispondere a questa richiesta. Sono conservati per tre anni, non vengono ceduti né venduti, e può chiederne la cancellazione in qualsiasi momento scrivendo a contact@blastclear.com.",
+    'de': "Ihre Angaben werden ausschließlich zur Beantwortung dieser Anfrage verwendet. Sie werden drei Jahre gespeichert, nicht weitergegeben und nicht verkauft; ihre Löschung können Sie jederzeit unter contact@blastclear.com verlangen.",
+    'nl': "Uw gegevens worden uitsluitend gebruikt om deze aanvraag te beantwoorden. Ze worden drie jaar bewaard, niet doorgegeven en niet verkocht, en u kunt op elk moment om verwijdering vragen via contact@blastclear.com.",
+    'sv': "Dina uppgifter används endast för att besvara denna förfrågan. De sparas i tre år, lämnas inte vidare och säljs inte, och du kan när som helst begära radering via contact@blastclear.com.",
+    'no': "Opplysningene dine brukes bare til å svare på denne henvendelsen. De lagres i tre år, deles ikke og selges ikke, og du kan når som helst be om sletting på contact@blastclear.com.",
+    'da': "Dine oplysninger bruges kun til at besvare denne henvendelse. De opbevares i tre år, videregives ikke og sælges ikke, og du kan til enhver tid bede om sletning på contact@blastclear.com.",
+    'af': "U besonderhede word slegs gebruik om hierdie navraag te beantwoord. Dit word drie jaar bewaar, word nie gedeel of verkoop nie, en u kan enige tyd by contact@blastclear.com vra dat dit geskrap word.",
+    'tr': "Bilgileriniz yalnızca bu talebi yanıtlamak için kullanılır. Üç yıl saklanır, üçüncü taraflarla paylaşılmaz ve satılmaz; dilediğiniz zaman contact@blastclear.com adresinden silinmesini isteyebilirsiniz.",
+    'zh': "您的信息仅用于回复本次咨询，保留三年，不会转让或出售。您可随时发送邮件至 contact@blastclear.com 要求删除。",
+}
+
+
+def mention_donnees(code: str) -> str:
+    """La phrase de traitement des données, l'adresse rendue cliquable.
+
+    L'adresse est déjà publiée ailleurs sur le site ; en faire un lien évite au
+    visiteur de la recopier à la main le jour où il demande une suppression, ce qui
+    est précisément le moment où on ne veut pas lui compliquer la tâche."""
+    texte = MENTION_DONNEES.get(code) or MENTION_DONNEES['en']
+    balise = '<a href="mailto:contact@blastclear.com">contact@blastclear.com</a>'
+    return (
+        '<p class="dc-mention" style="grid-column:1 / -1;margin:0;font-size:12px;'
+        'line-height:1.55;color:#5A6572">'
+        + htmlmod.escape(texte).replace('contact@blastclear.com', balise)
+        + '</p>'
+    )
+
 
 def rectifier_formulaire(corps: str, code: str = 'fr') -> str:
     """Branche le formulaire sur sa destination.
@@ -1504,6 +1557,10 @@ def rectifier_formulaire(corps: str, code: str = 'fr') -> str:
     if COLLECTE_URL:
         ouverture = (f'<form action="{htmlmod.escape(COLLECTE_URL, quote=True)}" method="POST" '
                      'data-collecte="oui"')
+        # La mention se pose en dernier élément du formulaire, donc sous le bouton
+        # d'envoi : elle doit être lue avant l'envoi, et c'est là que le regard
+        # s'arrête en dernier.
+        corps = corps.replace('</form>', mention_donnees(code) + '</form>', 1)
     else:
         ouverture = '<form data-courriel="contact@blastclear.com"'
 
