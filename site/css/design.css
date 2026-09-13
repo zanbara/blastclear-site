@@ -194,6 +194,24 @@ header[style*="pit-dome"], .dc-bandeau{min-height:clamp(420px,62vh,720px)}
    redevient régulier. */
 img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
 
+/* ══ LE B DU LOGO, EMPLOYÉ COMME LETTRE ════════════════════════════════════
+   Son montant gauche s'incurve et s'évase, à la manière d'une trajectoire, là
+   où le B de Poppins a un montant droit. C'est la seule lettre dessinée du
+   logotype.
+
+   ─── LA LETTRE RESTE DANS LE TEXTE, SOUS LE DESSIN ────────────────────────
+   Le B textuel n'est pas supprimé mais masqué visuellement : il reste dans le
+   flux, donc « BlastClear » se copie, se recherche dans la page et s'énonce
+   entier par un lecteur d'écran. Le dessin, lui, est marqué décoratif. Un mot
+   dont une lettre serait une image sans texte dessous se copierait « lastClear ».
+
+   La hauteur est donnée en em, sur la hauteur de capitale de Poppins : la lettre
+   suit alors la taille du titre, qui varie avec la largeur de l'écran. */
+.dc-nom{white-space:nowrap}
+.dc-b-lettre{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.dc-b{height:.705em;width:auto;vertical-align:baseline;fill:currentColor;
+      margin-right:.012em;shape-rendering:geometricPrecision}
+
 /* ══ LE FAISCEAU TENAIT MAL DANS SA SECTION ════════════════════════════════
    La maquette l'étale sur 170 % de la largeur. Le dessin ayant un rapport de
    1,77, cela le rend plus HAUT que large de beaucoup : sur une section de

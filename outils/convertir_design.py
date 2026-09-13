@@ -593,6 +593,67 @@ DEFINITION = {
 }
 
 
+def b_du_logo() -> str | None:
+    """Extrait du logo le tracé de son B, pour l'employer comme lettre.
+
+    ─── EN QUOI CE B DIFFÈRE DE CELUI DE POPPINS ──────────────────────────────
+    Son montant gauche n'est pas droit : il s'incurve et s'évase vers le bas, en
+    balayage, à la manière d'une trajectoire. C'est la seule lettre dessinée du
+    logotype ; les autres sont du Poppins.
+
+    ─── POURQUOI ON LE PRÉLÈVE AU LIEU DE LE RECOPIER ─────────────────────────
+    Le tracé est lu dans le fichier maître à chaque construction. Un nouvel export
+    du logo emporte donc le titre avec lui, au lieu de le laisser diverger.
+
+    Le tracé est repéré par sa position, non par un rang : c'est la première forme
+    pleine du logotype, celle qui suit le symbole. Un rang se décalerait au premier
+    réordonnancement des calques dans Illustrator.
+    """
+    source = MARQUE / 'Logo_BlastClear_FondSombre.svg'
+    if not source.exists():
+        return None
+    svg = source.read_text(encoding='utf-8')
+
+    candidats = []
+    for m in re.finditer(r'<path\b([^>]*?)/?>', svg):
+        attrs = m.group(1)
+        if 'stroke=' in attrs and 'fill="none"' in attrs:
+            continue                      # le symbole, qui est au trait
+        d = re.search(r'\sd="([^"]+)"', attrs)
+        if not d:
+            continue
+        boite = emprise_svg(f'<path d="{d.group(1)}"/>')
+        if boite:
+            candidats.append((boite[0], boite, d.group(1)))
+
+    if not candidats:
+        return None
+    candidats.sort()
+    x0, (bx0, by0, bx1, by1), trace = candidats[0]
+
+    largeur, hauteur = bx1 - bx0, by1 - by0
+    return (f'<svg class="dc-b" viewBox="{bx0:.2f} {by0:.2f} {largeur:.2f} {hauteur:.2f}" '
+            f'style="aspect-ratio:{largeur:.2f}/{hauteur:.2f}" aria-hidden="true" '
+            f'focusable="false"><path d="{trace}"/></svg>')
+
+
+def nom_avec_b_du_logo(texte: str) -> str:
+    """Remplace « BlastClear » par le nom composé avec le B du logo.
+
+    Le reste des lettres demeure du texte : le nom se sélectionne, se recherche, et
+    un lecteur d'écran l'énonce. Seule la lettre dessinée passe en image, et elle
+    est marquée décorative, le mot complet restant lisible sans elle.
+
+    « Clear » NE PASSE PAS EN JAUNE ici. Le titre est sur fond blanc, où le jaune de
+    la charte tombe à 1,62:1 : elle l'y interdit expressément pour du texte."""
+    b = b_du_logo()
+    if not b or 'BlastClear' not in texte:
+        return texte
+    return texte.replace(
+        'BlastClear',
+        f'<span class="dc-nom"><span class="dc-b-lettre">B</span>{b}lastClear</span>', 1)
+
+
 def construire_pourquoi(corps_accueil: str, code: str) -> str | None:
     """La page « Pourquoi BlastClear », bâtie sur l'habillage de l'accueil.
 
@@ -618,7 +679,7 @@ def construire_pourquoi(corps_accueil: str, code: str) -> str | None:
     morceaux.append(f'''
   <section style="max-width:900px;margin:0 auto;padding:{VALEURS['padSection']} 5cqw 0">
     <div class="dc-surtitre">{e(t['surtitre'])}</div>
-    <h1 style="margin:0 0 22px;font-size:clamp(28px,4cqw,44px);font-weight:700;letter-spacing:-1.2px;line-height:1.1">{e(t['titre'])}</h1>
+    <h1 style="margin:0 0 22px;font-size:clamp(28px,4cqw,44px);font-weight:700;letter-spacing:-1.2px;line-height:1.1">{nom_avec_b_du_logo(e(t['titre']))}</h1>
     <p style="margin:0;font-size:clamp(17px,1.9cqw,20px);line-height:1.55;color:#1B2129">{e(t['chapo'])}</p>
   </section>
 ''')
@@ -1416,6 +1477,24 @@ header[style*="pit-dome"], .dc-bandeau{min-height:clamp(420px,62vh,720px)}
    plutôt que la vitesse. Combiné à la taille d'affichage relevée, le faisceau
    redevient régulier. */
 img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
+
+/* ══ LE B DU LOGO, EMPLOYÉ COMME LETTRE ════════════════════════════════════
+   Son montant gauche s'incurve et s'évase, à la manière d'une trajectoire, là
+   où le B de Poppins a un montant droit. C'est la seule lettre dessinée du
+   logotype.
+
+   ─── LA LETTRE RESTE DANS LE TEXTE, SOUS LE DESSIN ────────────────────────
+   Le B textuel n'est pas supprimé mais masqué visuellement : il reste dans le
+   flux, donc « BlastClear » se copie, se recherche dans la page et s'énonce
+   entier par un lecteur d'écran. Le dessin, lui, est marqué décoratif. Un mot
+   dont une lettre serait une image sans texte dessous se copierait « lastClear ».
+
+   La hauteur est donnée en em, sur la hauteur de capitale de Poppins : la lettre
+   suit alors la taille du titre, qui varie avec la largeur de l'écran. */
+.dc-nom{white-space:nowrap}
+.dc-b-lettre{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.dc-b{height:.705em;width:auto;vertical-align:baseline;fill:currentColor;
+      margin-right:.012em;shape-rendering:geometricPrecision}
 
 /* ══ LE FAISCEAU TENAIT MAL DANS SA SECTION ════════════════════════════════
    La maquette l'étale sur 170 % de la largeur. Le dessin ayant un rapport de
