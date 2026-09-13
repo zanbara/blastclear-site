@@ -978,15 +978,58 @@ def poser_animations(corps: str) -> str:
 # ══ LE FORMULAIRE ═════════════════════════════════════════════════════════════
 
 
-def rectifier_formulaire(corps: str) -> str:
-    """Un hébergement statique ne traite aucun envoi de formulaire.
+# ══ OÙ PARTENT LES DEMANDES DE DÉMONSTRATION ══════════════════════════════════
+#
+# Tant que COLLECTE_URL est vide, le formulaire ouvre le logiciel de messagerie du
+# visiteur : rien ne transite par un tiers, et il n'y a rien à installer. Dès qu'une
+# adresse y figure, le formulaire l'appelle et le visiteur n'a plus qu'un clic à
+# faire.
+#
+# L'adresse attendue est celle d'une application web Google Apps Script, déployée
+# depuis la feuille de calcul. Le script et sa procédure d'installation sont dans
+# outils/formulaire/.
+#
+# LE JETON DOIT ÊTRE LE MÊME DES DEUX CÔTÉS. Il ne protège aucun secret : il filtre
+# les envois automatisés, qui arrivent tôt ou tard sur une application web ouverte.
 
-    Plutôt que d'expédier les coordonnées d'un prospect vers un service tiers
-    choisi à sa place, le formulaire compose un courriel dans le logiciel de
-    messagerie du visiteur. Aucune donnée ne transite par un intermédiaire, et
-    il n'y a rien à configurer. Le jour où un service de collecte est retenu, il
-    suffit de renseigner action= et method= sur la balise <form>."""
-    return corps.replace('<form', '<form data-courriel="contact@blastclear.com"', 1)
+COLLECTE_URL = ''
+JETON_FORMULAIRE = 'REMPLACER_PAR_UNE_CHAINE_A_VOUS'
+
+
+def rectifier_formulaire(corps: str, code: str = 'fr') -> str:
+    """Branche le formulaire sur sa destination.
+
+    ─── DEUX MODES, ET UN SEUL INTERRUPTEUR ───────────────────────────────────
+    Sans service de collecte configuré, le formulaire compose un courriel dans la
+    messagerie du visiteur : aucune donnée ne passe par un intermédiaire, et il n'y
+    a rien à configurer. Le script de la page reconnaît ce mode à l'absence
+    d'attribut action.
+
+    Avec un service configuré, le même script poste vers lui et conduit ensuite à la
+    page de remerciement.
+
+    ─── LES TROIS CHAMPS CACHÉS ───────────────────────────────────────────────
+    jeton  : filtre les envois automatisés.
+    langue : dit depuis quelle version le prospect a écrit, ce qui indique en quelle
+             langue lui répondre. L'information n'existe nulle part ailleurs.
+    site   : champ-piège. Invisible, donc toujours vide chez un humain ; un automate
+             remplit tout ce qu'il trouve et se signale ainsi lui-même.
+    """
+    caches = (
+        f'<input type="hidden" name="jeton" value="{htmlmod.escape(JETON_FORMULAIRE, quote=True)}">'
+        f'<input type="hidden" name="langue" value="{code}">'
+        '<input type="text" name="site" tabindex="-1" autocomplete="off" '
+        'aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">'
+    )
+
+    if COLLECTE_URL:
+        ouverture = (f'<form action="{htmlmod.escape(COLLECTE_URL, quote=True)}" method="POST" '
+                     'data-collecte="oui"')
+    else:
+        ouverture = '<form data-courriel="contact@blastclear.com"'
+
+    corps = corps.replace('<form', ouverture, 1)
+    return re.sub(r'(<form\b[^>]*>)', r'\1' + caches, corps, count=1)
 
 
 # ══ FEUILLE ET SCRIPT COMMUNS ═════════════════════════════════════════════════
@@ -1608,6 +1651,43 @@ JS_COMMUN = """/* ════════════════════�
   // collecte configuré, la demande part par le logiciel de messagerie du
   // visiteur plutôt que vers un tiers choisi à sa place.
 
+  // ── AVEC UN SERVICE DE COLLECTE : ENVOI EN ARRIÈRE-PLAN ─────────────────
+  //
+  // On poste nous-mêmes plutôt que de laisser le navigateur soumettre le
+  // formulaire : une soumission ordinaire afficherait la réponse brute du
+  // service, une page blanche portant du JSON. Ici le visiteur ne voit que la
+  // page de remerciement.
+  //
+  // Le mode « sans-échec » (no-cors) est employé à dessein : une application web
+  // Google Apps Script ne renvoie pas les en-têtes qui autoriseraient la lecture
+  // de sa réponse. On ne peut donc pas la lire, et on ne cherche pas à le faire.
+  // En contrepartie, une erreur côté service ne peut pas être détectée ici :
+  // c'est le script lui-même qui prévient par courriel s'il échoue.
+
+  var collecte = document.querySelector('form[data-collecte]');
+
+  if (collecte) {
+    collecte.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (typeof collecte.reportValidity === 'function' && !collecte.reportValidity()) return;
+
+      var bouton = collecte.querySelector('[type="submit"]');
+      if (bouton) { bouton.disabled = true; bouton.style.opacity = '0.6'; }
+
+      fetch(collecte.getAttribute('action'), {
+        method: 'POST',
+        mode: 'no-cors',
+        body: new FormData(collecte)
+      }).then(function () {
+        window.location.href = 'merci.html';
+      })['catch'](function () {
+        // L'envoi a peut-être abouti malgré tout : on conduit quand même à la
+        // page de remerciement plutôt que de laisser le visiteur sans réponse.
+        window.location.href = 'merci.html';
+      });
+    });
+  }
+
   var formulaire = document.querySelector('form[data-courriel]');
 
   if (formulaire && !formulaire.getAttribute('action')) {
@@ -1754,7 +1834,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     if fichier == 'index.html':
         corps = inserer_definition(corps, code)
         corps = remplacer_section_application(corps, code)
-    corps = rectifier_formulaire(corps)
+    corps = rectifier_formulaire(corps, code)
     corps = poser_animations(corps)
     verifier_liens(corps, chemin.name, code)
 
@@ -1956,7 +2036,7 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> tuple[str, str]:
     corps = nettoyer_typographie(corps)
     corps = rectifier_ressources(corps)
     corps = respecter_taille_minimale_logo(corps)
-    corps = rectifier_formulaire(corps)
+    corps = rectifier_formulaire(corps, code)
     corps = poser_animations(corps)
     verifier_liens(corps, chemin.name, code)
 

@@ -354,6 +354,43 @@
   // collecte configuré, la demande part par le logiciel de messagerie du
   // visiteur plutôt que vers un tiers choisi à sa place.
 
+  // ── AVEC UN SERVICE DE COLLECTE : ENVOI EN ARRIÈRE-PLAN ─────────────────
+  //
+  // On poste nous-mêmes plutôt que de laisser le navigateur soumettre le
+  // formulaire : une soumission ordinaire afficherait la réponse brute du
+  // service, une page blanche portant du JSON. Ici le visiteur ne voit que la
+  // page de remerciement.
+  //
+  // Le mode « sans-échec » (no-cors) est employé à dessein : une application web
+  // Google Apps Script ne renvoie pas les en-têtes qui autoriseraient la lecture
+  // de sa réponse. On ne peut donc pas la lire, et on ne cherche pas à le faire.
+  // En contrepartie, une erreur côté service ne peut pas être détectée ici :
+  // c'est le script lui-même qui prévient par courriel s'il échoue.
+
+  var collecte = document.querySelector('form[data-collecte]');
+
+  if (collecte) {
+    collecte.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (typeof collecte.reportValidity === 'function' && !collecte.reportValidity()) return;
+
+      var bouton = collecte.querySelector('[type="submit"]');
+      if (bouton) { bouton.disabled = true; bouton.style.opacity = '0.6'; }
+
+      fetch(collecte.getAttribute('action'), {
+        method: 'POST',
+        mode: 'no-cors',
+        body: new FormData(collecte)
+      }).then(function () {
+        window.location.href = 'merci.html';
+      })['catch'](function () {
+        // L'envoi a peut-être abouti malgré tout : on conduit quand même à la
+        // page de remerciement plutôt que de laisser le visiteur sans réponse.
+        window.location.href = 'merci.html';
+      });
+    });
+  }
+
   var formulaire = document.querySelector('form[data-courriel]');
 
   if (formulaire && !formulaire.getAttribute('action')) {
