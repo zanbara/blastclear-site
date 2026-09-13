@@ -1417,7 +1417,18 @@ header[style*="pit-dome"], .dc-bandeau{min-height:clamp(420px,62vh,720px)}
    redevient régulier. */
 img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
 
-.dc-traits{opacity:1}
+/* ══ LE FAISCEAU TENAIT MAL DANS SA SECTION ════════════════════════════════
+   La maquette l'étale sur 170 % de la largeur. Le dessin ayant un rapport de
+   1,77, cela le rend plus HAUT que large de beaucoup : sur une section de
+   1400 px de large, il mesurait 2380 sur 1344, pour une section qui n'en fait
+   que 430 de haut. Un tiers du faisceau y entrait, et ce tiers était sa partie
+   basse : on voyait des jambes d'arcs sans sommet ni point de départ, coupées
+   net au bord supérieur.
+
+   Deux corrections, et la section respire : le faisceau est ramené à une
+   largeur qui le fait tenir, et la section reçoit une hauteur minimale. */
+.dc-traits{opacity:1;width:118% !important}
+section:has(> .dc-traits){min-height:clamp(460px,42vh,600px);display:flex;align-items:center}
 
 .dc-traits path{
   stroke-linecap:round;
@@ -1753,7 +1764,7 @@ JS_COMMUN = """/* ════════════════════�
           var r = parentTraits.getBoundingClientRect();
           var vh = window.innerHeight || 800;
           var p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
-          traits.style.transform = 'translate(-50%,' + (-46 + (p - 0.5) * 12).toFixed(2) +
+          traits.style.transform = 'translate(-50%,' + (-50 + (p - 0.5) * 10).toFixed(2) +
             '%) scale(' + (0.95 + p * 0.08).toFixed(3) + ')';
         });
       };

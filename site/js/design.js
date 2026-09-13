@@ -234,7 +234,7 @@
           var r = parentTraits.getBoundingClientRect();
           var vh = window.innerHeight || 800;
           var p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
-          traits.style.transform = 'translate(-50%,' + (-46 + (p - 0.5) * 12).toFixed(2) +
+          traits.style.transform = 'translate(-50%,' + (-50 + (p - 0.5) * 10).toFixed(2) +
             '%) scale(' + (0.95 + p * 0.08).toFixed(3) + ')';
         });
       };
