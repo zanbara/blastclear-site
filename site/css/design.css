@@ -126,6 +126,39 @@ a[style*="border-radius:2px"]:active{transform:translateY(1px)}
    apparaître le trait par l'un ou l'autre bout, ce qui permet de partir du
    point de tir même quand le fichier décrit la courbe à l'envers. */
 
+/* ══ LE VOILE DU BANDEAU ═══════════════════════════════════════════════════
+   Le titre est en réserve blanche sur une photographie de fosse : il lui faut un
+   voile dense. Mais la photographie est le seul visuel du haut de page, et un
+   voile uniforme assez dense pour le titre l'efface.
+
+   Le texte occupe la moitié GAUCHE ; le dôme et la fosse sont à droite. Le
+   dégradé est donc HORIZONTAL : dense derrière le texte, presque nul là où il
+   n'y a rien à lire. Une seconde couche, verticale et légère, rattache le bas du
+   bandeau à la section suivante. */
+.dc-voile{
+  background:
+    linear-gradient(90deg,
+      rgba(20,23,28,.86) 0%,
+      rgba(20,23,28,.78) 34%,
+      rgba(20,23,28,.34) 62%,
+      rgba(20,23,28,.16) 100%),
+    linear-gradient(180deg,
+      rgba(20,23,28,.20) 0%,
+      rgba(20,23,28,.06) 42%,
+      rgba(20,23,28,.52) 100%);
+}
+/* Sous 900 px le texte prend toute la largeur : un dégradé horizontal laisserait
+   sa fin sur la partie claire de la photographie. On revient au voile vertical. */
+@media (max-width:899px){
+  .dc-voile{
+    background:linear-gradient(180deg,
+      rgba(20,23,28,.62) 0%,
+      rgba(20,23,28,.72) 30%,
+      rgba(20,23,28,.86) 66%,
+      rgba(20,23,28,.96) 100%);
+  }
+}
+
 .dc-traits{opacity:1}
 
 .dc-traits path{

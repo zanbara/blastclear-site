@@ -350,15 +350,168 @@ def preparer_fond_balistique() -> None:
 
 
 def renforcer_bandeau(corps: str) -> str:
-    """Assombrit le voile posé sur la photographie du bandeau.
+    """Le voile posé sur la photographie du bandeau.
 
-    La maquette montait de 0,30 à 0,40 d'opacité sur le premier quart de la
-    hauteur. Le titre en réserve blanche tombe précisément là, et la photo y est
-    claire : le contraste devenait incertain. La charte demande un voile d'au
-    moins 60 % sous un élément posé sur une photographie."""
-    return (corps
-            .replace('rgba(20,23,28,0.30) 0%', 'rgba(20,23,28,0.52) 0%')
-            .replace('rgba(20,23,28,0.40) 25%', 'rgba(20,23,28,0.66) 25%'))
+    ─── DEUX EXIGENCES QUI S'OPPOSENT ─────────────────────────────────────────
+    Le titre est en réserve blanche sur une photographie de fosse, claire par
+    endroits : il lui faut un voile dense. Mais la photographie est le seul visuel
+    du haut de page, et un voile uniforme assez dense pour le titre l'efface.
+
+    Un premier essai a assombri tout le voile. Le titre est devenu net, et la fosse
+    a disparu : c'est ce que montrait la capture.
+
+    ─── LA SORTIE EST HORIZONTALE, ET NON VERTICALE ──────────────────────────
+    Le texte occupe la moitié GAUCHE du bandeau ; le dôme et la fosse sont à droite.
+    Un dégradé de gauche à droite peut donc être dense derrière le texte et
+    quasi nul là où il n'y a rien à lire. Chacun obtient ce qu'il lui faut, au lieu
+    d'un compromis qui dessert les deux.
+
+    La règle passe en feuille de style, et non en attribut : un dégradé en ligne ne
+    se change pas selon la largeur de l'écran, or sous 900 px le texte s'étale sur
+    toute la largeur et le dégradé horizontal ne convient plus."""
+    return corps.replace(
+        '<div style="position:absolute;inset:0;background:linear-gradient(180deg,'
+        'rgba(20,23,28,0.30) 0%,rgba(20,23,28,0.40) 25%,rgba(20,23,28,0.82) 62%,'
+        'rgba(20,23,28,0.96) 100%)"></div>',
+        '<div class="dc-voile" style="position:absolute;inset:0"></div>')
+
+
+# Hauteurs d'affichage du logo, en pixels.
+#
+# LA CHARTE FIXE UN SEUIL, ET IL ÉTAIT FRANCHI. Section 4 : le logo complet ne
+# descend pas sous 200 px de large à l'écran, avec ce point de vigilance : « le
+# faisceau de paraboles se referme visuellement en dessous de 200 px : les
+# trajectoires fusionnent en une masse bleue ». C'est exactement ce qui se voyait
+# dans le bandeau.
+#
+# Le logo mesure 5,839 fois plus large que haut. Le seuil de 200 px de large
+# correspond donc à 34,3 px de haut, et les trois emplois ci-dessous étaient en
+# dessous. Les nouvelles valeurs laissent une marge plutôt que de frôler la limite.
+HAUTEURS_LOGO = {
+    '34': '40',   # bandeau de l'accueil : 199 px -> 234 px
+    '32': '36',   # bandeau des pages de formulaire : 187 px -> 210 px
+    '28': '36',   # pied de page : 163 px -> 210 px
+}
+
+
+def respecter_taille_minimale_logo(corps: str) -> str:
+    """Remonte les tailles d'affichage du logo au-dessus du seuil de la charte.
+
+    La substitution ne porte QUE sur les balises du logo : la même hauteur employée
+    ailleurs, sur une icône ou un pictogramme, n'a aucune raison de bouger."""
+    def remplacer(m):
+        balise = m.group(0)
+        return re.sub(r'height:(\d+)px',
+                      lambda h: 'height:' + HAUTEURS_LOGO.get(h.group(1), h.group(1)) + 'px',
+                      balise)
+
+    return re.sub(r'<img\b[^>]*Logo_BlastClear[^>]*>', remplacer, corps)
+
+
+# ══ LA DÉFINITION, EN TÊTE DE PAGE ════════════════════════════════════════════
+#
+# ─── POURQUOI ELLE MANQUAIT ────────────────────────────────────────────────────
+# La page passait du bandeau directement à « AVANT / AVEC BLASTCLEAR », c'est-à-dire
+# d'une accroche à une comparaison. Un visiteur qui ne connaît pas le produit devait
+# deviner ce qu'il fait à partir de ce qu'il remplace. La définition comble ce saut :
+# elle dit le métier avant d'en vanter le gain.
+#
+# ─── LA TERMINOLOGIE EST CELLE DE LA PAGE, NON UNE TRADUCTION LIBRE ───────────
+# Chaque langue reprend les termes déjà employés plus bas dans ses propres listes :
+# « Vorspaltsprengung » et non « Vorspalten », « förspräckning » et non
+# « försprängning », « precorte » et non « pre-corte ». Deux mots différents pour la
+# même opération, dans une même page, font douter de l'un et de l'autre.
+#
+# Ordre des trois paragraphes : le dôme et ses secteurs, l'intersection avec le
+# terrain, puis les familles de tirs et les livrables.
+
+DEFINITION = {
+    'fr': ("DÉFINITION", "Ce que fait BlastClear",
+           "BlastClear génère le périmètre d'évacuation d'un tir à l'explosif à partir du dôme balistique correspondant au rayon maximal retenu. La portée se module ensuite par secteur autour du tir : entière vers l'avant, où partent les projections, réduite sur les côtés, davantage réduite à l'arrière.",
+           "Le dôme est intersecté avec la topographie réelle du site. Le périmètre tracé épouse donc le terrain, ses banquettes et ses ruptures de pente, et non un plan horizontal théorique.",
+           "Les trois familles de tirs sont traitées dans le même projet : production sur contour fermé, pré-découpage sur polylignes, pétardage et tir de blocs sur points. Plusieurs tirs d'une même volée se fondent en un périmètre unique, sans raccord manuel. Le résultat sort en plan PDF prêt à signer, en DXF pour les plans du site, ou en image."),
+    'en': ("DEFINITION", "What BlastClear does",
+           "BlastClear builds the clearance perimeter of a blast from the ballistic dome matching the maximum radius you set. The reach is then graded sector by sector around the blast: full to the front, where the throw goes, reduced laterally, reduced further to the rear.",
+           "The dome is intersected with the actual site topography. The perimeter therefore follows the ground, its benches and its breaks of slope, rather than a theoretical horizontal plane.",
+           "All three families of blast are handled in the same project: production on a closed contour, pre-splitting on polylines, secondary and boulder blasting on points. Several blasts of the same round merge into a single perimeter, with no manual rework. The result comes out as a PDF drawing ready to sign, as DXF for the site drawings, or as an image."),
+    'es': ("DEFINICIÓN", "Qué hace BlastClear",
+           "BlastClear genera el perímetro de evacuación de una voladura a partir de la cúpula balística correspondiente al radio máximo establecido. El alcance se gradúa después por sectores alrededor de la voladura: completo hacia el frente, por donde salen las proyecciones, reducido en los laterales y más reducido en la parte trasera.",
+           "La cúpula se interseca con la topografía real del emplazamiento. El perímetro trazado sigue por tanto el terreno, sus bancos y sus quiebres de pendiente, y no un plano horizontal teórico.",
+           "Las tres familias de voladura se tratan en el mismo proyecto: producción sobre contorno cerrado, precorte sobre polilíneas, voladura secundaria y de bolones sobre puntos. Varias voladuras de una misma pega se funden en un perímetro único, sin retoque manual. El resultado sale en plano PDF listo para firmar, en DXF para los planos del emplazamiento, o en imagen."),
+    'pt': ("DEFINIÇÃO", "O que faz o BlastClear",
+           "O BlastClear gera o perímetro de evacuação de um fogo a partir da cúpula balística correspondente ao raio máximo definido. O alcance é depois graduado por setores em torno do fogo: total para a frente, por onde saem as projeções, reduzido lateralmente e mais reduzido atrás.",
+           "A cúpula é intersetada com a topografia real do local. O perímetro traçado acompanha portanto o terreno, as suas bancadas e as suas quebras de declive, e não um plano horizontal teórico.",
+           "As três famílias de fogo são tratadas no mesmo projeto: produção sobre contorno fechado, pré-corte sobre polilinhas, fogo secundário e desmonte de matacões sobre pontos. Vários fogos da mesma pega fundem-se num perímetro único, sem retrabalho manual. O resultado sai em desenho PDF pronto a assinar, em DXF para os desenhos do local, ou em imagem."),
+    'it': ("DEFINIZIONE", "Che cosa fa BlastClear",
+           "BlastClear genera il perimetro di evacuazione di una volata a partire dalla cupola balistica corrispondente al raggio massimo impostato. La portata viene poi graduata per settori attorno alla volata: intera verso il fronte, da cui partono le proiezioni, ridotta lateralmente e ridotta ulteriormente sul retro.",
+           "La cupola viene intersecata con la topografia reale del sito. Il perimetro tracciato segue quindi il terreno, le sue gradonature e le sue rotture di pendenza, e non un piano orizzontale teorico.",
+           "Le tre famiglie di volata sono trattate nello stesso progetto: produzione su contorno chiuso, pretaglio su polilinee, brillamento secondario e di blocchi su punti. Più volate della stessa serie si fondono in un perimetro unico, senza ritocchi manuali. Il risultato esce come disegno PDF pronto da firmare, come DXF per i disegni del sito, o come immagine."),
+    'de': ("DEFINITION", "Was BlastClear leistet",
+           "BlastClear erzeugt den Evakuierungsperimeter einer Sprengung aus der ballistischen Kuppel zum eingestellten Maximalradius. Die Reichweite wird anschließend sektorweise um die Sprengung herum abgestuft: voll nach vorn, wohin der Wurf geht, seitlich reduziert und nach hinten stärker reduziert.",
+           "Die Kuppel wird mit der realen Geländeoberfläche des Standorts verschnitten. Der gezeichnete Perimeter folgt daher dem Gelände, seinen Bermen und Geländekanten, und nicht einer theoretischen Horizontalebene.",
+           "Alle drei Sprengungsarten werden im selben Projekt behandelt: Produktion auf geschlossener Kontur, Vorspaltsprengung auf Polylinien, Nachsprengung und Knäppern auf Punkten. Mehrere Sprengungen desselben Abschlags verschmelzen zu einem einzigen Perimeter, ohne Nacharbeit. Das Ergebnis liegt als unterschriftsreifer PDF-Plan, als DXF für die Standortpläne oder als Bild vor."),
+    'nl': ("DEFINITIE", "Wat BlastClear doet",
+           "BlastClear genereert de evacuatieperimeter van een schot op basis van de ballistische koepel die hoort bij de ingestelde maximale straal. Het bereik wordt vervolgens per sector rond het schot gegradeerd: volledig naar voren, waar de worp heen gaat, zijwaarts gereduceerd en naar achteren sterker gereduceerd.",
+           "De koepel wordt doorsneden met de werkelijke topografie van de locatie. De getekende perimeter volgt dus het terrein, de bermen en de hellingbreuken, en niet een theoretisch horizontaal vlak.",
+           "De drie soorten schoten worden in hetzelfde project behandeld: productie op gesloten contour, voorsplijten op polylijnen, nasprengen en blokken sprengen op punten. Meerdere schoten van dezelfde ronde smelten samen tot één perimeter, zonder handwerk. Het resultaat komt eruit als een ondertekenklare PDF-tekening, als DXF voor de locatietekeningen, of als afbeelding."),
+    'sv': ("DEFINITION", "Vad BlastClear gör",
+           "BlastClear tar fram utrymningsperimetern för en salva utifrån den ballistiska kupol som motsvarar den inställda maximala radien. Räckvidden graderas därefter sektorvis runt salvan: full framåt, dit kastet går, reducerad i sidled och kraftigare reducerad bakåt.",
+           "Kupolen skärs mot platsens verkliga topografi. Den ritade perimetern följer alltså terrängen, dess pallar och lutningsbrott, och inte ett teoretiskt horisontalplan.",
+           "Alla tre typer av salvor hanteras i samma projekt: produktion på sluten kontur, förspräckning på polylinjer, skutknackning och blocksprängning på punkter. Flera salvor i samma runda slås samman till en enda perimeter, utan manuellt efterarbete. Resultatet levereras som en underskriftsklar PDF-ritning, som DXF för platsens ritningar, eller som bild."),
+    'no': ("DEFINISJON", "Hva BlastClear gjør",
+           "BlastClear lager evakueringsperimeteren for en salve ut fra den ballistiske kuppelen som svarer til den innstilte maksimale radien. Rekkevidden graderes deretter sektorvis rundt salven: full forover, dit kastet går, redusert sideveis og kraftigere redusert bakover.",
+           "Kuppelen skjæres mot stedets virkelige topografi. Den tegnede perimeteren følger dermed terrenget, pallene og hellingsbruddene, og ikke et teoretisk horisontalplan.",
+           "Alle tre salvetyper håndteres i samme prosjekt: produksjon på lukket kontur, forspalting på polylinjer, etterskyting og blokksprengning på punkter. Flere salver i samme runde slås sammen til én perimeter, uten manuelt etterarbeid. Resultatet leveres som en signeringsklar PDF-tegning, som DXF for stedets tegninger, eller som bilde."),
+    'da': ("DEFINITION", "Hvad BlastClear gør",
+           "BlastClear danner evakueringsperimeteren for en sprængning ud fra den ballistiske kuppel, der svarer til den valgte maksimale radius. Rækkevidden gradueres derefter sektorvis omkring sprængningen: fuld fremad, hvor kastet går hen, reduceret til siden og kraftigere reduceret bagud.",
+           "Kuplen skæres mod stedets virkelige topografi. Den tegnede perimeter følger derfor terrænet, dets bænke og hældningsbrud, og ikke et teoretisk vandret plan.",
+           "Alle tre sprængningstyper håndteres i samme projekt: produktion på lukket kontur, forspaltning på polylinjer, efterskydning og bloksprængning på punkter. Flere sprængninger i samme runde lægges sammen til én perimeter, uden manuelt efterarbejde. Resultatet leveres som en underskriftsklar PDF-tegning, som DXF til stedets tegninger, eller som billede."),
+    'af': ("DEFINISIE", "Wat BlastClear doen",
+           "BlastClear skep die ontruimingsomtrek van 'n skoot uit die ballistiese koepel wat by die ingestelde maksimum radius pas. Die bereik word daarna sektorsgewys om die skoot gegradeer: vol na voor, waarheen die werp gaan, sywaarts verminder en agter sterker verminder.",
+           "Die koepel word met die terrein se werklike topografie gesny. Die omtrek wat geteken word, volg dus die terrein, sy banke en hellingbreuke, en nie 'n teoretiese horisontale vlak nie.",
+           "Al drie soorte skote word in dieselfde projek hanteer: produksie op geslote kontoer, voorsplyting op pollyne, nasketing en bloksketing op punte. Verskeie skote van dieselfde ronde smelt saam tot een enkele omtrek, sonder handwerk. Die resultaat kom uit as 'n PDF-tekening gereed vir ondertekening, as DXF vir die terrein se tekeninge, of as beeld."),
+    'tr': ("TANIM", "BlastClear ne yapar",
+           "BlastClear, belirlenen azami yarıçapa karşılık gelen balistik kubbeden yola çıkarak bir atımın tahliye çevresini üretir. Erişim mesafesi daha sonra atımın çevresinde sektör sektör ayarlanır: savrulmanın gittiği ön tarafta tam, yanlarda azaltılmış, arkada daha da azaltılmış.",
+           "Kubbe, sahanın gerçek topografyasıyla kesiştirilir. Çizilen çevre böylece araziyi, basamaklarını ve eğim kırıklıklarını izler; teorik bir yatay düzlemi değil.",
+           "Üç atım ailesi de aynı projede ele alınır: kapalı kontur üzerinde üretim, polilinyalar üzerinde ön çatlatma, noktalar üzerinde ikincil atım ve blok patlatma. Aynı seriye ait birden çok atım, elle düzeltme olmadan tek bir çevrede birleşir. Sonuç, imzaya hazır PDF planı, saha planları için DXF veya görüntü olarak çıkar."),
+    'zh': ("定义", "BlastClear 的作用",
+           "BlastClear 依据所设定的最大半径对应的弹道穹顶，生成一次爆破的疏散警戒范围。随后按扇区调整作用距离：抛掷方向的前方取全值，侧向折减，后方折减更多。",
+           "穹顶与现场真实地形求交。因此所绘的警戒范围贴合地面、台阶与坡度转折，而非一个理论水平面。",
+           "三类爆破在同一项目中处理：闭合轮廓上的生产爆破、多段线上的预裂爆破、点位上的二次爆破与大块爆破。同一轮次的多次爆破自动合并为单一警戒范围，无需手工返工。成果可输出为可直接签署的 PDF 图纸、用于现场图纸的 DXF，或图像。"),
+}
+
+
+def inserer_definition(corps: str, code: str) -> str:
+    """Pose la définition JUSTE AVANT la section « avant / avec ».
+
+    L'ancrage se fait sur le faisceau balistique, qui n'apparaît qu'une fois dans la
+    page et toujours dans cette section. Se caler sur un rang de section aurait cédé
+    au premier remaniement de la maquette."""
+    t = DEFINITION.get(code)
+    if not t:
+        return corps
+    surtitre, titre, p1, p2, p3 = t
+
+    m = re.search(r'<section\b(?:(?!</section>).)*?id="traits-balistiques"', corps, re.S)
+    if not m:
+        return corps
+    debut = corps.rfind('<section', 0, m.end())
+    if debut < 0:
+        return corps
+
+    e = htmlmod.escape
+    bloc = f'''
+  <section style="max-width:1120px;margin:0 auto;padding:{VALEURS['padSection']} 5cqw 0">
+    <div class="dc-surtitre">{e(surtitre)}</div>
+    <h2 style="margin:0 0 20px;font-size:clamp(24px,3.4cqw,40px);font-weight:700;letter-spacing:-1px">{e(titre)}</h2>
+    <p style="margin:0;font-size:clamp(17px,1.9cqw,21px);line-height:1.5;color:#1B2129;max-width:62ch">{e(p1)}</p>
+    <div style="margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:28px">
+      <p style="margin:0;font-size:16px;line-height:1.6;color:#39424E">{e(p2)}</p>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:#39424E">{e(p3)}</p>
+    </div>
+  </section>
+'''
+    return corps[:debut] + bloc + corps[debut:]
 
 
 # ══ LE CARROUSEL DE LA PAGE D'ACCUEIL ═════════════════════════════════════════
@@ -966,6 +1119,39 @@ a[style*="border-radius:2px"]:active{transform:translateY(1px)}
    apparaître le trait par l'un ou l'autre bout, ce qui permet de partir du
    point de tir même quand le fichier décrit la courbe à l'envers. */
 
+/* ══ LE VOILE DU BANDEAU ═══════════════════════════════════════════════════
+   Le titre est en réserve blanche sur une photographie de fosse : il lui faut un
+   voile dense. Mais la photographie est le seul visuel du haut de page, et un
+   voile uniforme assez dense pour le titre l'efface.
+
+   Le texte occupe la moitié GAUCHE ; le dôme et la fosse sont à droite. Le
+   dégradé est donc HORIZONTAL : dense derrière le texte, presque nul là où il
+   n'y a rien à lire. Une seconde couche, verticale et légère, rattache le bas du
+   bandeau à la section suivante. */
+.dc-voile{
+  background:
+    linear-gradient(90deg,
+      rgba(20,23,28,.86) 0%,
+      rgba(20,23,28,.78) 34%,
+      rgba(20,23,28,.34) 62%,
+      rgba(20,23,28,.16) 100%),
+    linear-gradient(180deg,
+      rgba(20,23,28,.20) 0%,
+      rgba(20,23,28,.06) 42%,
+      rgba(20,23,28,.52) 100%);
+}
+/* Sous 900 px le texte prend toute la largeur : un dégradé horizontal laisserait
+   sa fin sur la partie claire de la photographie. On revient au voile vertical. */
+@media (max-width:899px){
+  .dc-voile{
+    background:linear-gradient(180deg,
+      rgba(20,23,28,.62) 0%,
+      rgba(20,23,28,.72) 30%,
+      rgba(20,23,28,.86) 66%,
+      rgba(20,23,28,.96) 100%);
+  }
+}
+
 .dc-traits{opacity:1}
 
 .dc-traits path{
@@ -1563,8 +1749,10 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     corps = rectifier_resultats(corps, langue)
     corps = rectifier_liens(corps, code)
     corps = rectifier_ressources(corps)
+    corps = respecter_taille_minimale_logo(corps)
     corps = inliner_fond_balistique(corps)
     if fichier == 'index.html':
+        corps = inserer_definition(corps, code)
         corps = remplacer_section_application(corps, code)
     corps = rectifier_formulaire(corps)
     corps = poser_animations(corps)
@@ -1767,6 +1955,7 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> tuple[str, str]:
     corps = aligner_adresse_affichee(corps)
     corps = nettoyer_typographie(corps)
     corps = rectifier_ressources(corps)
+    corps = respecter_taille_minimale_logo(corps)
     corps = rectifier_formulaire(corps)
     corps = poser_animations(corps)
     verifier_liens(corps, chemin.name, code)
