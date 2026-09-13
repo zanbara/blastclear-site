@@ -815,16 +815,41 @@ def construire_pourquoi(corps_accueil: str, code: str) -> str | None:
   </section>
 ''')
 
+    # ── DEUX ISSUES, DE POIDS DIFFÉRENT ─────────────────────────────────────
+    # La demande de démonstration reste l'action première, en jaune plein. Le
+    # retour à l'accueil l'accompagne en second, cerné de bleu : deux boutons
+    # pleins côte à côte se disputeraient le regard sans que rien ne dise lequel
+    # est l'action attendue.
     morceaux.append(f'''
   <section style="max-width:900px;margin:0 auto;padding:34px 5cqw {VALEURS['padSection']}">
     <p style="margin:0 0 24px;padding:16px 18px;border-left:3px solid #FDC30E;background:#F4F6F8;font-size:14px;line-height:1.6;color:#5A6572">{e(t['note'])}</p>
-    <a href="demo.html" style="display:inline-flex;align-items:center;background:#FDC30E;color:#14171C;font-weight:600;font-size:15px;padding:11px 22px;border-radius:2px;text-decoration:none">{e(t['appel'])}</a>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px">
+      <a href="demo.html" style="display:inline-flex;align-items:center;background:#FDC30E;color:#14171C;font-weight:600;font-size:15px;padding:11px 22px;border-radius:2px;text-decoration:none">{e(t['appel'])}</a>
+      <a class="dc-retour" href="./" style="display:inline-flex;align-items:center;gap:8px;border:1px solid #25498A;color:#25498A;font-weight:600;font-size:15px;padding:10px 20px;border-radius:2px;text-decoration:none">{MAISON_SVG}<span>{e(mot_retour(code))}</span></a>
+    </div>
   </section>
 ''')
 
-    return (corps_accueil[:fin_nav + len('</nav>')]
-            + ''.join(morceaux)
-            + corps_accueil[debut_pied:])
+    # ── LES ANCRES DE LA BARRE NE POINTAIENT NULLE PART ─────────────────────
+    #
+    # La barre est reprise telle quelle de l'accueil, avec ses liens « #… » vers
+    # des sections qui n'existent que là-bas. Sur cette page, ils ne menaient donc
+    # à rien : le visiteur cliquait « Fonctionnalités » et la page ne bougeait pas.
+    #
+    # Les préfixer de « ./ » les renvoie à l'accueil, sur la bonne section. C'est
+    # aussi, avec le bouton du bas, ce qui rend la page à nouveau traversable.
+    barre = re.sub(r'href="#(?!")', 'href="./#', corps_accueil[:fin_nav + len('</nav>')])
+
+    # ── ET LE SÉLECTEUR DE LANGUE RENVOYAIT À L'ACCUEIL ─────────────────────
+    # Il menait à « ../es/ », donc à l'accueil espagnol, alors que l'en-tête de la
+    # page déclare « /es/pourquoi.html » comme sa version espagnole. Le visiteur
+    # qui change de langue au milieu d'une lecture veut la même page dans l'autre
+    # langue, non le retour à la case départ ; et un moteur qui suit le lien
+    # trouve autre chose que ce que l'en-tête annonce.
+    barre = re.sub(r'href="\.\./([a-z]{2})/"', r'href="../\1/pourquoi.html"', barre)
+    barre = barre.replace('href="./"', 'href="./pourquoi.html"')
+
+    return barre + ''.join(morceaux) + corps_accueil[debut_pied:]
 
 
 def inserer_definition(corps: str, code: str) -> str:
@@ -1206,6 +1231,29 @@ def retour_accueil(mots: dict) -> str:
         'font-size:15px;padding:11px 22px;border-radius:2px;text-decoration:none">'
         + MAISON_SVG + '<span>' + htmlmod.escape(texte) + '</span></a>'
     )
+
+
+_TABLE_DEMO: dict = {}
+
+
+def mot_retour(code: str) -> str:
+    """Le libellé « retour à l'accueil » dans la langue demandée.
+
+    ─── IL EST PRIS À SA SOURCE, NON RECOPIÉ ────────────────────────────────
+    Les treize traductions existent déjà dans le canevas de demande, qui porte sa
+    table de langues. En écrire une seconde série ici donnerait deux jeux de mots
+    pour la même idée, qui divergeraient à la première correction de l'un des deux.
+    La table est lue une fois puis gardée, la conversion visitant treize langues.
+
+    La flèche est retirée du libellé : elle est remplacée par la maison, et « ← »
+    se confondrait avec le bouton Précédent du navigateur."""
+    global _TABLE_DEMO
+    if not _TABLE_DEMO:
+        demo = SOURCE / 'Demande de démo.dc.html'
+        _TABLE_DEMO = (lire_table(demo.read_text(encoding='utf-8'), 'L')
+                       if demo.exists() else {'EN': {}})
+    mots = _TABLE_DEMO.get(code.upper()) or _TABLE_DEMO.get('EN') or {}
+    return str(mots.get('retour', '')).lstrip('←⟵<- ').strip() or 'Home'
 
 
 def poser_lien_accueil(corps: str, mots: dict) -> str:
