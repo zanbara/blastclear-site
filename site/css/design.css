@@ -87,7 +87,7 @@ nav[style*="sticky"]{transition:padding .25s ease,box-shadow .25s ease,backgroun
 nav[style*="sticky"].dc-defile{padding-top:8px !important;padding-bottom:8px !important;
   box-shadow:0 6px 22px rgba(20,23,28,.28)}
 nav[style*="sticky"] img{transition:height .25s ease}
-nav[style*="sticky"].dc-defile img{height:26px !important}
+nav[style*="sticky"].dc-defile img{height:38px !important}
 
 /* Le trait jaune qui se remplit sous la barre à mesure qu'on descend. */
 .dc-progression{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;

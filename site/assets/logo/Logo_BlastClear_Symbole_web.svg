@@ -9,7 +9,7 @@
       .cls-1, .cls-2, .cls-3 {
         fill: none;
         stroke-linecap: round;
-        stroke-width: .75px;
+        stroke-width:1.5px;
       }
 
       .cls-1, .cls-3 {

@@ -397,10 +397,113 @@ def renforcer_bandeau(corps: str) -> str:
 # correspond donc à 34,3 px de haut, et les trois emplois ci-dessous étaient en
 # dessous. Les nouvelles valeurs laissent une marge plutôt que de frôler la limite.
 HAUTEURS_LOGO = {
-    '34': '58',   # bandeau de l'accueil : 199 px -> 339 px
-    '32': '48',   # bandeau des pages de formulaire : 187 px -> 280 px
-    '28': '44',   # pied de page : 163 px -> 257 px
+    '34': '48',   # bandeau de l'accueil : 199 px -> 282 px
+    '32': '44',   # bandeau des pages de formulaire : 187 px -> 258 px
+    '28': '40',   # pied de page : 163 px -> 235 px
 }
+
+
+MARQUE = RACINE / 'marque'
+
+# Épaisseur de trait des variantes destinées à l'écran.
+#
+# ─── POURQUOI ELLE EST RELEVÉE, ET DE COMBIEN ─────────────────────────────────
+# Le fichier maître porte 0,75. C'est la bonne valeur pour une impression, où le
+# point est très fin ; à 40 px de haut sur un écran d'ordinateur, le maillage du
+# dôme s'y délave. Rendus comparés à 0,75, 1,1, 1,5 et 2,0 : à 1,5 le maillage est
+# net et régulier, à 2,0 il commence à se refermer dans sa partie dense.
+#
+# Ce n'est pas une recoloration ni une déformation : les proportions et les
+# couleurs sont intactes. C'est l'adaptation que la charte prévoit elle-même quand
+# elle impose, sous 200 px, d'employer une version allégée du symbole plutôt qu'une
+# réduction du tracé complet.
+EPAISSEUR_ECRAN = '1.5'
+
+
+def preparer_logos() -> None:
+    """Produit les variantes web du logo à partir des fichiers maîtres.
+
+    Deux opérations, et une seule raison pour chacune.
+
+    LE RECADRAGE. Le fichier maître est dessiné sur un plan qui déborde largement
+    le tracé. Affiché tel quel, le logo apparaît petit au milieu d'une zone
+    transparente, et toute hauteur demandée porte sur le vide autant que sur le
+    dessin. La variante web reçoit donc l'emprise réelle du tracé pour viewBox.
+
+    L'ÉPAISSEUR. Voir EPAISSEUR_ECRAN. Elle ne peut pas être réglée depuis la page :
+    une image chargée par <img> est opaque au CSS, qui n'atteint rien de ce qu'elle
+    contient. Il faut donc une variante du fichier.
+    """
+    fichiers = [
+        ('Logo_BlastClear.svg', 'Logo_BlastClear_web.svg', 'BlastClear'),
+        ('Logo_BlastClear_FondSombre.svg', 'Logo_BlastClear_FondSombre_web.svg', 'BlastClear'),
+        ('Logo_BlastClear_Symbole.svg', 'Logo_BlastClear_Symbole_web.svg', 'Symbole BlastClear'),
+    ]
+    cible = SITE / 'assets' / 'logo'
+    cible.mkdir(parents=True, exist_ok=True)
+
+    for nom, nom_web, etiquette in fichiers:
+        source = MARQUE / nom
+        if not source.exists():
+            print(f'  ABSENT {nom}')
+            continue
+        svg = source.read_text(encoding='utf-8')
+
+        boite = emprise_svg(svg)
+        if boite:
+            x0, y0, x1, y1 = boite
+            svg = re.sub(r'viewBox="[^"]*"',
+                         f'viewBox="{x0:.2f} {y0:.2f} {x1 - x0:.2f} {y1 - y0:.2f}"',
+                         svg, count=1)
+
+        svg = re.sub(r'stroke-width:\s*\.?\d*\.?\d+', f'stroke-width:{EPAISSEUR_ECRAN}', svg)
+        svg = re.sub(r'stroke-width="\.?\d*\.?\d+"', f'stroke-width="{EPAISSEUR_ECRAN}"', svg)
+
+        svg = re.sub(r'<svg\b([^>]*?)>',
+                     lambda m: f'<svg{m.group(1)} role="img" aria-label="{etiquette}">',
+                     svg, count=1)
+
+        (cible / nom_web).write_text(svg.strip(), encoding='utf-8', newline='\n')
+        shutil.copy2(source, cible / nom)
+    print(f'  écrit  site/assets/logo/  (variantes web, trait {EPAISSEUR_ECRAN})')
+
+
+def emprise_svg(svg: str):
+    """Emprise réelle des tracés, pour recadrer le plan de dessin.
+
+    Les points de contrôle des courbes sont comptés comme des points ordinaires :
+    la boîte obtenue est au pire légèrement trop grande, jamais trop petite. On ne
+    risque donc pas de rogner le logo, ce qui serait la seule erreur grave ici."""
+    nombres = re.compile(r'[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?')
+    xs, ys = [], []
+    for d in re.findall(r'\sd="([^"]+)"', svg):
+        x = y = 0.0
+        for lettre, corps in re.findall(r'([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)', d):
+            maj, relatif = lettre.upper(), lettre.islower()
+            if maj == 'Z':
+                continue
+            args = [float(n) for n in nombres.findall(corps)]
+            arite = {'M': 2, 'L': 2, 'T': 2, 'H': 1, 'V': 1, 'C': 6, 'S': 4, 'Q': 4, 'A': 7}[maj]
+            for i in range(0, len(args) - arite + 1, arite):
+                g = args[i:i + arite]
+                if maj == 'H':
+                    x = x + g[0] if relatif else g[0]
+                elif maj == 'V':
+                    y = y + g[0] if relatif else g[0]
+                else:
+                    couples = {'C': [(0, 1), (2, 3), (4, 5)], 'S': [(0, 1), (2, 3)],
+                               'Q': [(0, 1), (2, 3)], 'A': [(5, 6)]}.get(maj, [(0, 1)])
+                    for cx, cy in couples:
+                        xs.append(x + g[cx] if relatif else g[cx])
+                        ys.append(y + g[cy] if relatif else g[cy])
+                    dx, dy = couples[-1]
+                    x = x + g[dx] if relatif else g[dx]
+                    y = y + g[dy] if relatif else g[dy]
+                xs.append(x)
+                ys.append(y)
+    if not xs:
+        return None
+    return min(xs), min(ys), max(xs), max(ys)
 
 
 def respecter_taille_minimale_logo(corps: str) -> str:
@@ -1207,7 +1310,7 @@ nav[style*="sticky"]{transition:padding .25s ease,box-shadow .25s ease,backgroun
 nav[style*="sticky"].dc-defile{padding-top:8px !important;padding-bottom:8px !important;
   box-shadow:0 6px 22px rgba(20,23,28,.28)}
 nav[style*="sticky"] img{transition:height .25s ease}
-nav[style*="sticky"].dc-defile img{height:26px !important}
+nav[style*="sticky"].dc-defile img{height:38px !important}
 
 /* Le trait jaune qui se remplit sous la barre à mesure qu'on descend. */
 .dc-progression{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
@@ -2360,6 +2463,7 @@ def main() -> int:
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dest)
     preparer_fond_balistique()
+    preparer_logos()
 
     print(f'{total} page(s) produite(s).')
     return 0
