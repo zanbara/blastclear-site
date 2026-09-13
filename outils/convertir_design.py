@@ -208,6 +208,49 @@ CORRECTIONS = {
 }
 
 
+def capitaliser_sous_titre(corps: str) -> str:
+    """Met une majuscule au premier mot du sous-titre du bandeau.
+
+    ─── POURQUOI IL ÉTAIT EN MINUSCULE ────────────────────────────────────────
+    La maquette en faisait la suite de la phrase du titre : « générateur de
+    périmètres… pour les tirs… ». Le titre s'étant étoffé, les deux lignes se
+    lisent désormais comme deux énoncés distincts, et la seconde commence par une
+    minuscule sans que rien ne la précède.
+
+    ─── ELLE S'APPLIQUE AUX TREIZE LANGUES ────────────────────────────────────
+    Douze versions portent la même ligne, construite de la même façon. Ne relever
+    que le français donnerait douze pages qui gardent la minuscule, pour une
+    différence qui ne tient à rien dans la langue.
+
+    ─── LE « i » TURC N'EST PAS LE NÔTRE ──────────────────────────────────────
+    Le turc distingue le i pointé du i sans point, et la majuscule du premier est
+    « İ », non « I ». Passer par la règle par défaut donnerait un mot mal
+    orthographié. Le chinois, lui, n'a pas de casse : la ligne en ressort
+    inchangée, ce qui est le résultat voulu.
+
+    Le sous-titre est repéré par sa place, dernier bloc du titre, et non par son
+    contenu : les treize langues n'ont aucun mot en commun."""
+    MAJUSCULES = {'i': 'İ', 'ı': 'I'}
+
+    m = re.search(r'<h1\b', corps)
+    if not m:
+        return corps
+    _, _, fin = bloc_equilibre(corps, m.start(), 'h1')
+    titre = corps[m.start():fin]
+
+    m_sous = re.search(r'(<span\b[^>]*>)([^<]+)(</span>\s*</h1>)\s*$', titre)
+    if not m_sous:
+        return corps
+    texte = m_sous.group(2)
+    premiere = texte[:1]
+    relevee = MAJUSCULES.get(premiere, premiere.upper())
+    if relevee == premiere:
+        return corps                      # déjà en majuscule, ou langue sans casse
+
+    nouveau = titre[:m_sous.start(2)] + relevee + texte[1:] + titre[m_sous.end(2):]
+    return corps[:m.start()] + nouveau + corps[fin:]
+
+
 def aligner_adresse_affichee(corps: str) -> str:
     """Le pied de page affiche l'adresse du site : elle doit être celle que le
     visiteur verra dans sa barre d'adresse, donc la forme avec www.
@@ -2415,6 +2458,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
         corps = corps.replace(ancienne, nouvelle)
 
     corps = appliquer_corrections(corps, code, chemin.name)
+    corps = capitaliser_sous_titre(corps)
     corps = aligner_adresse_affichee(corps)
     corps = nettoyer_typographie(corps)
     corps = renforcer_bandeau(corps)
