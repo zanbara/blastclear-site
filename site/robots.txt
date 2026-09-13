@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /*/demo.html
 
-Sitemap: https://blastclear.com/sitemap.xml
+Sitemap: https://www.blastclear.com/sitemap.xml

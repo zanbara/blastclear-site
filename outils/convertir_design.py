@@ -206,6 +206,19 @@ CORRECTIONS = {
 }
 
 
+def aligner_adresse_affichee(corps: str) -> str:
+    """Le pied de page affiche l'adresse du site : elle doit être celle que le
+    visiteur verra dans sa barre d'adresse, donc la forme avec www.
+
+    ─── LA SUBSTITUTION EST DÉLIBÉRÉMENT ÉTROITE ──────────────────────────────
+    Elle ne porte que sur le texte d'un élément, encadré par ses balises. Une
+    substitution large sur « blastclear.com » attraperait aussi
+    contact@blastclear.com, et transformerait l'adresse de contact en
+    contact@www.blastclear.com, qui n'existe pas et vers laquelle aucun courriel
+    n'arriverait jamais."""
+    return corps.replace('>blastclear.com<', '>www.blastclear.com<')
+
+
 def nettoyer_typographie(corps: str) -> str:
     """Deux corrections qui valent pour les treize langues.
 
@@ -1375,15 +1388,15 @@ GABARIT = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{titre}</title>
 <meta name="description" content="{description}">
-<link rel="canonical" href="https://blastclear.com/{lang}/{fichier}">
+<link rel="canonical" href="https://www.blastclear.com/{lang}/{fichier}">
 {alternats}
 <meta property="og:type" content="website">
 <meta property="og:locale" content="{locale}">
 <meta property="og:site_name" content="BlastClear">
 <meta property="og:title" content="{titre}">
 <meta property="og:description" content="{description}">
-<meta property="og:url" content="https://blastclear.com/{lang}/{fichier}">
-<meta property="og:image" content="https://blastclear.com/assets/design/app-screen.jpg">
+<meta property="og:url" content="https://www.blastclear.com/{lang}/{fichier}">
+<meta property="og:image" content="https://www.blastclear.com/assets/design/app-screen.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#25498A">
 <link rel="icon" href="../assets/logo/favicon.ico" sizes="any">
@@ -1456,6 +1469,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
         corps = corps.replace(ancienne, nouvelle)
 
     corps = appliquer_corrections(corps, code, chemin.name)
+    corps = aligner_adresse_affichee(corps)
     corps = nettoyer_typographie(corps)
     corps = renforcer_bandeau(corps)
     corps = rectifier_resultats(corps, langue)
@@ -1470,13 +1484,13 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     titre, description = extraire_metadonnees(corps)
 
     alternats = '\n'.join(
-        f'<link rel="alternate" hreflang="{c}" href="https://blastclear.com/{c}/">'
+        f'<link rel="alternate" hreflang="{c}" href="https://www.blastclear.com/{c}/">'
         for c in LANGUES
     # x-default désigne la page servie à qui ne correspond à aucune des langues
     # listées. C'est l'anglais, comme la racine du site : les deux doivent dire la
     # même chose, sans quoi un moteur annoncerait une destination et le visiteur en
     # trouverait une autre.
-    ) + '\n<link rel="alternate" hreflang="x-default" href="https://blastclear.com/en/">'
+    ) + '\n<link rel="alternate" hreflang="x-default" href="https://www.blastclear.com/en/">'
 
     return GABARIT.format(
         source=chemin.name, lang=code, locale=langue['locale'],
@@ -1659,6 +1673,7 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> str:
         corps = corps.replace(ancienne, nouvelle)
 
     corps = completer_formulaire(corps, mots)
+    corps = aligner_adresse_affichee(corps)
     corps = nettoyer_typographie(corps)
     corps = rectifier_ressources(corps)
     corps = rectifier_formulaire(corps)
@@ -1668,9 +1683,9 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> str:
     description = str(mots.get('intro', ''))[:180]
 
     alternats = '\n'.join(
-        f'<link rel="alternate" hreflang="{c}" href="https://blastclear.com/{c}/demo.html"/>'
+        f'<link rel="alternate" hreflang="{c}" href="https://www.blastclear.com/{c}/demo.html"/>'
         for c in LANGUES
-    ) + '\n<link rel="alternate" hreflang="x-default" href="https://blastclear.com/en/demo.html"/>'
+    ) + '\n<link rel="alternate" hreflang="x-default" href="https://www.blastclear.com/en/demo.html"/>'
 
     # Une page de formulaire n'a rien à faire dans un index de moteur de
     # recherche : elle n'apporte aucun contenu et dilue les pages qui comptent.
