@@ -369,11 +369,18 @@ def renforcer_bandeau(corps: str) -> str:
     La règle passe en feuille de style, et non en attribut : un dégradé en ligne ne
     se change pas selon la largeur de l'écran, or sous 900 px le texte s'étale sur
     toute la largeur et le dégradé horizontal ne convient plus."""
-    return corps.replace(
+    corps = corps.replace(
         '<div style="position:absolute;inset:0;background:linear-gradient(180deg,'
         'rgba(20,23,28,0.30) 0%,rgba(20,23,28,0.40) 25%,rgba(20,23,28,0.82) 62%,'
         'rgba(20,23,28,0.96) 100%)"></div>',
         '<div class="dc-voile" style="position:absolute;inset:0"></div>')
+
+    # La classe permet à la feuille de style de fixer la hauteur du bandeau et le
+    # cadrage de la photographie, ce qu'un style en ligne ne sait pas faire selon
+    # la largeur de l'écran.
+    return corps.replace(
+        '<header style="position:relative;background:#25498A;overflow:hidden;',
+        '<header class="dc-bandeau" style="position:relative;background:#25498A;overflow:hidden;', 1)
 
 
 # Hauteurs d'affichage du logo, en pixels.
@@ -388,7 +395,7 @@ def renforcer_bandeau(corps: str) -> str:
 # correspond donc à 34,3 px de haut, et les trois emplois ci-dessous étaient en
 # dessous. Les nouvelles valeurs laissent une marge plutôt que de frôler la limite.
 HAUTEURS_LOGO = {
-    '34': '40',   # bandeau de l'accueil : 199 px -> 234 px
+    '34': '46',   # bandeau de l'accueil : 199 px -> 269 px
     '32': '36',   # bandeau des pages de formulaire : 187 px -> 210 px
     '28': '36',   # pied de page : 163 px -> 210 px
 }
@@ -501,7 +508,7 @@ def inserer_definition(corps: str, code: str) -> str:
 
     e = htmlmod.escape
     bloc = f'''
-  <section style="max-width:1120px;margin:0 auto;padding:{VALEURS['padSection']} 5cqw 0">
+  <section style="max-width:1120px;margin:0 auto;padding:{VALEURS['padSection']} 5cqw">
     <div class="dc-surtitre">{e(surtitre)}</div>
     <h2 style="margin:0 0 20px;font-size:clamp(24px,3.4cqw,40px);font-weight:700;letter-spacing:-1px">{e(titre)}</h2>
     <p style="margin:0;font-size:clamp(17px,1.9cqw,21px);line-height:1.5;color:#1B2129;max-width:62ch">{e(p1)}</p>
@@ -1162,38 +1169,73 @@ a[style*="border-radius:2px"]:active{transform:translateY(1px)}
    apparaître le trait par l'un ou l'autre bout, ce qui permet de partir du
    point de tir même quand le fichier décrit la courbe à l'envers. */
 
-/* ══ LE VOILE DU BANDEAU ═══════════════════════════════════════════════════
-   Le titre est en réserve blanche sur une photographie de fosse : il lui faut un
-   voile dense. Mais la photographie est le seul visuel du haut de page, et un
-   voile uniforme assez dense pour le titre l'efface.
+/* ══ LE BANDEAU : MONTRER LE DÔME EN ENTIER ════════════════════════════════
 
-   Le texte occupe la moitié GAUCHE ; le dôme et la fosse sont à droite. Le
-   dégradé est donc HORIZONTAL : dense derrière le texte, presque nul là où il
-   n'y a rien à lire. Une seconde couche, verticale et légère, rattache le bas du
-   bandeau à la section suivante. */
+   ─── POURQUOI IL ÉTAIT TRONQUÉ, ET POURQUOI CE N'EST PAS UN RÉGLAGE ───────
+   La photographie mesure 1600 × 893, et le dôme y occupe 61 % de la hauteur.
+   L'image est affichée en « cover », qui remplit le cadre en rognant : la part
+   verticale visible vaut le rapport de l'image divisé par celui du cadre. Sur un
+   bandeau de 1900 × 450, cela fait 42 %. Le dôme ne peut donc PAS y tenir, quel
+   que soit le cadrage choisi : il manque de la hauteur, pas du réglage.
+
+   Le bandeau est donc rendu plus haut. À 1900 × 700, la part visible passe à
+   66 %, et le dôme tient. Les bornes évitent les deux excès : jamais moins de
+   420 px sur un portable, jamais plus de 720 px sur un grand écran, où un
+   bandeau pleine hauteur repousserait tout le contenu hors de vue. */
+header[style*="pit-dome"], .dc-bandeau{min-height:clamp(420px,62vh,720px)}
+.dc-bandeau{display:flex;align-items:center}
+.dc-bandeau>img{object-position:center 45% !important}
+
+/* ══ LE VOILE ══════════════════════════════════════════════════════════════
+   Il ne reste que ce qu'il faut pour lire le titre, et rien de plus.
+
+   ─── POURQUOI ON NE PEUT PAS LE SUPPRIMER TOUT À FAIT ─────────────────────
+   Le titre est en réserve blanche, et la photographie porte un ciel clair et des
+   gradins ocre. Sans voile, le blanc sur ces zones descend sous le seuil de
+   lisibilité : le titre ne disparaîtrait pas, il deviendrait pénible, ce qui est
+   pire parce que personne ne le signale.
+
+   Le voile est donc réduit au minimum ET complété par une ombre portée sur le
+   seul texte. L'ombre ne touche pas la photographie : elle rend le titre lisible
+   là où le voile ne l'est plus, ce qui permet d'alléger le voile d'autant.
+   Elle ne s'applique évidemment pas au logo, que la charte en dispense. */
 .dc-voile{
   background:
     linear-gradient(90deg,
-      rgba(20,23,28,.86) 0%,
-      rgba(20,23,28,.78) 34%,
-      rgba(20,23,28,.34) 62%,
-      rgba(20,23,28,.16) 100%),
+      rgba(20,23,28,.62) 0%,
+      rgba(20,23,28,.44) 28%,
+      rgba(20,23,28,.10) 54%,
+      rgba(20,23,28,0) 72%),
     linear-gradient(180deg,
-      rgba(20,23,28,.20) 0%,
-      rgba(20,23,28,.06) 42%,
-      rgba(20,23,28,.52) 100%);
+      rgba(20,23,28,.10) 0%,
+      rgba(20,23,28,0) 40%,
+      rgba(20,23,28,.34) 100%);
 }
+.dc-bandeau h1,
+.dc-bandeau p{text-shadow:0 2px 16px rgba(20,23,28,.8),0 1px 3px rgba(20,23,28,.75)}
+
 /* Sous 900 px le texte prend toute la largeur : un dégradé horizontal laisserait
    sa fin sur la partie claire de la photographie. On revient au voile vertical. */
 @media (max-width:899px){
   .dc-voile{
     background:linear-gradient(180deg,
-      rgba(20,23,28,.62) 0%,
-      rgba(20,23,28,.72) 30%,
-      rgba(20,23,28,.86) 66%,
-      rgba(20,23,28,.96) 100%);
+      rgba(20,23,28,.50) 0%,
+      rgba(20,23,28,.58) 30%,
+      rgba(20,23,28,.76) 70%,
+      rgba(20,23,28,.90) 100%);
   }
 }
+
+/* ══ LE LOGO ═══════════════════════════════════════════════════════════════
+   Le faisceau du symbole est fait de fuseaux PLEINS, très fins, et non de traits :
+   il n'y a aucune épaisseur de trait à augmenter. À petite taille, ces fuseaux
+   tombent sous le pixel et le lissage les rend inégaux, ce que la charte annonce
+   au paragraphe des tailles minimales.
+
+   geometricPrecision demande au navigateur de privilégier la fidélité du tracé
+   plutôt que la vitesse. Combiné à la taille d'affichage relevée, le faisceau
+   redevient régulier. */
+img[src*="Logo_BlastClear"]{shape-rendering:geometricPrecision}
 
 .dc-traits{opacity:1}
 
