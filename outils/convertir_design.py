@@ -1031,11 +1031,48 @@ def inserer_definition(corps: str, code: str) -> str:
 # son chemin, '../assets/img/le-fichier.png'. La légende correspondante est déjà
 # traduite dans les treize langues, rien d'autre n'est à faire.
 DIAPOS = [
-    ('../assets/design/app-screen.jpg', 0),
-    ('../assets/design/pit-dome.jpg', 1),
+    ('../assets/design/app-screen.webp', 0),
+    ('../assets/design/pit-dome.webp', 1),
     (None, 2),   # plan PDF produit
     (None, 3),   # fusion de plusieurs tirs
 ]
+
+
+# ══ LES PHOTOGRAPHIES ═════════════════════════════════════════════════════════
+#
+# ─── ELLES NE SE COPIENT PAS, ELLES SE RÉENCODENT ─────────────────────────────
+# Les originaux sortent de l'outil de composition à leur pleine définition : le
+# bandeau pesait 4,3 Mo en 2 752 px de large. Servi tel quel, il aurait été à lui
+# seul quatre-vingts fois le poids de la page qu'il décore, et le premier écran
+# n'aurait pas paru avant plusieurs secondes sur une liaison de site minier.
+#
+# ─── LES LARGEURS SONT CELLES DE L'AFFICHAGE, NON CELLES DU FICHIER ───────────
+# Le bandeau occupe toute la largeur : 2 200 px couvrent un écran de bureau, et
+# le rognage en hauteur en retire encore une part. La capture d'application, elle,
+# tient dans un cadre de 1 120 px au plus : 1 600 px lui laissent de la marge sur
+# un écran à forte densité sans transporter des pixels que personne ne verra.
+#
+# ─── ET LA QUALITÉ SUIT LA NATURE DE L'IMAGE ──────────────────────────────────
+# Une photographie de fosse supporte 78 : ses dégradés masquent les artefacts.
+# Une capture d'écran non : elle porte du texte de onze pixels, où la compression
+# se voit aussitôt. D'où 86 pour l'une et 78 pour l'autre, et non un réglage
+# unique qui aurait été trop bas pour l'une ou trop haut pour l'autre.
+#
+# LE WEBP SE PASSE DE REPLI. Tous les navigateurs le lisent depuis Safari 14, en
+# septembre 2020. Prévoir une seconde version en JPEG doublerait le dépôt pour des
+# navigateurs que ce site ne verra pas.
+
+PHOTOS = [
+    # source dans design/, nom publié, largeur visée, qualité
+    ('Blast Perimeter Generator.webp', 'hero-dome.webp', 2200, 78),
+    ('2026-09-13_164207.webp', 'app-screen.webp', 1600, 86),
+    ('pit-dome.jpg', 'pit-dome.webp', 1600, 80),
+]
+
+# La photographie que les réseaux sociaux montrent en aperçu, et ses dimensions
+# réelles, relevées à la production. Les déclarer à l'aveugle dans l'en-tête ferait
+# réserver à l'image une place qui n'est pas la sienne pendant son chargement.
+IMAGE_SOCIALE: dict = {}
 
 # Quatre légendes par langue, plus le surtitre de la section et les commandes.
 # Ordre : surtitre, légende 1 à 4, précédent, suivant, libellé de la pastille.
@@ -1471,6 +1508,101 @@ def construire_carrousel(code: str) -> str:
 '''
 
 
+def preparer_photos() -> None:
+    """Réencode les photographies aux dimensions de leur affichage.
+
+    ─── L'ORIGINAL PORTE UNE RANGÉE TRANSPARENTE, ET UNE SEULE ────────────────
+    Le bandeau sort en RGBA de l'outil de composition, mais sa transparence se
+    réduit à sa dernière ligne de pixels : 2 752 points sur 4,2 millions, soit
+    exactement une rangée. C'est un résidu d'export, non une intention.
+
+    On la retire donc, plutôt que de transporter une couche alpha pour elle. Un
+    aplatissement sans ce rognage aurait posé cette ligne en noir au bas du
+    bandeau, où elle se serait vue sur le bleu de la charte.
+
+    ─── LE RÉÉCHANTILLONNAGE EST EN LANCZOS ──────────────────────────────────
+    C'est le filtre qui préserve le mieux les traits fins, et l'image en est
+    pleine : le fil de fer du dôme, le tireté du périmètre, le texte d'une
+    interface. Un filtre plus rapide les ferait scintiller.
+    """
+    from PIL import Image
+
+    dossier = SITE / 'assets' / 'design'
+    dossier.mkdir(parents=True, exist_ok=True)
+
+    for source, publie, largeur, qualite in PHOTOS:
+        src = SOURCE / 'assets' / source
+        if not src.exists():
+            print(f'  ABSENT {source}')
+            continue
+
+        with Image.open(src) as im:
+            # La rangée transparente du bas, s'il y en a une, part avec le
+            # rognage sur l'emprise des pixels visibles.
+            if im.mode in ('RGBA', 'LA'):
+                boite = im.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox()
+                if boite and boite != (0, 0, im.size[0], im.size[1]):
+                    im = im.crop(boite)
+                im = im.convert('RGB')
+            elif im.mode != 'RGB':
+                im = im.convert('RGB')
+
+            if im.size[0] > largeur:
+                im = im.resize((largeur, round(largeur * im.size[1] / im.size[0])),
+                               Image.LANCZOS)
+
+            cible = dossier / publie
+            im.save(cible, 'WEBP', quality=qualite, method=6)
+            IMAGE_SOCIALE.setdefault('fichier', publie)
+            if publie == PHOTOS[0][1]:
+                IMAGE_SOCIALE.update({'fichier': publie,
+                                      'largeur': im.size[0], 'hauteur': im.size[1]})
+
+        print(f'  écrit  site/assets/design/{publie}  '
+              f'({src.stat().st_size / 1024:,.0f} ko -> '
+              f'{cible.stat().st_size / 1024:,.0f} ko, {im.size[0]}x{im.size[1]})')
+
+    # Les originaux JPEG ne sont plus servis : les laisser dans le dépôt ferait
+    # deux versions de la même image, dont une que rien n'appelle.
+    for vieux in ('app-screen.jpg', 'pit-dome.jpg'):
+        peri = dossier / vieux
+        if peri.exists():
+            peri.unlink()
+
+
+def bloc_image_sociale() -> str:
+    """Les balises d'aperçu social, avec les dimensions réellement produites."""
+    f = IMAGE_SOCIALE.get('fichier', 'hero-dome.webp')
+    l = IMAGE_SOCIALE.get('largeur', 2200)
+    h = IMAGE_SOCIALE.get('hauteur', 1228)
+    return (f'<meta property="og:image" content="https://www.blastclear.com/assets/design/{f}">\n'
+            f'<meta property="og:image:width" content="{l}">\n'
+            f'<meta property="og:image:height" content="{h}">\n'
+            '<meta property="og:image:type" content="image/webp">')
+
+
+def rectifier_images(corps: str) -> str:
+    """Fait pointer la maquette sur les photographies réellement publiées.
+
+    Le canevas nomme les fichiers d'origine. La conversion les réencode sous
+    d'autres noms, et c'est ici que le lien se refait : la maquette n'a pas à
+    connaître le format de sortie, qui relève de la publication et non du dessin.
+
+    Le bandeau change aussi de SUJET, et pas seulement de format : il montrait la
+    fosse seule, il montre désormais le tir, son dôme et son périmètre. C'est ce
+    que le titre annonce, et ce que la page entière démontre plus bas.
+
+    ─── ET IL EST DEMANDÉ EN PRIORITÉ ────────────────────────────────────────
+    C'est la plus grande image du premier écran, donc celle sur laquelle se règle
+    la mesure du temps d'affichage perçu. Sans indication, le navigateur la classe
+    au même rang que la feuille de style et les polices, et la sert après elles.
+    Le repère de priorité la fait partir en tête, sans rien retirer au reste."""
+    corps = corps.replace('../assets/design/pit-dome.jpg',
+                          f'../assets/design/{PHOTOS[0][1]}')
+    return re.sub(rf'(<img\b(?=[^>]*{re.escape(PHOTOS[0][1])})(?![^>]*fetchpriority))',
+                  r'\1 fetchpriority="high" decoding="async"', corps)
+
+
 def remplacer_section_application(corps: str, code: str) -> str:
     """Substitue le carrousel à la section qui ne portait qu'une capture."""
     for m in re.finditer(r'<section\b(?![^>]*\bid=)[^>]*>.*?</section>', corps, re.S):
@@ -1851,7 +1983,7 @@ a[style*="border-radius:2px"]:active{transform:translateY(1px)}
    66 %, et le dôme tient. Les bornes évitent les deux excès : jamais moins de
    420 px sur un portable, jamais plus de 720 px sur un grand écran, où un
    bandeau pleine hauteur repousserait tout le contenu hors de vue. */
-header[style*="pit-dome"], .dc-bandeau{min-height:clamp(420px,62vh,720px)}
+.dc-bandeau{min-height:clamp(420px,62vh,720px)}
 .dc-bandeau{display:flex;align-items:center}
 .dc-bandeau>img{object-position:center 45% !important}
 
@@ -2647,10 +2779,7 @@ GABARIT = """<!doctype html>
 <meta property="og:title" content="{titre}">
 <meta property="og:description" content="{description}">
 <meta property="og:url" content="https://www.blastclear.com/{lang}/{fichier}">
-<meta property="og:image" content="https://www.blastclear.com/assets/design/app-screen.jpg">
-<meta property="og:image:width" content="1500">
-<meta property="og:image:height" content="900">
-<meta property="og:image:type" content="image/jpeg">
+{image_sociale}
 <meta property="og:image:alt" content="{titre}">
 <meta name="twitter:card" content="summary_large_image">
 {DONNEES_STRUCTUREES}
@@ -2708,7 +2837,8 @@ def donnees_structurees(code: str, titre: str, description: str, fichier: str) -
         "applicationSubCategory": "Mining and blasting engineering",
         "operatingSystem": "Windows 10, Windows 11",
         "softwareVersion": "2.2",
-        "image": "https://www.blastclear.com/assets/design/app-screen.jpg",
+        "image": "https://www.blastclear.com/assets/design/"
+                 + IMAGE_SOCIALE.get("fichier", "hero-dome.webp"),
         "author": {"@type": "Person", "name": "Anouar Zanbara"},
         "publisher": {"@type": "Person", "name": "Anouar Zanbara"},
         "offers": {"@type": "Offer", "availability": "https://schema.org/InStock"},
@@ -2781,8 +2911,11 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     corps = inliner_fond_balistique(corps)
     if fichier == 'index.html':
         corps = inserer_definition(corps, code)
+        # Le carrousel se repère à la capture d'origine : il doit donc passer
+        # AVANT que les noms de fichiers ne soient rectifiés.
         corps = remplacer_section_application(corps, code)
         corps = inserer_fosse3d(corps, code)
+    corps = rectifier_images(corps)
     corps = rectifier_formulaire(corps, code)
     corps = poser_animations(corps)
     corps = liberer_barre_collante(corps)
@@ -2801,6 +2934,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     ) + '\n<link rel="alternate" hreflang="x-default" href="https://www.blastclear.com/en/">'
 
     return GABARIT.format(
+        image_sociale=bloc_image_sociale(),
         source=chemin.name, lang=code, locale=langue['locale'],
         titre=htmlmod.escape(titre, quote=True),
         description=htmlmod.escape(description, quote=True),
@@ -3048,6 +3182,7 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> tuple[str, str]:
         entete_sup = '<meta name="robots" content="noindex,follow">'
 
         return GABARIT.format(
+            image_sociale=bloc_image_sociale(),
             source=chemin.name, lang=code, locale=langue['locale'],
             titre=htmlmod.escape(titre_page, quote=True),
             description=htmlmod.escape(description_page, quote=True),
@@ -3084,6 +3219,10 @@ def main() -> int:
     print('  écrit  site/js/design.js')
     print('  écrit  site/js/fosse.js')
 
+    # AVANT les pages : l'en-tête de chacune déclare les dimensions de l'image
+    # d'aperçu, qui ne sont connues qu'une fois celle-ci produite.
+    preparer_photos()
+
     total = 0
     for code, langue in LANGUES.items():
         canevas = SOURCE / f"Canvas BlastClear.com{langue['suffixe']}.dc.html"
@@ -3112,6 +3251,7 @@ def main() -> int:
                     for c in LANGUES
                 ) + '\n<link rel="alternate" hreflang="x-default" href="https://www.blastclear.com/en/pourquoi.html"/>'
                 page_pq = GABARIT.format(
+                    image_sociale=bloc_image_sociale(),
                     source=canevas.name + ' + outils/pourquoi.py',
                     lang=code, locale=langue['locale'],
                     titre=htmlmod.escape(f"{t['titre']} | BlastClear", quote=True),
@@ -3141,14 +3281,6 @@ def main() -> int:
     else:
         print('  ABSENT Demande de démo.dc.html')
 
-    # Les photographies se copient telles quelles ; le faisceau balistique, lui,
-    # passe par preparer_fond_balistique, qui le recolore et l'allège.
-    for nom in ('app-screen.jpg', 'pit-dome.jpg'):
-        src = SOURCE / 'assets' / nom
-        if src.exists():
-            dest = SITE / 'assets' / 'design' / nom
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dest)
     preparer_fond_balistique()
     preparer_logos()
 

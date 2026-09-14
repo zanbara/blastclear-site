@@ -188,7 +188,7 @@ a[style*="border-radius:2px"]:active{transform:translateY(1px)}
    66 %, et le dôme tient. Les bornes évitent les deux excès : jamais moins de
    420 px sur un portable, jamais plus de 720 px sur un grand écran, où un
    bandeau pleine hauteur repousserait tout le contenu hors de vue. */
-header[style*="pit-dome"], .dc-bandeau{min-height:clamp(420px,62vh,720px)}
+.dc-bandeau{min-height:clamp(420px,62vh,720px)}
 .dc-bandeau{display:flex;align-items:center}
 .dc-bandeau>img{object-position:center 45% !important}
 
