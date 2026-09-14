@@ -1030,9 +1030,13 @@ def inserer_definition(corps: str, code: str) -> str:
 # POUR LES RÉTABLIR : déposer le fichier dans site/assets/img/ et remplacer None par
 # son chemin, '../assets/img/le-fichier.png'. La légende correspondante est déjà
 # traduite dans les treize langues, rien d'autre n'est à faire.
+# Le second nombre est le RANG DE LA LÉGENDE dans LEGENDES, non celui de la vue.
+# Les deux étaient interverties : la capture d'écran, qui montre les fichiers DXF
+# chargés dans l'arbre des sources, portait la légende du dôme ; la photographie
+# du tir sous son dôme portait celle des imports. Chacune décrivait l'autre.
 DIAPOS = [
-    ('../assets/design/app-screen.webp', 0),
-    ('../assets/design/pit-dome.webp', 1),
+    ('../assets/design/app-screen.webp', 1),
+    ('../assets/design/pit-dome.webp', 0),
     (None, 2),   # plan PDF produit
     (None, 3),   # fusion de plusieurs tirs
 ]
