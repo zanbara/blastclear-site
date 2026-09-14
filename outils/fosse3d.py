@@ -39,58 +39,68 @@ suivre dans le temps.
 # terrain s'abaisse. N'énoncer que le premier ferait de l'argument une question de
 # productivité ; c'est d'abord une question de sécurité, et le taire aurait été
 # le rendre moins vrai.
+#
+# ─── « CE TIR PROFOND » N'EST PAS UNE FIORITURE ───────────────────────────────
+# Le tir est au fond de la fosse, à -70 m, et le terrain remonte tout autour :
+# c'est CE QUI FAIT que le périmètre rentre à 207 m d'un côté. Un tir mené en tête
+# de gradin, où le terrain s'ouvre, donnerait le rapport inverse, et le cercle y
+# serait trop court sur une large part du pourtour.
+#
+# Le qualificatif évite donc de faire passer un cas favorable pour la règle
+# générale. Un prospect du métier verra tout de suite que le tir est profond ; ne
+# pas le dire ferait douter du reste.
 
 FOSSE3D = {
     'fr': ("DÔME OU CERCLE", "Pourquoi pas un simple cercle",
-           "Un cercle applique la même distance dans toutes les directions, sur un terrain qui ne l'est jamais. Sur ce tir, à rayon égal de 500 mètres, il couvre 78 hectares quand le dôme intersecté avec la topographie en retient 36. Il immobilise le double, et reste pourtant plus court que lui là où le terrain s'abaisse.",
+           "Un cercle applique la même distance dans toutes les directions, sur un terrain qui ne l'est jamais. Sur ce tir profond, à rayon égal de 500 mètres, il couvre 78 hectares quand le dôme intersecté avec la topographie en retient 36. Il immobilise le double, et reste pourtant plus court que lui là où le terrain s'abaisse.",
            "Explorer en 3D", "Fermer",
            "Faites glisser pour tourner, la molette pour approcher."),
     'en': ("DOME OR CIRCLE", "Why not simply a circle",
-           "A circle applies the same distance in every direction, over ground that never is flat. On this blast, at the same 500 m radius, it covers 78 hectares where the dome intersected with the topography holds 36. It ties up twice the ground, and still falls short of the dome where the terrain drops away.",
+           "A circle applies the same distance in every direction, over ground that never is flat. On this deep blast, at the same 500 m radius, it covers 78 hectares where the dome intersected with the topography holds 36. It ties up twice the ground, and still falls short of the dome where the terrain drops away.",
            "Explore in 3D", "Close",
            "Drag to turn, scroll to zoom."),
     'es': ("CÚPULA O CÍRCULO", "Por qué no un simple círculo",
-           "Un círculo aplica la misma distancia en todas las direcciones, sobre un terreno que nunca lo es. En esta voladura, con el mismo radio de 500 m, cubre 78 hectáreas mientras que la cúpula intersecada con la topografía retiene 36. Inmoviliza el doble y, aun así, se queda corto frente a ella donde el terreno desciende.",
+           "Un círculo aplica la misma distancia en todas las direcciones, sobre un terreno que nunca lo es. En esta voladura profunda, con el mismo radio de 500 m, cubre 78 hectáreas mientras que la cúpula intersecada con la topografía retiene 36. Inmoviliza el doble y, aun así, se queda corto frente a ella donde el terreno desciende.",
            "Explorar en 3D", "Cerrar",
            "Arrastre para girar, la rueda para acercar."),
     'pt': ("CÚPULA OU CÍRCULO", "Porquê não um simples círculo",
-           "Um círculo aplica a mesma distância em todas as direções, sobre um terreno que nunca é plano. Neste fogo, com o mesmo raio de 500 m, cobre 78 hectares quando a cúpula intersetada com a topografia retém 36. Imobiliza o dobro e, ainda assim, fica aquém dela onde o terreno desce.",
+           "Um círculo aplica a mesma distância em todas as direções, sobre um terreno que nunca é plano. Neste fogo profundo, com o mesmo raio de 500 m, cobre 78 hectares quando a cúpula intersetada com a topografia retém 36. Imobiliza o dobro e, ainda assim, fica aquém dela onde o terreno desce.",
            "Explorar em 3D", "Fechar",
            "Arraste para rodar, a roda para aproximar."),
     'it': ("CUPOLA O CERCHIO", "Perché non un semplice cerchio",
-           "Un cerchio applica la stessa distanza in ogni direzione, su un terreno che non è mai piano. Su questa volata, a parità di raggio di 500 m, copre 78 ettari mentre la cupola intersecata con la topografia ne trattiene 36. Immobilizza il doppio e resta comunque più corta di essa dove il terreno digrada.",
+           "Un cerchio applica la stessa distanza in ogni direzione, su un terreno che non è mai piano. Su questa volata profonda, a parità di raggio di 500 m, copre 78 ettari mentre la cupola intersecata con la topografia ne trattiene 36. Immobilizza il doppio e resta comunque più corta di essa dove il terreno digrada.",
            "Esplora in 3D", "Chiudi",
            "Trascini per ruotare, la rotella per avvicinare."),
     'de': ("KUPPEL ODER KREIS", "Warum nicht einfach ein Kreis",
-           "Ein Kreis legt in alle Richtungen dieselbe Entfernung an, über Gelände, das nie eben ist. Bei dieser Sprengung deckt er bei gleichem Radius von 500 m 78 Hektar ab, während die mit dem Gelände verschnittene Kuppel 36 behält. Er bindet doppelt so viel Fläche und bleibt dennoch hinter ihr zurück, wo das Gelände abfällt.",
+           "Ein Kreis legt in alle Richtungen dieselbe Entfernung an, über Gelände, das nie eben ist. Bei dieser tief liegenden Sprengung deckt er bei gleichem Radius von 500 m 78 Hektar ab, während die mit dem Gelände verschnittene Kuppel 36 behält. Er bindet doppelt so viel Fläche und bleibt dennoch hinter ihr zurück, wo das Gelände abfällt.",
            "In 3D erkunden", "Schließen",
            "Ziehen zum Drehen, Mausrad zum Heranholen."),
     'nl': ("KOEPEL OF CIRKEL", "Waarom niet gewoon een cirkel",
-           "Een cirkel legt in alle richtingen dezelfde afstand op, over terrein dat nooit vlak is. Bij dit schot beslaat hij bij dezelfde straal van 500 m 78 hectare, terwijl de met de topografie doorsneden koepel er 36 overhoudt. Hij legt het dubbele vast en blijft toch achter waar het terrein daalt.",
+           "Een cirkel legt in alle richtingen dezelfde afstand op, over terrein dat nooit vlak is. Bij dit diepgelegen schot beslaat hij bij dezelfde straal van 500 m 78 hectare, terwijl de met de topografie doorsneden koepel er 36 overhoudt. Hij legt het dubbele vast en blijft toch achter waar het terrein daalt.",
            "Verken in 3D", "Sluiten",
            "Sleep om te draaien, scrol om in te zoomen."),
     'sv': ("KUPOL ELLER CIRKEL", "Varför inte bara en cirkel",
-           "En cirkel lägger samma avstånd åt alla håll, över mark som aldrig är plan. För den här salvan täcker den vid samma radie på 500 m 78 hektar, medan kupolen skuren mot topografin behåller 36. Den binder upp dubbelt så mycket mark och räcker ändå inte lika långt där terrängen faller.",
+           "En cirkel lägger samma avstånd åt alla håll, över mark som aldrig är plan. För den här djupt liggande salvan täcker den vid samma radie på 500 m 78 hektar, medan kupolen skuren mot topografin behåller 36. Den binder upp dubbelt så mycket mark och räcker ändå inte lika långt där terrängen faller.",
            "Utforska i 3D", "Stäng",
            "Dra för att vrida, rulla för att zooma."),
     'no': ("KUPPEL ELLER SIRKEL", "Hvorfor ikke bare en sirkel",
-           "En sirkel legger samme avstand i alle retninger, over terreng som aldri er flatt. For denne salven dekker den ved samme radius på 500 m 78 hektar, mens kuppelen skåret mot terrenget beholder 36. Den båndlegger dobbelt så mye og rekker likevel kortere der terrenget faller.",
+           "En sirkel legger samme avstand i alle retninger, over terreng som aldri er flatt. For denne dyptliggende salven dekker den ved samme radius på 500 m 78 hektar, mens kuppelen skåret mot terrenget beholder 36. Den båndlegger dobbelt så mye og rekker likevel kortere der terrenget faller.",
            "Utforsk i 3D", "Lukk",
            "Dra for å snu, rull for å zoome."),
     'da': ("KUPPEL ELLER CIRKEL", "Hvorfor ikke bare en cirkel",
-           "En cirkel lægger samme afstand i alle retninger, over terræn der aldrig er fladt. Ved denne sprængning dækker den ved samme radius på 500 m 78 hektar, mens kuplen skåret mod terrænet beholder 36. Den båndlægger det dobbelte og når alligevel kortere, hvor terrænet falder.",
+           "En cirkel lægger samme afstand i alle retninger, over terræn der aldrig er fladt. Ved denne dybtliggende sprængning dækker den ved samme radius på 500 m 78 hektar, mens kuplen skåret mod terrænet beholder 36. Den båndlægger det dobbelte og når alligevel kortere, hvor terrænet falder.",
            "Udforsk i 3D", "Luk",
            "Træk for at dreje, rul for at zoome."),
     'af': ("KOEPEL OF SIRKEL", "Waarom nie net 'n sirkel nie",
-           "'n Sirkel pas dieselfde afstand in alle rigtings toe, oor grond wat nooit gelyk is nie. By hierdie skoot dek dit teen dieselfde radius van 500 m 78 hektaar, terwyl die koepel wat met die topografie gesny is, 36 behou. Dit lê dubbel soveel grond vas en kom steeds korter as dit waar die terrein afval.",
+           "'n Sirkel pas dieselfde afstand in alle rigtings toe, oor grond wat nooit gelyk is nie. By hierdie diep geleë skoot dek dit teen dieselfde radius van 500 m 78 hektaar, terwyl die koepel wat met die topografie gesny is, 36 behou. Dit lê dubbel soveel grond vas en kom steeds korter as dit waar die terrein afval.",
            "Verken in 3D", "Maak toe",
            "Sleep om te draai, rol om in te zoem."),
     'tr': ("KUBBE Mİ, ÇEMBER Mİ", "Neden basit bir çember olmasın",
-           "Çember, hiçbir zaman düz olmayan bir arazide her yöne aynı mesafeyi uygular. Bu atımda, aynı 500 m yarıçapla 78 hektar kaplarken, topoğrafyayla kesişen kubbe 36 hektarda kalır. İki katı alanı bağlar ve yine de arazinin alçaldığı yerde kubbeden daha kısa kalır.",
+           "Çember, hiçbir zaman düz olmayan bir arazide her yöne aynı mesafeyi uygular. Bu derin atımda, aynı 500 m yarıçapla 78 hektar kaplarken, topoğrafyayla kesişen kubbe 36 hektarda kalır. İki katı alanı bağlar ve yine de arazinin alçaldığı yerde kubbeden daha kısa kalır.",
            "3B olarak keşfedin", "Kapat",
            "Döndürmek için sürükleyin, yakınlaştırmak için tekerleği kullanın."),
     'zh': ("穹顶还是圆", "为什么不用一个简单的圆",
-           "圆在各个方向施加同一距离，而地形从不平坦。本次爆破中，同为 500 m 半径，圆覆盖 78 公顷，而与地形求交后的穹顶只需 36 公顷。圆占用了两倍的场地，在地势下降处却仍比穹顶更短。",
+           "圆在各个方向施加同一距离，而地形从不平坦。本次深部爆破中，同为 500 m 半径，圆覆盖 78 公顷，而与地形求交后的穹顶只需 36 公顷。圆占用了两倍的场地，在地势下降处却仍比穹顶更短。",
            "以三维查看", "关闭",
            "拖动可旋转，滚轮可缩放。"),
 }
