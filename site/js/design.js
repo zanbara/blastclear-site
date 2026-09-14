@@ -428,3 +428,83 @@
     });
   }
 })();
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   « CETTE PAGE EXISTE DANS VOTRE LANGUE »
+
+   Le bandeau ne redirige jamais : il propose. La page demandée reste celle qui
+   s'affiche, ce qui vaut pour un lien partagé comme pour un robot d'indexation.
+
+   IL SE TAIT DANS TROIS CAS. Si le visiteur a déjà choisi une langue, s'il a
+   déjà refusé la proposition, et si sa langue est celle de la page. Un bandeau
+   qui revient à chaque visite se referme sans être lu.
+   ════════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var TEXTES = {"fr":["Ce site existe en français.","Voir en français","Fermer"],"en":["This site is available in English.","View in English","Close"],"es":["Este sitio está disponible en español.","Ver en español","Cerrar"],"pt":["Este site está disponível em português.","Ver em português","Fechar"],"it":["Questo sito è disponibile in italiano.","Vedi in italiano","Chiudi"],"de":["Diese Website ist auf Deutsch verfügbar.","Auf Deutsch ansehen","Schließen"],"nl":["Deze website is beschikbaar in het Nederlands.","Bekijk in het Nederlands","Sluiten"],"sv":["Den här webbplatsen finns på svenska.","Visa på svenska","Stäng"],"no":["Dette nettstedet finnes på norsk.","Se på norsk","Lukk"],"da":["Dette websted findes på dansk.","Se på dansk","Luk"],"af":["Hierdie werf is in Afrikaans beskikbaar.","Bekyk in Afrikaans","Maak toe"],"tr":["Bu site Türkçe olarak mevcuttur.","Türkçe görüntüle","Kapat"],"zh":["本网站提供中文版。","查看中文版","关闭"]};
+
+  /* Les codes que le navigateur emploie ne sont pas tous les nôtres : le
+     norvégien se déclare « nb » ou « nn » selon la variante écrite, et le chinois
+     porte sa région. On ne garde que les deux premières lettres, puis on traduit
+     les variantes connues. */
+  var VARIANTES = { nb: 'no', nn: 'no' };
+
+  function memoire(cle) {
+    try { return localStorage.getItem(cle); } catch (e) { return null; }
+  }
+  function retenir(cle, valeur) {
+    try { localStorage.setItem(cle, valeur); } catch (e) { /* navigation privée */ }
+  }
+
+  var courante = (document.documentElement.lang || 'en').toLowerCase();
+  var declaree = (navigator.language || '').slice(0, 2).toLowerCase();
+  var cible = VARIANTES[declaree] || declaree;
+
+  if (!TEXTES[cible] || cible === courante) return;
+  if (memoire('bc-langue')) return;          // le visiteur a déjà tranché
+  if (memoire('bc-banniere') === 'non') return;
+
+  var t = TEXTES[cible];
+  var fichier = location.pathname.split('/').pop() || '';
+
+  var barre = document.createElement('div');
+  barre.className = 'dc-banniere';
+  barre.setAttribute('lang', cible);
+
+  var phrase = document.createElement('span');
+  phrase.textContent = t[0];
+
+  var lien = document.createElement('a');
+  lien.href = '../' + cible + '/' + fichier;
+  lien.textContent = t[1];
+  lien.addEventListener('click', function () { retenir('bc-langue', cible); });
+
+  var fermer = document.createElement('button');
+  fermer.type = 'button';
+  fermer.className = 'dc-banniere-fermer';
+  fermer.setAttribute('aria-label', t[2]);
+  fermer.textContent = '\u00D7';
+  fermer.addEventListener('click', function () {
+    retenir('bc-banniere', 'non');
+    barre.remove();
+  });
+
+  barre.appendChild(phrase);
+  barre.appendChild(lien);
+  barre.appendChild(fermer);
+
+  /* Le bandeau se pose AVANT la barre de navigation, donc tout en haut du cadre.
+     Posé après, il se glisserait sous une barre collante et resterait invisible. */
+  var nav = document.querySelector('nav');
+  if (nav && nav.parentNode) nav.parentNode.insertBefore(barre, nav);
+
+  /* Le choix de langue fait à la main, dans le sélecteur de la barre, vaut
+     décision : il évite au bandeau de reparaître à la page suivante. */
+  [].slice.call(document.querySelectorAll('.dc-langues-panneau a[href^="../"]'))
+    .forEach(function (a) {
+      a.addEventListener('click', function () {
+        var m = a.getAttribute('href').match(/^\.\.\/([a-z]{2})\//);
+        if (m) retenir('bc-langue', m[1]);
+      });
+    });
+})();

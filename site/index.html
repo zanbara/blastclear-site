@@ -9,18 +9,27 @@
   AIGUILLAGE DE LANGUE.
 
   La racine ne porte aucun contenu : elle oriente vers l'une des treize versions.
+  C'est le SEUL endroit du site où une redirection automatique a lieu. Les pages de
+  contenu ne se dérobent jamais : un lien partagé montre ce que l'expéditeur voulait
+  montrer, et un robot d'indexation voit les treize versions.
 
-  ─── L'ANGLAIS EST LA DESTINATION PAR DÉFAUT ─────────────────────────────────
-  Et non la langue déclarée par le navigateur, comme c'était le cas d'abord.
-  blastclear.com est l'adresse qui se communique, s'imprime et se transmet : elle
-  s'adresse au marché minier international, qui travaille en anglais. Détecter la
-  langue du visiteur envoyait un prospect australien ou sud-africain sur la page
-  française au seul motif que son navigateur la déclarait quelque part dans ses
-  préférences.
+  ─── L'AIGUILLAGE SUIT TROIS RÈGLES, DANS CET ORDRE ──────────────────────────
+  1. LE CHOIX DÉJÀ FAIT. Un visiteur qui a basculé vers une langue y revient.
+  2. LA LANGUE PRINCIPALE DU NAVIGATEUR, et elle seule. C'est une déclaration du
+     visiteur, non une déduction.
+  3. L'ANGLAIS, pour tout le reste. blastclear.com est l'adresse qui se communique,
+     s'imprime et se transmet, et le marché minier international travaille en anglais.
 
-  LE CHOIX DÉJÀ FAIT RESTE PRIORITAIRE. Un visiteur qui a basculé vers une autre
-  langue y revient : ce serait une régression de le ramener à l'anglais à chaque
-  visite. Seule la PREMIÈRE arrivée est orientée vers l'anglais.
+  SEULE LA PREMIÈRE LANGUE DÉCLARÉE EST LUE, jamais la liste entière. Un prospect
+  australien porte souvent le français en troisième position de ses préférences, pour
+  une page consultée un jour ; parcourir la liste l'envoyait sur la version française
+  sans qu'il ait rien demandé. Sa langue principale, elle, est l'anglais.
+
+  L'ADRESSE IP N'EST PAS CONSULTÉE, et ne peut pas l'être : GitHub Pages ne sert que
+  des fichiers et n'exécute rien au moment de la demande. Elle ne devrait pas l'être
+  non plus : elle dit où se trouve la machine, non quelle langue on lit, et un
+  aiguillage par IP servirait toujours la même version aux robots d'indexation, qui
+  n'exploreraient jamais les douze autres.
 
   LA BALISE REFRESH N'EST PAS UN DOUBLON DU SCRIPT. Sans elle, un visiteur dont
   le script ne s'exécute pas resterait sur une page pratiquement vide. Les liens
@@ -38,7 +47,19 @@
   Les chemins relatifs conviennent aux deux cas, et cette page est précisément celle
   que l'on ouvre pour vérifier une mise en ligne.
 -->
-<meta http-equiv="refresh" content="0; url=en/">
+<!--
+  LE DÉLAI D'UNE SECONDE N'EST PAS DÉCORATIF.
+
+  Cette balise est le filet des visiteurs sans script : sans elle, ils resteraient
+  sur une page presque vide. Mais elle mène TOUJOURS à l'anglais, alors que le
+  script, lui, sait où aller. À zéro seconde, les deux partent ensemble et le
+  navigateur peut honorer la balise avant le script : un visiteur germanophone
+  atterrirait en anglais une fois sur deux, sans reproductibilité.
+
+  Une seconde laisse le script trancher. Le visiteur sans script attend ce délai,
+  et voit pendant ce temps la liste des treize langues, qui lui suffit.
+-->
+<meta http-equiv="refresh" content="1; url=en/">
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any">
 <link rel="icon" href="assets/logo/BlastClear_B_bleu_256.png" type="image/png">
 <style>
@@ -50,7 +71,7 @@
 </style>
 </head>
 <body>
-  <p>Redirecting to English. Choose another language below.</p>
+  <p>Opening BlastClear in your language. Choose another one below.</p>
   <ul>
     <li><a href="en/" hreflang="en">English</a></li>
     <li><a href="fr/" hreflang="fr">Français</a></li>
@@ -70,12 +91,24 @@
   (function () {
     var connues = ['en','fr','es','pt','it','de','nl','sv','no','da','af','tr','zh'];
 
-    // Le choix déjà fait par le visiteur, s'il existe.
+    // Le norvégien se déclare « nb » ou « nn » selon la variante écrite ; le
+    // chinois et l'anglais portent leur région. On ne garde que les deux
+    // premières lettres, puis on traduit les variantes connues.
+    var variantes = { nb: 'no', nn: 'no' };
+
+    // 1. Le choix déjà fait par le visiteur, s'il existe.
     var choix = null;
     try { choix = localStorage.getItem('bc-langue'); } catch (e) { /* navigation privée */ }
 
-    // À défaut, l'anglais. La langue déclarée par le navigateur N'EST PAS
-    // consultée : voir le commentaire en tête de page.
+    // 2. À défaut, sa langue PRINCIPALE, et elle seule. navigator.languages,
+    //    qui est la liste complète de ses préférences, n'est pas parcourue :
+    //    voir le commentaire en tête de page.
+    if (connues.indexOf(choix) < 0) {
+      var declaree = (navigator.language || '').slice(0, 2).toLowerCase();
+      choix = variantes[declaree] || declaree;
+    }
+
+    // 3. Et l'anglais pour tout le reste.
     if (connues.indexOf(choix) < 0) choix = 'en';
 
     location.replace(choix + '/');

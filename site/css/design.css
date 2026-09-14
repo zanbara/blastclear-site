@@ -108,6 +108,25 @@ nav[style*="sticky"].dc-defile img{height:38px !important}
   nav[style*="sticky"]+*{padding-top:78px}
 }
 
+/* ══ LE BANDEAU DE PROPOSITION DE LANGUE ═══════════════════════════════════
+   Il est en anthracite, et non aux couleurs de la charte : il n'appartient pas
+   à la page, il s'adresse à un visiteur qui n'est peut-être pas au bon endroit.
+   Le contraste tranche avec le bleu de la barre qui le suit, de sorte qu'on ne
+   le prenne pas pour une partie de la navigation.
+
+   Il occupe une ligne et s'en va. Rien ne se superpose au contenu, rien ne
+   masque la barre, et sur téléphone il passe à la ligne au lieu de se rogner. */
+.dc-banniere{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;
+  background:var(--bc-anthracite);color:#E7EAEE;font-size:13px;line-height:1.4;
+  padding:10px max(16px,5cqw);position:relative}
+.dc-banniere a{color:var(--bc-jaune);font-weight:600;text-decoration:underline;
+  text-underline-offset:2px}
+.dc-banniere-fermer{margin-left:auto;background:none;border:none;color:#9AA3AE;
+  font-family:inherit;font-size:20px;line-height:1;cursor:pointer;padding:4px 6px;
+  min-width:32px;min-height:32px}
+@media (hover:hover){.dc-banniere-fermer:hover{color:#ffffff}}
+.dc-banniere-fermer:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:1px}
+
 /* ══ LES RÉSEAUX DU PIED DE PAGE ═══════════════════════════════════════════
    Les symboles sont en blanc sur le bleu de la charte, à 9,1:1. Le survol les
    passe en jaune : sur CE fond, le jaune tient 8,2:1, alors qu'il tomberait à

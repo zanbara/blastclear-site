@@ -1680,6 +1680,25 @@ nav[style*="sticky"].dc-defile img{height:38px !important}
   nav[style*="sticky"]+*{padding-top:78px}
 }
 
+/* ══ LE BANDEAU DE PROPOSITION DE LANGUE ═══════════════════════════════════
+   Il est en anthracite, et non aux couleurs de la charte : il n'appartient pas
+   à la page, il s'adresse à un visiteur qui n'est peut-être pas au bon endroit.
+   Le contraste tranche avec le bleu de la barre qui le suit, de sorte qu'on ne
+   le prenne pas pour une partie de la navigation.
+
+   Il occupe une ligne et s'en va. Rien ne se superpose au contenu, rien ne
+   masque la barre, et sur téléphone il passe à la ligne au lieu de se rogner. */
+.dc-banniere{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;
+  background:var(--bc-anthracite);color:#E7EAEE;font-size:13px;line-height:1.4;
+  padding:10px max(16px,5cqw);position:relative}
+.dc-banniere a{color:var(--bc-jaune);font-weight:600;text-decoration:underline;
+  text-underline-offset:2px}
+.dc-banniere-fermer{margin-left:auto;background:none;border:none;color:#9AA3AE;
+  font-family:inherit;font-size:20px;line-height:1;cursor:pointer;padding:4px 6px;
+  min-width:32px;min-height:32px}
+@media (hover:hover){.dc-banniere-fermer:hover{color:#ffffff}}
+.dc-banniere-fermer:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:1px}
+
 /* ══ LES RÉSEAUX DU PIED DE PAGE ═══════════════════════════════════════════
    Les symboles sont en blanc sur le bleu de la charte, à 9,1:1. Le survol les
    passe en jaune : sur CE fond, le jaune tient 8,2:1, alors qu'il tomberait à
@@ -2372,6 +2391,149 @@ JS_COMMUN = """/* ════════════════════�
 """
 
 
+# ══ LA LANGUE DU VISITEUR ═════════════════════════════════════════════════════
+#
+# ─── L'ADRESSE IP NE PEUT PAS SERVIR, ET NE DEVRAIT PAS ───────────────────────
+# Trois raisons, dans l'ordre où elles pèsent.
+#
+# 1. GITHUB PAGES NE SERT QUE DES FICHIERS. Il n'exécute aucun code au moment de
+#    la demande : il ne peut donc ni lire l'adresse IP du visiteur, ni décider
+#    d'une redirection. Il faudrait passer par un service tiers appelé depuis le
+#    navigateur, qui recevrait l'adresse IP de chaque visiteur et retarderait
+#    l'affichage de la première page.
+#
+# 2. CELA EMPÊCHERAIT L'INDEXATION DES DOUZE AUTRES LANGUES. Les robots explorent
+#    depuis un petit nombre de pays. Rediriger sur l'IP leur servirait toujours la
+#    même version, et les douze autres ne seraient jamais vues ni indexées. C'est
+#    exactement le contraire du référencement demandé dans la même phrase.
+#
+# 3. L'IP DIT OÙ EST LA MACHINE, PAS QUELLE LANGUE ON LIT. Un ingénieur marocain
+#    en poste au Canada, un réseau d'entreprise qui sort par un siège étranger, un
+#    VPN : trois cas courants, trois mauvaises réponses.
+#
+# ─── CE QUI RÉPOND VRAIMENT À LA DEMANDE ──────────────────────────────────────
+# Le navigateur envoie la langue que le visiteur a lui-même réglée. C'est une
+# déclaration, non une déduction, et elle est disponible sans appeler personne.
+#
+# On n'en fait PAS une redirection sur les pages de contenu : une page qui se
+# dérobe pour en servir une autre est mal indexée, et un lien partagé cesse de
+# montrer ce que l'expéditeur voulait montrer. La racine, elle, n'a pas de contenu
+# à indexer : c'est là, et là seulement, que l'aiguillage a sa place.
+#
+# Sur les pages de contenu, un bandeau propose la bascule, dans la langue du
+# visiteur pour qu'il la comprenne, et se tait dès qu'il a refusé ou choisi.
+
+BANNIERE = {
+    'fr': ("Ce site existe en français.", "Voir en français", "Fermer"),
+    'en': ("This site is available in English.", "View in English", "Close"),
+    'es': ("Este sitio está disponible en español.", "Ver en español", "Cerrar"),
+    'pt': ("Este site está disponível em português.", "Ver em português", "Fechar"),
+    'it': ("Questo sito è disponibile in italiano.", "Vedi in italiano", "Chiudi"),
+    'de': ("Diese Website ist auf Deutsch verfügbar.", "Auf Deutsch ansehen", "Schließen"),
+    'nl': ("Deze website is beschikbaar in het Nederlands.", "Bekijk in het Nederlands", "Sluiten"),
+    'sv': ("Den här webbplatsen finns på svenska.", "Visa på svenska", "Stäng"),
+    'no': ("Dette nettstedet finnes på norsk.", "Se på norsk", "Lukk"),
+    'da': ("Dette websted findes på dansk.", "Se på dansk", "Luk"),
+    'af': ("Hierdie werf is in Afrikaans beskikbaar.", "Bekyk in Afrikaans", "Maak toe"),
+    'tr': ("Bu site Türkçe olarak mevcuttur.", "Türkçe görüntüle", "Kapat"),
+    'zh': ("本网站提供中文版。", "查看中文版", "关闭"),
+}
+
+
+def script_banniere() -> str:
+    """Le bandeau de proposition de langue, et sa table de textes.
+
+    ─── IL EST CONSTRUIT PAR LE SCRIPT, ET NON ÉCRIT DANS LES PAGES ──────────
+    Trois raisons. Il n'a de sens que pour une minorité de visiteurs, et n'a donc
+    rien à faire dans le poids de chaque page. Écrit dans le HTML, son texte serait
+    indexé comme du contenu de la page, dans une langue qui n'est pas la sienne. Et
+    il tient en un seul endroit plutôt qu'en cinquante-deux.
+    """
+    import json
+    table = json.dumps(BANNIERE, ensure_ascii=False, separators=(',', ':'))
+    return """
+
+/* ════════════════════════════════════════════════════════════════════════════
+   « CETTE PAGE EXISTE DANS VOTRE LANGUE »
+
+   Le bandeau ne redirige jamais : il propose. La page demandée reste celle qui
+   s'affiche, ce qui vaut pour un lien partagé comme pour un robot d'indexation.
+
+   IL SE TAIT DANS TROIS CAS. Si le visiteur a déjà choisi une langue, s'il a
+   déjà refusé la proposition, et si sa langue est celle de la page. Un bandeau
+   qui revient à chaque visite se referme sans être lu.
+   ════════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var TEXTES = %s;
+
+  /* Les codes que le navigateur emploie ne sont pas tous les nôtres : le
+     norvégien se déclare « nb » ou « nn » selon la variante écrite, et le chinois
+     porte sa région. On ne garde que les deux premières lettres, puis on traduit
+     les variantes connues. */
+  var VARIANTES = { nb: 'no', nn: 'no' };
+
+  function memoire(cle) {
+    try { return localStorage.getItem(cle); } catch (e) { return null; }
+  }
+  function retenir(cle, valeur) {
+    try { localStorage.setItem(cle, valeur); } catch (e) { /* navigation privée */ }
+  }
+
+  var courante = (document.documentElement.lang || 'en').toLowerCase();
+  var declaree = (navigator.language || '').slice(0, 2).toLowerCase();
+  var cible = VARIANTES[declaree] || declaree;
+
+  if (!TEXTES[cible] || cible === courante) return;
+  if (memoire('bc-langue')) return;          // le visiteur a déjà tranché
+  if (memoire('bc-banniere') === 'non') return;
+
+  var t = TEXTES[cible];
+  var fichier = location.pathname.split('/').pop() || '';
+
+  var barre = document.createElement('div');
+  barre.className = 'dc-banniere';
+  barre.setAttribute('lang', cible);
+
+  var phrase = document.createElement('span');
+  phrase.textContent = t[0];
+
+  var lien = document.createElement('a');
+  lien.href = '../' + cible + '/' + fichier;
+  lien.textContent = t[1];
+  lien.addEventListener('click', function () { retenir('bc-langue', cible); });
+
+  var fermer = document.createElement('button');
+  fermer.type = 'button';
+  fermer.className = 'dc-banniere-fermer';
+  fermer.setAttribute('aria-label', t[2]);
+  fermer.textContent = '\\u00D7';
+  fermer.addEventListener('click', function () {
+    retenir('bc-banniere', 'non');
+    barre.remove();
+  });
+
+  barre.appendChild(phrase);
+  barre.appendChild(lien);
+  barre.appendChild(fermer);
+
+  /* Le bandeau se pose AVANT la barre de navigation, donc tout en haut du cadre.
+     Posé après, il se glisserait sous une barre collante et resterait invisible. */
+  var nav = document.querySelector('nav');
+  if (nav && nav.parentNode) nav.parentNode.insertBefore(barre, nav);
+
+  /* Le choix de langue fait à la main, dans le sélecteur de la barre, vaut
+     décision : il évite au bandeau de reparaître à la page suivante. */
+  [].slice.call(document.querySelectorAll('.dc-langues-panneau a[href^="../"]'))
+    .forEach(function (a) {
+      a.addEventListener('click', function () {
+        var m = a.getAttribute('href').match(/^\\.\\.\\/([a-z]{2})\\//);
+        if (m) retenir('bc-langue', m[1]);
+      });
+    });
+})();
+""" % (table,)
+
+
 # ══ ASSEMBLAGE D'UNE PAGE ═════════════════════════════════════════════════════
 
 GABARIT = """<!doctype html>
@@ -2820,7 +2982,8 @@ def main() -> int:
     (SITE / 'css').mkdir(parents=True, exist_ok=True)
     (SITE / 'js').mkdir(parents=True, exist_ok=True)
     (SITE / 'css' / 'design.css').write_text(CSS_COMMUN, encoding='utf-8', newline='\n')
-    (SITE / 'js' / 'design.js').write_text(JS_COMMUN, encoding='utf-8', newline='\n')
+    (SITE / 'js' / 'design.js').write_text(JS_COMMUN + script_banniere(),
+                                           encoding='utf-8', newline='\n')
     print('  écrit  site/css/design.css')
     print('  écrit  site/js/design.js')
 
