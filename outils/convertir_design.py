@@ -47,6 +47,7 @@ import shutil
 import unicodedata
 
 from pourquoi import POURQUOI
+from fosse3d import FOSSE3D, CSS_FOSSE, JS_FOSSE, JS_CHARGEUR
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 SOURCE = RACINE / 'design' / 'BlastClear v2.0 flyer'
@@ -1440,6 +1441,56 @@ def remplacer_section_application(corps: str, code: str) -> str:
     return corps
 
 
+def construire_fosse3d(code: str) -> str:
+    """La section qui porte la fosse en filigrane.
+
+    ─── ELLE SE TIENT SANS SON DESSIN ────────────────────────────────────────
+    Le texte, le titre et le bouton sont dans le HTML ; la toile est ajoutée par
+    le script, et seulement s'il s'exécute et si WebGL répond. Un visiteur dont
+    l'un des deux manque lit une section complète, sans trou ni cadre vide.
+
+    Le bouton part masqué pour la même raison : proposer d'explorer en trois
+    dimensions ce qui ne s'affichera pas serait une promesse qu'on ne tient pas.
+    C'est le script qui le révèle, une fois la géométrie chargée."""
+    t = FOSSE3D.get(code) or FOSSE3D['en']
+    surtitre, titre, phrase, ouvrir, fermer, aide = t
+    e = htmlmod.escape
+    return f'''
+  <section class="dc-fosse" data-fosse="../assets/fosse/" style="background:#F4F6F8;padding:{VALEURS['padSection']} 5cqw;min-height:clamp(440px,58vh,680px);display:flex;align-items:center">
+    <div style="max-width:1120px;margin:0 auto;width:100%">
+      <div class="dc-surtitre">{e(surtitre)}</div>
+      <h2 style="margin:0 0 18px;font-size:clamp(24px,3.4cqw,40px);font-weight:700;letter-spacing:-1px">{nom_avec_b_du_logo(e(titre))}</h2>
+      <p style="margin:0;font-size:clamp(16px,1.8cqw,19px);line-height:1.55;color:#39424E;max-width:58ch">{e(phrase)}</p>
+      <button type="button" class="dc-fosse-ouvrir" hidden
+              data-fermer="{e(fermer, quote=True)}" data-aide="{e(aide, quote=True)}"
+              style="margin-top:26px">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4Z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.4"/>
+        </svg>{e(ouvrir)}</button>
+    </div>
+  </section>
+'''
+
+
+def inserer_fosse3d(corps: str, code: str) -> str:
+    """Pose la section juste après le carrousel de l'application.
+
+    L'ordre de lecture le veut : le carrousel montre ce que le logiciel affiche,
+    la fosse montre sur quoi il travaille. L'inverse demanderait au visiteur de
+    regarder une géométrie avant de savoir à quoi elle sert."""
+    m = re.search(r'<section\b[^>]*class="[^"]*\bdc-bande-cadre\b[^"]*"', corps)
+    if not m:
+        m = re.search(r'<section\b(?:(?!</section>).)*?dc-bande\b', corps, re.S)
+    if not m:
+        return corps
+    debut = corps.rfind('<section', 0, m.end())
+    if debut < 0:
+        return corps
+    _, _, fin = bloc_equilibre(corps, debut, 'section')
+    return corps[:fin] + construire_fosse3d(code) + corps[fin:]
+
+
 def poser_animations(corps: str) -> str:
     """Marque les blocs que le script fera apparaître au défilement.
 
@@ -2387,6 +2438,7 @@ JS_COMMUN = """/* ════════════════════�
       setTimeout(function () { window.location.href = 'merci.html'; }, 1200);
     });
   }
+
 })();
 """
 
@@ -2689,6 +2741,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     if fichier == 'index.html':
         corps = inserer_definition(corps, code)
         corps = remplacer_section_application(corps, code)
+        corps = inserer_fosse3d(corps, code)
     corps = rectifier_formulaire(corps, code)
     corps = poser_animations(corps)
     corps = liberer_barre_collante(corps)
@@ -2981,11 +3034,14 @@ def main() -> int:
 
     (SITE / 'css').mkdir(parents=True, exist_ok=True)
     (SITE / 'js').mkdir(parents=True, exist_ok=True)
-    (SITE / 'css' / 'design.css').write_text(CSS_COMMUN, encoding='utf-8', newline='\n')
-    (SITE / 'js' / 'design.js').write_text(JS_COMMUN + script_banniere(),
+    (SITE / 'css' / 'design.css').write_text(CSS_COMMUN + CSS_FOSSE,
+                                             encoding='utf-8', newline='\n')
+    (SITE / 'js' / 'design.js').write_text(JS_COMMUN + script_banniere() + JS_CHARGEUR,
                                            encoding='utf-8', newline='\n')
+    (SITE / 'js' / 'fosse.js').write_text(JS_FOSSE, encoding='utf-8', newline='\n')
     print('  écrit  site/css/design.css')
     print('  écrit  site/js/design.js')
+    print('  écrit  site/js/fosse.js')
 
     total = 0
     for code, langue in LANGUES.items():

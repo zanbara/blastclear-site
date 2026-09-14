@@ -427,6 +427,7 @@
       setTimeout(function () { window.location.href = 'merci.html'; }, 1200);
     });
   }
+
 })();
 
 
@@ -507,4 +508,63 @@
         if (m) retenir('bc-langue', m[1]);
       });
     });
+})();
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   LA FOSSE EN TROIS DIMENSIONS, CHARGÉE À LA DEMANDE.
+
+   Le programme de rendu et les quatre-vingt-six kilooctets de géométrie ne
+   partent que lorsque la section approche de l'écran. Un visiteur qui ne
+   descend jamais jusque-là ne les télécharge pas, et la page garde exactement
+   le poids qu'elle avait avant.
+
+   La marge de six cents pixels laisse au chargement le temps d'aboutir avant
+   que la section ne paraisse : arrivée à l'écran, elle est déjà dessinée.
+   ════════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var fosse = document.querySelector('[data-fosse]');
+  if (!fosse) return;
+
+  var parti = false;
+  function charger() {
+    if (parti) return;
+    parti = true;
+    var s = document.createElement('script');
+    /* Toutes les pages vivent dans /<langue>/, donc ce chemin vaut pour toutes.
+       Le déduire de l'adresse du script courant serait plus savant et moins
+       sûr : document.currentScript est nul dès que le code s'exécute depuis un
+       rappel. */
+    s.src = '../js/fosse.js';
+    document.head.appendChild(s);
+  }
+
+  if (!('IntersectionObserver' in window)) { charger(); return; }
+
+  var guetteur = new IntersectionObserver(function (entrees) {
+    if (!entrees[0].isIntersecting) return;
+    guetteur.disconnect();
+    charger();
+  }, { rootMargin: '600px' });
+  guetteur.observe(fosse);
+
+  /* ── UN SECOND DÉCLENCHEUR, POUR LE CAS OÙ LE PREMIER SE TAIT ──────────
+     L'observateur dépend du cycle de rendu du navigateur. Il suffit en usage
+     normal, mais il ne coûte rien de doubler la garde par un relevé direct de
+     la position au défilement : si la section est à portée et que rien n'est
+     encore parti, on part.
+
+     Les deux passent par la même fonction, qui ne se laisse appeler qu'une
+     fois : le chargement ne peut pas se déclencher deux fois. */
+  function verifier() {
+    if (parti) return;
+    var r = fosse.getBoundingClientRect();
+    if (r.top < window.innerHeight + 600 && r.bottom > -600) {
+      guetteur.disconnect();
+      charger();
+    }
+  }
+  window.addEventListener('scroll', verifier, { passive: true });
+  window.addEventListener('resize', verifier, { passive: true });
+  verifier();
 })();

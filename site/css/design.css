@@ -384,3 +384,51 @@ form input,form textarea,form select{font-family:'Poppins','Segoe UI',system-ui,
   .dc-vue-cadre img,.dc-carrousel:hover .dc-vue-cadre img{transition:none;transform:none}
   *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
+
+/* ══ LA FOSSE EN FILIGRANE ═════════════════════════════════════════════════
+   La toile occupe toute la section et passe DERRIÈRE le texte. Elle
+   n'intercepte aucun clic : sur téléphone, une toile qui capterait le
+   glissement empêcherait de faire défiler la page, ce qui est un prix
+   qu'aucun décor ne vaut.
+
+   Sa faible opacité est ce qui en fait un filigrane. Le texte, lui, reste au
+   contraste plein : c'est le fond qui s'efface, jamais ce qui se lit. */
+.dc-fosse{position:relative;overflow:hidden}
+.dc-fosse-toile{position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;opacity:0;transition:opacity .9s ease}
+.dc-fosse-toile.dc-vue{opacity:1}
+.dc-fosse>*:not(.dc-fosse-toile){position:relative;z-index:1}
+
+/* ── AU PREMIER PLAN ──────────────────────────────────────────────────────
+   La même toile change de parent. Elle retrouve ici sa pleine opacité, reçoit
+   les clics, et couvre l'écran. Le fond sombre n'est pas décoratif : il donne
+   au tracé le contraste qu'un fond clair lui refuse. */
+.dc-fosse-plein{position:fixed;inset:0;z-index:80;background:#0C0F14;
+  display:flex;align-items:center;justify-content:center;
+  animation:dc-fondu .25s ease both}
+.dc-fosse-plein .dc-fosse-toile{position:absolute;inset:0;pointer-events:auto;
+  opacity:1;cursor:grab;touch-action:none}
+.dc-fosse-plein .dc-fosse-toile:active{cursor:grabbing}
+@keyframes dc-fondu{from{opacity:0}to{opacity:1}}
+
+.dc-fosse-fermer{position:absolute;top:16px;right:16px;z-index:2;
+  display:inline-flex;align-items:center;gap:8px;min-height:44px;
+  background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.28);
+  color:#ffffff;font-family:inherit;font-weight:600;font-size:14px;
+  padding:10px 18px;border-radius:2px;cursor:pointer}
+@media (hover:hover){.dc-fosse-fermer:hover{background:rgba(255,255,255,.20)}}
+.dc-fosse-fermer:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:2px}
+
+.dc-fosse-aide{position:absolute;left:0;right:0;bottom:18px;z-index:2;
+  text-align:center;color:#9AA3AE;font-size:13px;padding:0 16px;
+  pointer-events:none}
+
+/* Le bouton d'ouverture reprend le bouton secondaire de la page. */
+.dc-fosse-ouvrir{display:inline-flex;align-items:center;gap:9px;
+  border:1px solid var(--bc-bleu);color:var(--bc-bleu);background:none;
+  font-family:inherit;font-weight:600;font-size:15px;padding:10px 20px;
+  border-radius:2px;cursor:pointer;min-height:44px}
+@media (hover:hover){
+  .dc-fosse-ouvrir:hover{background:var(--bc-bleu);color:#ffffff}
+}
+.dc-fosse-ouvrir:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:2px}

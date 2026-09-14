@@ -1,0 +1,45 @@
+{
+ "etendueMetres": 1544.9,
+ "calques": {
+  "fosse": {
+   "sommets": 2692,
+   "position": "fosse.pos.bin",
+   "jeux": [
+    {
+     "forme": "triangles",
+     "index": "fosse.triangles.bin",
+     "indices": 15552
+    },
+    {
+     "forme": "aretes",
+     "index": "fosse.aretes.bin",
+     "indices": 15740
+    }
+   ]
+  },
+  "dome": {
+   "sommets": 559,
+   "position": "dome.pos.bin",
+   "jeux": [
+    {
+     "forme": "aretes",
+     "index": "dome.aretes.bin",
+     "indices": 3122
+    }
+   ]
+  }
+ },
+ "demiCoteMetres": 772.4,
+ "boite": {
+  "min": [
+   -0.8351,
+   -0.9972,
+   -1.0
+  ],
+  "max": [
+   0.8328,
+   -0.5671,
+   1.0
+  ]
+ }
+}
