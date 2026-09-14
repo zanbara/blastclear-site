@@ -48,7 +48,8 @@ import shutil
 import unicodedata
 
 from pourquoi import POURQUOI
-from fosse3d import (FOSSE3D, COUCHES3D, VUES3D, CSS_FOSSE, JS_FOSSE, JS_CHARGEUR)
+from fosse3d import (FOSSE3D, VUES3D, couches_traduites,
+                     CSS_FOSSE, JS_FOSSE, JS_CHARGEUR)
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 SOURCE = RACINE / 'design' / 'BlastClear v2.0 flyer'
@@ -1464,7 +1465,7 @@ def construire_fosse3d(code: str) -> str:
       <p style="margin:0;font-size:clamp(16px,1.8cqw,19px);line-height:1.55;color:#39424E;max-width:58ch">{e(phrase)}</p>
       <button type="button" class="dc-fosse-ouvrir" hidden
               data-fermer="{e(fermer, quote=True)}" data-aide="{e(aide, quote=True)}"
-              data-couches="{e(json.dumps(COUCHES3D.get(code) or COUCHES3D['en'], ensure_ascii=False), quote=True)}"
+              data-couches="{e(json.dumps(couches_traduites(code), ensure_ascii=False), quote=True)}"
               data-vues="{e(json.dumps(VUES3D.get(code) or VUES3D['en'], ensure_ascii=False), quote=True)}"
               style="margin-top:26px">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"

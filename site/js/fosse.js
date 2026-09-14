@@ -50,19 +50,22 @@
 
      Le dôme, lui, garde le test : c'est un volume, et le voir au travers de la
      paroi qui le masque donnerait une fausse idée de sa portée. */
+  /* ─── LE PÉRIMÈTRE ET SON CERCLE PARTAGENT LA COULEUR ────────────────────
+     Les deux répondent à la même question, « jusqu'où évacuer », et se lisent
+     donc ensemble. Deux teintes différentes les auraient posés comme deux
+     objets distincts, alors que l'un est la version plate de l'autre.
+
+     C'est le TRAIT qui les sépare : plein pour le périmètre calculé, tireté
+     pour le cercle, selon l'usage du dessin technique où un tireté marque ce
+     qui est supposé plutôt que relevé. Le tireté vient de la géométrie
+     elle-même, un segment sur cinq n'étant pas émis. */
   var COUCHES = {
     fosse:     { rang: 0, couleur: [0x25, 0x49, 0x8A], filigrane: true,  traverse: false },
     dome:      { rang: 1, couleur: [0xFD, 0xC3, 0x0E], filigrane: true,  traverse: false },
     contour:   { rang: 2, couleur: [0xFF, 0xFF, 0xFF], filigrane: false, traverse: true },
-    perimetre: { rang: 3, couleur: [0xFF, 0x5C, 0x7A], filigrane: false, traverse: true },
-    /* Le cercle est en gris, et c'est un choix de propos : il représente la
-       règle que le dôme remplace. Lui donner une couleur vive en ferait un
-       résultat à égalité avec le périmètre calculé, ce qu'il n'est pas.
-
-       Gris clair, toutefois, et non gris moyen : sur le bleu sombre de la
-       fosse vue de dessus, le second s'effaçait au point qu'on cherchait le
-       trait. Un terme de comparaison qu'il faut chercher ne compare rien. */
-    cercle:    { rang: 4, couleur: [0xC3, 0xCB, 0xD4], filigrane: false, traverse: true },
+    perimetre: { rang: 3, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true },
+    cercle:    { rang: 4, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true,
+                 tirets: true },
   };
   var ORDRE = ['fosse', 'dome', 'contour', 'perimetre', 'cercle'];
 
@@ -700,9 +703,18 @@
           affichee[nom] = c.checked;
           relancer();
         });
+        /* La pastille dit la couleur ET le trait : pleine pour un trait plein,
+           en anneau tireté pour un trait tireté. Deux couches de même couleur
+           seraient autrement impossibles à distinguer dans la légende, alors
+           qu'elles le sont dans le dessin. */
         var pastille = document.createElement('span');
         pastille.className = 'dc-fosse-pastille';
-        pastille.style.background = 'rgb(' + COUCHES[nom].couleur.join(',') + ')';
+        var teinte = 'rgb(' + COUCHES[nom].couleur.join(',') + ')';
+        if (COUCHES[nom].tirets) {
+          pastille.style.border = '2px dashed ' + teinte;
+        } else {
+          pastille.style.background = teinte;
+        }
         var texte = document.createElement('span');
         texte.textContent = MOTS_COUCHES[i + 1] || nom;
         l.appendChild(c); l.appendChild(pastille); l.appendChild(texte);

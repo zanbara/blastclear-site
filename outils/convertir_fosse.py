@@ -68,17 +68,39 @@ SURFACES = [
      'dome', ('aretes',), 54),
 ]
 
+# ─── LES TRACÉS SONT CHERCHÉS EN PLUSIEURS ENDROITS ───────────────────────────
+# Un même export existe souvent en deux exemplaires, l'un périmé. On retient le
+# PLUS RÉCENT qui porte effectivement de la géométrie sur le calque demandé : un
+# fichier vide, resté d'un export manqué, ne doit pas l'emporter sur le bon parce
+# qu'il se trouve plus haut dans une liste.
+#
+# Le calque est filtré. Le fichier du périmètre porte aussi une polyligne de trois
+# points sur le calque « 0 », laissée par l'export : la prendre ajouterait au
+# dessin un segment que rien n'explique.
 TRACES = [
-    # fichier, nom à l'écran, fermer la boucle ?
-    ('5-70-014_Contour.dxf', 'contour', True),
-    ('Intersection_300.dxf', 'perimetre', True),
+    # noms à l'écran, chemins candidats, calque à retenir, fermer la boucle ?
+    ('contour',
+     [r'D:\Claude Code\Projet Blast Perimeter\5-70-014_Contour.dxf'],
+     {'Geometry_Line'}, True),
+    ('perimetre',
+     [r'D:\Claude Code\Blast Perimeter WPF\Travail\EMZ\Test_Boena\Intersection_300.dxf',
+      r'D:\Claude Code\Projet Blast Perimeter\Intersection_300.dxf'],
+     {'5-70-014_Contour_R_500_m'}, True),
 ]
 
-# Le cercle de comparaison : rayon, et nombre de segments. Cent vingt-huit segments
-# donnent une erreur de corde de 9 cm sur 300 m de rayon, soit moins que le pas de
-# quantification. Un cercle plus fin ne changerait rien à l'écran.
-RAYON_CERCLE = 300.0
-SEGMENTS_CERCLE = 128
+# ─── LE CERCLE DE COMPARAISON ─────────────────────────────────────────────────
+# Son rayon est celui du dôme, pour que la comparaison porte sur la FORME et non
+# sur la portée : les deux partent de la même distance maximale, et ce qu'on lit
+# est ce que le terrain y change.
+#
+# Il est TIRETÉ, comme une règle empirique doit l'être à côté d'un calcul. Le
+# tireté n'est pas un style de trait envoyé à la carte graphique, qui n'en connaît
+# aucun : ce sont les segments eux-mêmes qui sont émis en alternance. Deux cent
+# quarante segments donnent une corde de 13 m, et le motif trois pleins pour deux
+# vides un tiret de 39 m suivi d'un blanc de 26 m, lisible sur tout le pourtour.
+RAYON_CERCLE = 500.0
+SEGMENTS_CERCLE = 240
+TIRET_PLEIN, TIRET_VIDE = 3, 2
 
 # Un 3DFACE porte ses quatre sommets dans ces codes. Le quatrième répète souvent le
 # troisième : la face est alors un triangle, et le quadrilatère dégénéré.
@@ -128,7 +150,8 @@ def lire_faces(chemin: pathlib.Path, calques: set[str]) -> dict[str, list]:
     return faces
 
 
-def lire_polylignes(chemin: pathlib.Path) -> list[list[tuple]]:
+def lire_polylignes(chemin: pathlib.Path,
+                    calques: set[str] | None = None) -> list[list[tuple]]:
     """Rend les polylignes du fichier, sous les deux écritures que le DXF connaît.
 
     ─── DEUX ÉCRITURES POUR LA MÊME CHOSE ────────────────────────────────────
@@ -136,11 +159,25 @@ def lire_polylignes(chemin: pathlib.Path) -> list[list[tuple]]:
     LWPOLYLINE les écrit dans l'entité elle-même, avec une altitude unique en
     groupe 38. Les exports miniers emploient l'une ou l'autre selon le logiciel ;
     n'en lire qu'une donnerait un fichier « vide » sans que rien ne le dise.
+
+    ─── LE CALQUE EST FILTRÉ, ET CE N'EST PAS DU ZÈLE ────────────────────────
+    Un export minier emporte souvent des tracés de service sur le calque « 0 » :
+    repères de construction, restes d'une sélection. Le fichier du périmètre en
+    porte un de trois points. Tout lire ajouterait au dessin un segment que rien
+    n'explique, et que personne ne penserait à chercher dans le DXF.
+
+    `calques` à None prend tout, ce qui reste juste pour un fichier qui n'en a
+    qu'un.
     """
     L = lignes_dxf(chemin)
     traces: list[list[tuple]] = []
     i, n = 0, len(L)
     courante = None
+    calque = ''
+
+    def retenir(points, cal):
+        if len(points) >= 2 and (calques is None or cal in calques):
+            traces.append(points)
 
     while i < n - 1:
         if L[i].strip() != '0':
@@ -149,8 +186,13 @@ def lire_polylignes(chemin: pathlib.Path) -> list[list[tuple]]:
         type_ = L[i + 1].strip()
 
         if type_ == 'POLYLINE':
-            courante = []
+            courante, calque = [], ''
             i += 2
+            # L'en-tête de la polyligne porte son calque, avant ses sommets.
+            while i < n - 1 and L[i].strip() != '0':
+                if L[i].strip() == '8':
+                    calque = L[i + 1].strip()
+                i += 2
             continue
 
         if type_ == 'VERTEX' and courante is not None:
@@ -168,20 +210,22 @@ def lire_polylignes(chemin: pathlib.Path) -> list[list[tuple]]:
                     except ValueError:
                         pass
                 i += 2
-            if None not in p:
-                courante.append(tuple(p))
+            # Un sommet sans altitude est un sommet plan : le DXF omet alors le
+            # groupe 30, et le prendre pour absent perdrait la polyligne entière.
+            if p[0] is not None and p[1] is not None:
+                courante.append((p[0], p[1], p[2] if p[2] is not None else 0.0))
             continue
 
         if type_ == 'SEQEND':
-            if courante and len(courante) >= 2:
-                traces.append(courante)
+            if courante:
+                retenir(courante, calque)
             courante = None
             i += 2
             continue
 
         if type_ == 'LWPOLYLINE':
             i += 2
-            xs, ys, altitude = [], [], 0.0
+            xs, ys, altitude, cal = [], [], 0.0, ''
             while i < n - 1 and L[i].strip() != '0':
                 try:
                     code = int(L[i].strip())
@@ -189,18 +233,21 @@ def lire_polylignes(chemin: pathlib.Path) -> list[list[tuple]]:
                     i += 2
                     continue
                 val = L[i + 1].strip()
-                try:
-                    if code == 10:
-                        xs.append(float(val))
-                    elif code == 20:
-                        ys.append(float(val))
-                    elif code == 38:
-                        altitude = float(val)
-                except ValueError:
-                    pass
+                if code == 8:
+                    cal = val
+                else:
+                    try:
+                        if code == 10:
+                            xs.append(float(val))
+                        elif code == 20:
+                            ys.append(float(val))
+                        elif code == 38:
+                            altitude = float(val)
+                    except ValueError:
+                        pass
                 i += 2
-            if len(xs) >= 2 and len(xs) == len(ys):
-                traces.append([(x, y, altitude) for x, y in zip(xs, ys)])
+            if len(xs) == len(ys):
+                retenir([(x, y, altitude) for x, y in zip(xs, ys)], cal)
             continue
 
         i += 2
@@ -423,12 +470,30 @@ def barycentre(points: list[tuple]) -> tuple[float, float, float]:
     return (cx / (3 * aire), cy / (3 * aire), z)
 
 
-def cercle(centre: tuple, rayon: float, segments: int) -> list[tuple]:
-    """Le cercle de comparaison, à l'altitude du tir."""
-    return [(centre[0] + rayon * math.cos(2 * math.pi * k / segments),
-             centre[1] + rayon * math.sin(2 * math.pi * k / segments),
-             centre[2])
-            for k in range(segments)]
+def cercle_tirete(centre: tuple, rayon: float, segments: int,
+                  plein: int, vide: int) -> tuple[list[tuple], list[int]]:
+    """Le cercle de comparaison, à l'altitude du tir, en trait tireté.
+
+    ─── LE TIRETÉ EST DANS LA GÉOMÉTRIE, NON DANS LE STYLE ───────────────────
+    WebGL ne connaît aucun style de trait : une ligne est pleine, et rien dans
+    l'interface ne permet de la pointiller. L'obtenir autrement demanderait de
+    porter la distance parcourue le long du tracé jusqu'au nuanceur, et d'y
+    écarter les fragments, soit un attribut de plus et une passe de calcul pour
+    un cercle de deux cent quarante segments.
+
+    Émettre un segment sur cinq coûte moins cher que de les émettre tous : le
+    tireté allège le tracé au lieu de l'alourdir.
+    """
+    points = [(centre[0] + rayon * math.cos(2 * math.pi * k / segments),
+               centre[1] + rayon * math.sin(2 * math.pi * k / segments),
+               centre[2])
+              for k in range(segments)]
+    periode = plein + vide
+    indices = []
+    for k in range(segments):
+        if k % periode < plein:
+            indices.extend((k, (k + 1) % segments))
+    return points, indices
 
 
 # ══ ASSEMBLAGE ════════════════════════════════════════════════════════════════
@@ -465,15 +530,28 @@ def main() -> int:
 
     # ── Les tracés ────────────────────────────────────────────────────────────
     points_contour = None
-    for fichier, nom, fermer in TRACES:
-        chemin = SOURCES / fichier
-        if not chemin.exists():
-            absents.append(f'{fichier} (introuvable)')
+    for nom, candidats, calques, fermer in TRACES:
+        # Le plus récent des fichiers présents QUI PORTE de la géométrie. Un
+        # export manqué laisse un fichier valide mais vide, qui ne doit pas
+        # l'emporter sur le bon.
+        existants = sorted((pathlib.Path(c) for c in candidats if pathlib.Path(c).exists()),
+                           key=lambda p: p.stat().st_mtime, reverse=True)
+        if not existants:
+            absents.append(f'{nom} (aucun fichier trouvé)')
             continue
-        traces = lire_polylignes(chemin)
-        if not traces:
-            absents.append(f'{fichier} (aucune polyligne : export vide)')
+
+        traces, retenu = [], None
+        for chemin in existants:
+            traces = lire_polylignes(chemin, calques)
+            if traces:
+                retenu = chemin
+                break
+        if not retenu:
+            noms = ', '.join(p.name for p in existants)
+            absents.append(f"{nom} ({noms} : aucune polyligne sur "
+                           f"{'/'.join(sorted(calques))})")
             continue
+
         # Plusieurs tracés dans un même fichier se concatènent en une seule couche,
         # chacun gardant sa propre chaîne d'indices.
         sommets, indices = [], []
@@ -485,6 +563,7 @@ def main() -> int:
         couches[nom] = {'sommets': sommets, 'indices': indices,
                         'formes': ('aretes',), 'grille': None,
                         'brut': len(sommets), 'traces': len(traces)}
+        print(f'  {nom:<9} lu dans {retenu.name} ({len(traces)} tracé(s))')
         if nom == 'contour':
             points_contour = traces[0]
 
@@ -496,12 +575,14 @@ def main() -> int:
     # posé à son altitude, et non à peu près.
     if points_contour:
         c = barycentre(points_contour)
-        pts, idx = chaine(cercle(c, RAYON_CERCLE, SEGMENTS_CERCLE), True)
+        pts, idx = cercle_tirete(c, RAYON_CERCLE, SEGMENTS_CERCLE,
+                                 TIRET_PLEIN, TIRET_VIDE)
         couches['cercle'] = {'sommets': pts, 'indices': idx,
                              'formes': ('aretes',), 'grille': None,
                              'brut': len(pts)}
-        print(f'  cercle R={RAYON_CERCLE:.0f} m centré sur '
-              f'({c[0]:.1f}, {c[1]:.1f}) à Z={c[2]:.1f}')
+        print(f'  cercle    R={RAYON_CERCLE:.0f} m centré sur '
+              f'({c[0]:.1f}, {c[1]:.1f}) à Z={c[2]:.1f}, '
+              f'{len(idx) // 2} tirets')
     else:
         absents.append('cercle de comparaison (il dépend du contour)')
 

@@ -97,21 +97,35 @@ FOSSE3D = {
 # conversion l'impose une fois pour toutes. « Est » désigne donc bien l'est du
 # site, non une direction d'écran.
 
+#
+# ─── LE RAYON N'EST ÉCRIT QU'UNE FOIS ─────────────────────────────────────────
+# Il figurait en toutes lettres dans les treize libellés, et changer de rayon les
+# a tous laissés à mentir. Il vient désormais d'une seule valeur, celle-là même
+# qui engendre le cercle, et les libellés la reçoivent.
+
+RAYON_CERCLE_M = 500
+
 COUCHES3D = {
-    'fr': ("Calques", "Fosse", "Dôme", "Contour du tir", "Périmètre 3D", "Cercle 300 m"),
-    'en': ("Layers", "Pit", "Dome", "Blast outline", "3D perimeter", "300 m circle"),
-    'es': ("Capas", "Corta", "Cúpula", "Contorno de la voladura", "Perímetro 3D", "Círculo de 300 m"),
-    'pt': ("Camadas", "Corta", "Cúpula", "Contorno do fogo", "Perímetro 3D", "Círculo de 300 m"),
-    'it': ("Livelli", "Cava", "Cupola", "Contorno della volata", "Perimetro 3D", "Cerchio da 300 m"),
-    'de': ("Ebenen", "Tagebau", "Kuppel", "Sprengungskontur", "3D-Perimeter", "300-m-Kreis"),
-    'nl': ("Lagen", "Groeve", "Koepel", "Schotcontour", "3D-perimeter", "Cirkel van 300 m"),
-    'sv': ("Lager", "Dagbrott", "Kupol", "Salvans kontur", "3D-perimeter", "300 m-cirkel"),
-    'no': ("Lag", "Dagbrudd", "Kuppel", "Salvens kontur", "3D-perimeter", "300 m-sirkel"),
-    'da': ("Lag", "Brud", "Kuppel", "Sprængningens kontur", "3D-perimeter", "300 m-cirkel"),
-    'af': ("Lae", "Groef", "Koepel", "Skootkontoer", "3D-omtrek", "300 m-sirkel"),
-    'tr': ("Katmanlar", "Ocak", "Kubbe", "Atım konturu", "3B çevre", "300 m çember"),
-    'zh': ("图层", "矿坑", "穹顶", "爆区轮廓", "三维警戒范围", "300 m 圆"),
+    'fr': ("Calques", "Fosse", "Dôme", "Contour du tir", "Périmètre 3D", "Cercle {r} m"),
+    'en': ("Layers", "Pit", "Dome", "Blast outline", "3D perimeter", "{r} m circle"),
+    'es': ("Capas", "Corta", "Cúpula", "Contorno de la voladura", "Perímetro 3D", "Círculo de {r} m"),
+    'pt': ("Camadas", "Corta", "Cúpula", "Contorno do fogo", "Perímetro 3D", "Círculo de {r} m"),
+    'it': ("Livelli", "Cava", "Cupola", "Contorno della volata", "Perimetro 3D", "Cerchio da {r} m"),
+    'de': ("Ebenen", "Tagebau", "Kuppel", "Sprengungskontur", "3D-Perimeter", "{r}-m-Kreis"),
+    'nl': ("Lagen", "Groeve", "Koepel", "Schotcontour", "3D-perimeter", "Cirkel van {r} m"),
+    'sv': ("Lager", "Dagbrott", "Kupol", "Salvans kontur", "3D-perimeter", "{r} m-cirkel"),
+    'no': ("Lag", "Dagbrudd", "Kuppel", "Salvens kontur", "3D-perimeter", "{r} m-sirkel"),
+    'da': ("Lag", "Brud", "Kuppel", "Sprængningens kontur", "3D-perimeter", "{r} m-cirkel"),
+    'af': ("Lae", "Groef", "Koepel", "Skootkontoer", "3D-omtrek", "{r} m-sirkel"),
+    'tr': ("Katmanlar", "Ocak", "Kubbe", "Atım konturu", "3B çevre", "{r} m çember"),
+    'zh': ("图层", "矿坑", "穹顶", "爆区轮廓", "三维警戒范围", "{r} m 圆"),
 }
+
+
+def couches_traduites(code: str) -> list[str]:
+    """Les noms des couches, le rayon du cercle mis en place."""
+    t = COUCHES3D.get(code) or COUCHES3D['en']
+    return [m.replace('{r}', str(RAYON_CERCLE_M)) for m in t]
 
 VUES3D = {
     'fr': ("Haut", "Bas", "Nord", "Sud", "Est", "Ouest"),
@@ -203,7 +217,8 @@ CSS_FOSSE = """
 /* La pastille rappelle la couleur du tracé dans la scène. Elle DOUBLE
    l'étiquette, elle ne la remplace pas : seule, elle laisserait un lecteur
    daltonien sans moyen de savoir quelle ligne il éteint. */
-.dc-fosse-pastille{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+.dc-fosse-pastille{width:12px;height:12px;border-radius:50%;flex:0 0 auto;
+  box-sizing:border-box}
 
 /* ══ LE CUBE DE VUE ════════════════════════════════════════════════════════
    Il tourne avec la caméra et se clique par la face. Il est bâti en trois
@@ -358,19 +373,22 @@ JS_FOSSE = r"""/* ════════════════════�
 
      Le dôme, lui, garde le test : c'est un volume, et le voir au travers de la
      paroi qui le masque donnerait une fausse idée de sa portée. */
+  /* ─── LE PÉRIMÈTRE ET SON CERCLE PARTAGENT LA COULEUR ────────────────────
+     Les deux répondent à la même question, « jusqu'où évacuer », et se lisent
+     donc ensemble. Deux teintes différentes les auraient posés comme deux
+     objets distincts, alors que l'un est la version plate de l'autre.
+
+     C'est le TRAIT qui les sépare : plein pour le périmètre calculé, tireté
+     pour le cercle, selon l'usage du dessin technique où un tireté marque ce
+     qui est supposé plutôt que relevé. Le tireté vient de la géométrie
+     elle-même, un segment sur cinq n'étant pas émis. */
   var COUCHES = {
     fosse:     { rang: 0, couleur: [0x25, 0x49, 0x8A], filigrane: true,  traverse: false },
     dome:      { rang: 1, couleur: [0xFD, 0xC3, 0x0E], filigrane: true,  traverse: false },
     contour:   { rang: 2, couleur: [0xFF, 0xFF, 0xFF], filigrane: false, traverse: true },
-    perimetre: { rang: 3, couleur: [0xFF, 0x5C, 0x7A], filigrane: false, traverse: true },
-    /* Le cercle est en gris, et c'est un choix de propos : il représente la
-       règle que le dôme remplace. Lui donner une couleur vive en ferait un
-       résultat à égalité avec le périmètre calculé, ce qu'il n'est pas.
-
-       Gris clair, toutefois, et non gris moyen : sur le bleu sombre de la
-       fosse vue de dessus, le second s'effaçait au point qu'on cherchait le
-       trait. Un terme de comparaison qu'il faut chercher ne compare rien. */
-    cercle:    { rang: 4, couleur: [0xC3, 0xCB, 0xD4], filigrane: false, traverse: true },
+    perimetre: { rang: 3, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true },
+    cercle:    { rang: 4, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true,
+                 tirets: true },
   };
   var ORDRE = ['fosse', 'dome', 'contour', 'perimetre', 'cercle'];
 
@@ -1008,9 +1026,18 @@ JS_FOSSE = r"""/* ════════════════════�
           affichee[nom] = c.checked;
           relancer();
         });
+        /* La pastille dit la couleur ET le trait : pleine pour un trait plein,
+           en anneau tireté pour un trait tireté. Deux couches de même couleur
+           seraient autrement impossibles à distinguer dans la légende, alors
+           qu'elles le sont dans le dessin. */
         var pastille = document.createElement('span');
         pastille.className = 'dc-fosse-pastille';
-        pastille.style.background = 'rgb(' + COUCHES[nom].couleur.join(',') + ')';
+        var teinte = 'rgb(' + COUCHES[nom].couleur.join(',') + ')';
+        if (COUCHES[nom].tirets) {
+          pastille.style.border = '2px dashed ' + teinte;
+        } else {
+          pastille.style.background = teinte;
+        }
         var texte = document.createElement('span');
         texte.textContent = MOTS_COUCHES[i + 1] || nom;
         l.appendChild(c); l.appendChild(pastille); l.appendChild(texte);

@@ -455,7 +455,8 @@ form input,form textarea,form select{font-family:'Poppins','Segoe UI',system-ui,
 /* La pastille rappelle la couleur du tracé dans la scène. Elle DOUBLE
    l'étiquette, elle ne la remplace pas : seule, elle laisserait un lecteur
    daltonien sans moyen de savoir quelle ligne il éteint. */
-.dc-fosse-pastille{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+.dc-fosse-pastille{width:12px;height:12px;border-radius:50%;flex:0 0 auto;
+  box-sizing:border-box}
 
 /* ══ LE CUBE DE VUE ════════════════════════════════════════════════════════
    Il tourne avec la caméra et se clique par la face. Il est bâti en trois

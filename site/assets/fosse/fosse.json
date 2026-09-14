@@ -39,14 +39,25 @@
     }
    ]
   },
+  "perimetre": {
+   "sommets": 140,
+   "position": "perimetre.pos.bin",
+   "jeux": [
+    {
+     "forme": "aretes",
+     "index": "perimetre.aretes.bin",
+     "indices": 280
+    }
+   ]
+  },
   "cercle": {
-   "sommets": 128,
+   "sommets": 240,
    "position": "cercle.pos.bin",
    "jeux": [
     {
      "forme": "aretes",
      "index": "cercle.aretes.bin",
-     "indices": 256
+     "indices": 288
     }
    ]
   }
