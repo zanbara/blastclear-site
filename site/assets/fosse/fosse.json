@@ -1,6 +1,6 @@
 {
- "etendueMetres": 1544.9,
- "calques": {
+ "demiCoteMetres": 772.4,
+ "couches": {
   "fosse": {
    "sommets": 2692,
    "position": "fosse.pos.bin",
@@ -8,12 +8,12 @@
     {
      "forme": "triangles",
      "index": "fosse.triangles.bin",
-     "indices": 15552
+     "indices": 15648
     },
     {
      "forme": "aretes",
      "index": "fosse.aretes.bin",
-     "indices": 15740
+     "indices": 15802
     }
    ]
   },
@@ -27,12 +27,33 @@
      "indices": 3122
     }
    ]
+  },
+  "contour": {
+   "sommets": 10,
+   "position": "contour.pos.bin",
+   "jeux": [
+    {
+     "forme": "aretes",
+     "index": "contour.aretes.bin",
+     "indices": 20
+    }
+   ]
+  },
+  "cercle": {
+   "sommets": 128,
+   "position": "cercle.pos.bin",
+   "jeux": [
+    {
+     "forme": "aretes",
+     "index": "cercle.aretes.bin",
+     "indices": 256
+    }
+   ]
   }
  },
- "demiCoteMetres": 772.4,
  "boite": {
   "min": [
-   -0.8351,
+   -0.8325,
    -0.9972,
    -1.0
   ],

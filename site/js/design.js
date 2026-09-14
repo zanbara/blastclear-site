@@ -514,10 +514,9 @@
 /* ════════════════════════════════════════════════════════════════════════════
    LA FOSSE EN TROIS DIMENSIONS, CHARGÉE À LA DEMANDE.
 
-   Le programme de rendu et les quatre-vingt-six kilooctets de géométrie ne
-   partent que lorsque la section approche de l'écran. Un visiteur qui ne
-   descend jamais jusque-là ne les télécharge pas, et la page garde exactement
-   le poids qu'elle avait avant.
+   Le programme de rendu et la géométrie ne partent que lorsque la section
+   approche de l'écran. Un visiteur qui ne descend jamais jusque-là ne les
+   télécharge pas, et la page garde exactement le poids qu'elle avait avant.
 
    La marge de six cents pixels laisse au chargement le temps d'aboutir avant
    que la section ne paraisse : arrivée à l'écran, elle est déjà dessinée.
@@ -551,11 +550,8 @@
   /* ── UN SECOND DÉCLENCHEUR, POUR LE CAS OÙ LE PREMIER SE TAIT ──────────
      L'observateur dépend du cycle de rendu du navigateur. Il suffit en usage
      normal, mais il ne coûte rien de doubler la garde par un relevé direct de
-     la position au défilement : si la section est à portée et que rien n'est
-     encore parti, on part.
-
-     Les deux passent par la même fonction, qui ne se laisse appeler qu'une
-     fois : le chargement ne peut pas se déclencher deux fois. */
+     la position au défilement. Les deux passent par la même fonction, qui ne se
+     laisse appeler qu'une fois. */
   function verifier() {
     if (parti) return;
     var r = fosse.getBoundingClientRect();

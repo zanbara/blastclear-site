@@ -1,13 +1,13 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   LA FOSSE ET SON DÔME, EN WEBGL.
+   LA FOSSE, SON DÔME ET SES PÉRIMÈTRES, EN WEBGL.
 
    Chargé à la demande par design.js, lorsque la section approche de l'écran.
 
    ─── CE QUE LE FICHIER DE GÉOMÉTRIE CONTIENT ──────────────────────────────
    Des entiers courts, non des flottants. Les positions sont quantifiées sur
-   seize bits dans un cube commun aux deux calques, et la carte graphique les
-   ramène elle-même dans [0,1] : c'est le rôle du drapeau « normalisé » passé à
-   vertexAttribPointer. Le nuanceur n'a plus qu'à les recentrer.
+   seize bits dans un cube commun à toutes les couches, et la carte graphique
+   les ramène elle-même dans [0,1] : c'est le rôle du drapeau « normalisé »
+   passé à vertexAttribPointer. Le nuanceur n'a plus qu'à les recentrer.
 
    Deux octets par coordonnée au lieu de quatre, pour un pas de 2,4 cm sur une
    emprise de 1 545 m. Aucun œil ne mesure ce décor à cette échelle.
@@ -19,10 +19,56 @@
   if (!hote) return;
 
   var BASE = hote.getAttribute('data-fosse');   // « ../assets/fosse/ »
+  var bouton = hote.querySelector('.dc-fosse-ouvrir');
+  if (!bouton) return;
+
+  function etiquettes(nom) {
+    try { return JSON.parse(bouton.getAttribute(nom) || '[]'); }
+    catch (e) { return []; }
+  }
+  var MOTS_COUCHES = etiquettes('data-couches');   // titre, puis un nom par couche
+  var MOTS_VUES = etiquettes('data-vues');         // haut, bas, nord, sud, est, ouest
+
+  /* ══ LES COUCHES ══════════════════════════════════════════════════════════
+     L'ordre est celui du tracé : les surfaces d'abord, qui écrivent la
+     profondeur, les traits ensuite, qui ne l'écrivent pas.
+
+     « filigrane » dit si la couche paraît dans le décor de la page. Seuls le
+     terrain et le dôme y figurent : le contour d'un tir et un cercle de trois
+     cents mètres n'y seraient que du bruit derrière du texte. Au premier plan,
+     où l'on vient comparer, tout est allumé. */
+  /* ─── « TRAVERSE » : TROIS TRACÉS IGNORENT LA PROFONDEUR ────────────────
+     Le tir est au fond de la fosse, à -70 m, et son contour comme les deux
+     périmètres y sont posés à cette altitude. Les parois du gradin remontent
+     bien au-dessus : soumis au test de profondeur, ces trois tracés
+     disparaissent sous le terrain, et en vue de dessus, qui est justement la
+     vue de comparaison, on ne voit plus rien du tout.
+
+     Ce sont des annotations, non des volumes. Les logiciels miniers les
+     dessinent de la même façon, par-dessus la topographie, pour qu'un plan
+     d'évacuation reste lisible quel que soit le relief qu'il recouvre.
+
+     Le dôme, lui, garde le test : c'est un volume, et le voir au travers de la
+     paroi qui le masque donnerait une fausse idée de sa portée. */
+  var COUCHES = {
+    fosse:     { rang: 0, couleur: [0x25, 0x49, 0x8A], filigrane: true,  traverse: false },
+    dome:      { rang: 1, couleur: [0xFD, 0xC3, 0x0E], filigrane: true,  traverse: false },
+    contour:   { rang: 2, couleur: [0xFF, 0xFF, 0xFF], filigrane: false, traverse: true },
+    perimetre: { rang: 3, couleur: [0xFF, 0x5C, 0x7A], filigrane: false, traverse: true },
+    /* Le cercle est en gris, et c'est un choix de propos : il représente la
+       règle que le dôme remplace. Lui donner une couleur vive en ferait un
+       résultat à égalité avec le périmètre calculé, ce qu'il n'est pas.
+
+       Gris clair, toutefois, et non gris moyen : sur le bleu sombre de la
+       fosse vue de dessus, le second s'effaçait au point qu'on cherchait le
+       trait. Un terme de comparaison qu'il faut chercher ne compare rien. */
+    cercle:    { rang: 4, couleur: [0xC3, 0xCB, 0xD4], filigrane: false, traverse: true },
+  };
+  var ORDRE = ['fosse', 'dome', 'contour', 'perimetre', 'cercle'];
 
   /* ══ ALGÈBRE ══════════════════════════════════════════════════════════════
-     Quatre fonctions suffisent. Les matrices sont en colonne d'abord, comme
-     WebGL les attend, ce qui évite de les transposer à chaque envoi. */
+     Les matrices sont en colonne d'abord, comme WebGL les attend, ce qui évite
+     de les transposer à chaque envoi. */
 
   function perspective(fovy, rapport, pres, loin) {
     var f = 1 / Math.tan(fovy / 2), d = pres - loin;
@@ -67,7 +113,7 @@
   }
 
   /* ══ NUANCEURS ════════════════════════════════════════════════════════════
-     Un seul programme sert aux deux maillages. u_uni bascule entre la surface
+     Un seul programme sert à tous les maillages. u_uni bascule entre la surface
      éclairée et le trait de couleur unie : deux programmes pour cette
      différence coûteraient deux compilations et un changement d'état par image. */
 
@@ -115,7 +161,7 @@
      Elles sont MOYENNÉES aux sommets partagés, et pondérées par l'aire de
      chaque face puisque le produit vectoriel n'est pas normé avant l'addition.
      Une grande facette pèse ainsi plus qu'une petite, ce qui adoucit les
-     raccords sans effacer les arêtes de banquette. */
+     raccords sans effacer les arêtes de gradin. */
   function normales(positions, triangles) {
     var n = new Float32Array(positions.length);
     for (var i = 0; i < triangles.length; i += 3) {
@@ -145,16 +191,16 @@
     });
   }
 
-  /* Un calque porte UNE table de positions et un ou deux jeux d'indices qui la
+  /* Une couche porte UNE table de positions et un ou deux jeux d'indices qui la
      partagent : la fosse est dessinée deux fois, en surface puis en fil de fer,
-     sur les mêmes sommets. Les transporter deux fois doublerait le fichier pour
-     rien. */
+     sur les mêmes sommets. Les transporter deux fois doublerait le fichier. */
   fetch(BASE + 'fosse.json')
     .then(function (r) { return r.json(); })
     .then(function (manifeste) {
-      var calques = manifeste.calques;
-      return Promise.all(Object.keys(calques).map(function (nom) {
-        var c = calques[nom];
+      var couches = manifeste.couches || manifeste.calques || {};
+      var noms = Object.keys(couches).filter(function (n) { return COUCHES[n]; });
+      return Promise.all(noms.map(function (nom) {
+        var c = couches[nom];
         return Promise.all(
           [binaire(c.position)].concat(c.jeux.map(function (j) { return binaire(j.index); }))
         ).then(function (tampons) {
@@ -207,16 +253,12 @@
     var uOpacite = gl.getUniformLocation(prog, 'u_opacite');
     var uUni = gl.getUniformLocation(prog, 'u_uni');
 
-    /* Les couleurs de la charte, en composantes de 0 à 1. */
     var BLEU = [0x25 / 255, 0x49 / 255, 0x8A / 255];
-    var JAUNE = [0xFD / 255, 0xC3 / 255, 0x0E / 255];
 
-    /* ── L'ORDRE DE TRACÉ EST CELUI DE CETTE LISTE ────────────────────────
-       Les surfaces d'abord, qui écrivent la profondeur ; les fils de fer
-       ensuite, qui ne l'écrivent pas. L'inverse laisserait le trait de la
-       fosse repeint par sa propre surface. */
     var objets = [];
+    var presentes = {};
     lots.forEach(function (lot) {
+      presentes[lot.nom] = true;
       var position = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, position);
       gl.bufferData(gl.ARRAY_BUFFER, lot.positions, gl.STATIC_DRAW);
@@ -240,13 +282,22 @@
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, jeu.indices, gl.STATIC_DRAW);
         objets.push({
-          calque: lot.nom, forme: jeu.forme, nombre: jeu.indices.length,
+          couche: lot.nom, forme: jeu.forme, nombre: jeu.indices.length,
           position: position, normale: normale, index: index,
         });
       });
     });
+    /* Les surfaces d'abord, puis les traits, chacun dans l'ordre des couches :
+       un trait tracé avant la surface qui le porte serait repeint par elle. */
     objets.sort(function (a, b) {
-      return (a.forme === 'triangles' ? 0 : 1) - (b.forme === 'triangles' ? 0 : 1);
+      var sa = a.forme === 'triangles' ? 0 : 1, sb = b.forme === 'triangles' ? 0 : 1;
+      return sa - sb || COUCHES[a.couche].rang - COUCHES[b.couche].rang;
+    });
+
+    /* L'état d'affichage de chaque couche présente. */
+    var affichee = {};
+    ORDRE.forEach(function (nom) {
+      if (presentes[nom]) affichee[nom] = true;
     });
 
     gl.enable(gl.DEPTH_TEST);
@@ -265,26 +316,25 @@
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.polygonOffset(1.2, 1.2);
 
-    /* ── ÉTAT DE LA CAMÉRA ────────────────────────────────────────────────
+    /* ══ LA CAMÉRA ════════════════════════════════════════════════════════
        L'azimut tourne, l'élévation est bornée : passer au-dessus du zénith
-       retournerait la scène, ce qui désoriente sans rien montrer de plus.
+       retournerait la scène, ce qui désoriente sans rien montrer de plus. La
+       borne s'arrête juste avant la verticale, où la caméra et son vecteur
+       « haut » seraient alignés et l'orientation indéterminée.
 
        LE RECUL N'EST PAS UN NOMBRE FIXE. La section est large et basse, la vue
        plein écran presque carrée : un même recul y donnerait un dessin qui
-       remplit l'une et se perd dans l'autre. Il est donc CALCULÉ à chaque image
-       pour que le modèle tienne dans le cadre, et « zoom » n'en est qu'un
-       facteur, celui que la molette fait varier. */
+       remplit l'une et se perd dans l'autre. Il est donc CALCULÉ à chaque
+       image, et « zoom » n'en est qu'un facteur. */
     var FOV = 0.72;
+    var LIMITE = 1.52;                 /* 87°, juste sous la verticale */
     var azimut = -0.7, elevation = 0.52, zoom = 1;
-    var plein = null, image = 0;
+    var plein = null, image = 0, tourneSeule = true;
 
     /* ── LA CAMÉRA VISE LE CENTRE DE LA BOÎTE, NON L'ORIGINE ─────────────
        L'origine est le fond de la fosse, posé là par la conversion pour que le
        terrain repose sur le plan zéro. Tourner autour d'elle ferait basculer le
-       modèle de haut en bas à chaque tour, comme une balançoire.
-
-       Les coins sont donc exprimés RELATIVEMENT à ce centre : c'est ce qui rend
-       le calcul du recul exact, puisque la caméra y regarde. */
+       modèle de haut en bas à chaque tour, comme une balançoire. */
     var CENTRE = [(boite.min[0] + boite.max[0]) / 2,
                   (boite.min[1] + boite.max[1]) / 2,
                   (boite.min[2] + boite.max[2]) / 2];
@@ -299,6 +349,16 @@
       }
     }
 
+    function base() {
+      var ce = Math.cos(elevation), se = Math.sin(elevation);
+      var ca = Math.cos(azimut), sa = Math.sin(azimut);
+      return {
+        droite: [ca, 0, -sa],
+        haut: [-se * sa, ce, -se * ca],
+        avant: [ce * sa, se, ce * ca],     /* du centre vers l'œil */
+      };
+    }
+
     /* ── LE RECUL EXACT, ET NON UNE SPHÈRE ENGLOBANTE ─────────────────────
        Le modèle est un disque très aplati : sa sphère englobante déborde de
        toutes parts au-dessus et au-dessous du vide, et l'ajuster reculerait la
@@ -311,36 +371,25 @@
        du demi-angle. Le plus exigeant des huit fixe le recul. */
     function recul(rapport) {
       var tH = Math.tan(FOV / 2) * rapport, tV = Math.tan(FOV / 2);
-      var ce = Math.cos(elevation), se = Math.sin(elevation);
-      var ca = Math.cos(azimut), sa = Math.sin(azimut);
-      /* Les trois axes de la caméra, pour un œil placé en coordonnées
-         sphériques et visant l'origine. */
-      var droite = [ca, 0, -sa];
-      var haut = [-se * sa, ce, -se * ca];
-      var avant = [ce * sa, se, ce * ca];   /* de l'origine vers l'œil */
-
+      var b = base();
       var d = 0;
       for (var i = 0; i < COINS.length; i++) {
         var p = COINS[i];
-        var x = Math.abs(p[0] * droite[0] + p[1] * droite[1] + p[2] * droite[2]);
-        var y = Math.abs(p[0] * haut[0] + p[1] * haut[1] + p[2] * haut[2]);
-        var z = p[0] * avant[0] + p[1] * avant[1] + p[2] * avant[2];
+        var x = Math.abs(p[0] * b.droite[0] + p[1] * b.droite[1] + p[2] * b.droite[2]);
+        var y = Math.abs(p[0] * b.haut[0] + p[1] * b.haut[1] + p[2] * b.haut[2]);
+        var z = p[0] * b.avant[0] + p[1] * b.avant[1] + p[2] * b.avant[2];
         d = Math.max(d, z + x / tH, z + y / tV);
       }
       /* ── LE FILIGRANE A LE DROIT DE DÉBORDER, PAS LA VUE PLEIN ÉCRAN ───
          Le modèle est plat : cadré en entier, il laisse au-dessus et en dessous
          deux bandes de vide qui font paraître le dessin minuscule au milieu de
          sa section. En le rapprochant d'un tiers, ce sont ces bandes qui sont
-         rognées, et le filigrane occupe enfin la place qui lui est donnée.
+         rognées, et le filigrane occupe la place qui lui est donnée.
 
          Au premier plan, où le visiteur oriente le modèle lui-même, la marge
-         reste franche : il y examine une géométrie, et rien ne doit sortir du
-         cadre sous ses doigts. */
+         reste franche : il y examine une géométrie, pas un décor. */
       return d * 1.10 * (plein ? 0.86 : 0.66) * zoom;
     }
-
-    var sobre = window.matchMedia &&
-                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function dimensionner() {
       var r = Math.min(window.devicePixelRatio || 1, 2);
@@ -357,11 +406,10 @@
 
       var rapport = toile.width / toile.height;
       var d = recul(rapport);
-      var oeil = [
-        CENTRE[0] + d * Math.cos(elevation) * Math.sin(azimut),
-        CENTRE[1] + d * Math.sin(elevation),
-        CENTRE[2] + d * Math.cos(elevation) * Math.cos(azimut),
-      ];
+      var b = base();
+      var oeil = [CENTRE[0] + d * b.avant[0],
+                  CENTRE[1] + d * b.avant[1],
+                  CENTRE[2] + d * b.avant[2]];
       var mvp = multiplier(perspective(FOV, rapport, 0.02, 40),
                            regard(oeil, CENTRE, [0, 1, 0]));
 
@@ -381,6 +429,9 @@
       gl.uniformMatrix4fv(uMvp, false, mvp);
 
       objets.forEach(function (o) {
+        var reglage = COUCHES[o.couche];
+        if (plein ? !affichee[o.couche] : !reglage.filigrane) return;
+
         var triangles = o.forme === 'triangles';
         gl.bindBuffer(gl.ARRAY_BUFFER, o.position);
         gl.enableVertexAttribArray(aPos);
@@ -398,46 +449,88 @@
 
         /* ── LE JAUNE NE PARAÎT QUE SUR FOND SOMBRE ─────────────────────
            En filigrane, le fond de la section est clair, et le jaune de la
-           charte y tombe à 1,6:1 : le dôme s'y effacerait entièrement. Tout y
-           est donc dans le bleu, distingué par la densité du tracé et non par
-           la teinte. Au premier plan, sur fond anthracite, le jaune retrouve
-           le contraste qui lui manquait, et avec lui la lecture qu'en donne
-           le logiciel : le terrain en bleu, le dôme en jaune. */
-        var dome = o.calque === 'dome';
-        gl.uniform3fv(uCouleur, plein && dome ? JAUNE : BLEU);
+           charte y tombe à 1,6:1 : le dôme s'y effacerait. Tout y est donc
+           dans le bleu, distingué par la densité du tracé et non par la
+           teinte. Au premier plan, sur fond anthracite, chaque couche
+           retrouve sa couleur, et le contraste avec elle. */
+        var couleur = plein
+          ? [reglage.couleur[0] / 255, reglage.couleur[1] / 255, reglage.couleur[2] / 255]
+          : BLEU;
+        gl.uniform3fv(uCouleur, couleur);
         gl.uniform1f(uUni, triangles ? 0 : 1);
 
-        /* Quatre tracés se superposent, et chacun a sa raison d'être plus ou
-           moins présent. La surface de la fosse ne sert qu'à masquer ce qui
-           passe dessous : elle reste la plus effacée. Ses arêtes portent les
-           banquettes, donc la lecture du relief. Le dôme, lui, est le sujet. */
+        /* Chaque tracé a sa raison d'être plus ou moins présent. La surface de
+           la fosse ne sert qu'à masquer ce qui passe dessous : elle reste la
+           plus effacée. Ses arêtes portent les gradins, donc la lecture du
+           relief. Les périmètres, eux, sont le sujet. */
         var opacite;
-        if (plein) opacite = triangles ? 1 : (dome ? 0.85 : 0.5);
-        else opacite = triangles ? 0.30 : (dome ? 0.42 : 0.22);
-
-        /* ── SUR ÉCRAN ÉTROIT, LE FILIGRANE S'EFFACE ENCORE ─────────────
-           Sur écran large, le dessin est rangé à droite et le texte occupe la
-           gauche : les deux ne se rencontrent pas. Sur téléphone, le texte
-           tient toute la largeur et le dessin passe forcément dessous. Il
-           s'atténue donc d'un tiers, parce qu'entre un décor et un texte qui
-           se lit, c'est le décor qui cède. */
-        if (!plein && !decalage) opacite *= 0.62;
+        if (plein) {
+          if (triangles) opacite = 1;
+          else if (o.couche === 'fosse') opacite = 0.5;
+          else opacite = 0.92;
+        } else {
+          opacite = triangles ? 0.30 : (o.couche === 'dome' ? 0.42 : 0.22);
+          /* ── SUR ÉCRAN ÉTROIT, LE FILIGRANE S'EFFACE ENCORE ──────────
+             Sur écran large, le dessin est rangé à droite et le texte occupe
+             la gauche : les deux ne se rencontrent pas. Sur téléphone, le
+             texte tient toute la largeur et le dessin passe forcément
+             dessous. Entre un décor et un texte qui se lit, c'est le décor
+             qui cède. */
+          if (!decalage) opacite *= 0.62;
+        }
         gl.uniform1f(uOpacite, opacite);
 
-        /* Le dôme n'écrit pas dans le tampon de profondeur : ses arêtes
-           lointaines masqueraient les proches, et un fil de fer transparent
+        /* Les fils de fer n'écrivent pas dans le tampon de profondeur : leurs
+           segments lointains masqueraient les proches, et un tracé transparent
            doit se voir de part en part. */
         gl.depthMask(triangles);
+        if (reglage.traverse) gl.disable(gl.DEPTH_TEST);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, o.index);
         gl.drawElements(triangles ? gl.TRIANGLES : gl.LINES, o.nombre,
                         gl.UNSIGNED_SHORT, 0);
+        if (reglage.traverse) gl.enable(gl.DEPTH_TEST);
       });
       gl.depthMask(true);
+
+      if (cube) orienterCube();
     }
 
-    function boucle() {
+    /* ══ L'ANIMATION VERS UNE VUE ═════════════════════════════════════════
+       Le passage est progressif, et non instantané. Sauter d'un point de vue à
+       l'autre laisse le spectateur à reconstruire seul ce qui a bougé ; un
+       mouvement de quatre dixièmes de seconde lui montre le lien entre les
+       deux, ce qui est tout l'intérêt d'un cube de vue. */
+    var vol = null;
+
+    function allerVers(az, el) {
+      /* Le chemin le plus court en azimut : sans ce repli, passer de 175° à
+         -175° ferait faire à la scène un tour complet pour dix degrés. */
+      var d = (az - azimut) % (2 * Math.PI);
+      if (d > Math.PI) d -= 2 * Math.PI;
+      if (d < -Math.PI) d += 2 * Math.PI;
+      vol = { az0: azimut, el0: elevation, daz: d, del: el - elevation,
+              debut: (performance && performance.now ? performance.now() : Date.now()) };
+      tourneSeule = false;
+      relancer();
+    }
+
+    function avancerVol(maintenant) {
+      if (!vol) return;
+      var t = Math.min(1, (maintenant - vol.debut) / 420);
+      var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;   /* adouci */
+      azimut = vol.az0 + vol.daz * e;
+      elevation = vol.el0 + vol.del * e;
+      if (t >= 1) vol = null;
+    }
+
+    var sobre = window.matchMedia &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function boucle(maintenant) {
       image = 0;
-      if (!saisie && !(sobre && !plein)) azimut += plein ? 0.0009 : 0.0016;
+      avancerVol(maintenant || (performance && performance.now ? performance.now() : Date.now()));
+      var anime = !saisie && !vol && (plein ? tourneSeule : !sobre);
+      if (anime) azimut += plein ? 0.0009 : 0.0016;
       dessiner();
       if (visible || plein) image = requestAnimationFrame(boucle);
     }
@@ -476,6 +569,8 @@
     }
 
     function prise(e) {
+      tourneSeule = false;
+      vol = null;
       if (e.touches && e.touches.length === 2) { pince = ecart(e); saisie = null; return; }
       saisie = point(e);
     }
@@ -491,12 +586,18 @@
       if (!saisie) return;
       var p = point(e);
       azimut -= (p.x - saisie.x) * 0.006;
-      elevation = Math.max(-0.25, Math.min(1.35, elevation + (p.y - saisie.y) * 0.005));
+      elevation = Math.max(-LIMITE, Math.min(LIMITE, elevation + (p.y - saisie.y) * 0.005));
       saisie = p;
       e.preventDefault();
       relancer();
     }
     function lache() { saisie = null; pince = 0; }
+    function molette(e) {
+      tourneSeule = false;
+      zoom = Math.max(0.55, Math.min(2.6, zoom * (e.deltaY > 0 ? 1.1 : 0.91)));
+      e.preventDefault();
+      relancer();
+    }
 
     function brancher(actif) {
       var m = actif ? 'addEventListener' : 'removeEventListener';
@@ -508,16 +609,110 @@
       window[m]('touchend', lache);
       toile[m]('wheel', molette, { passive: false });
     }
-    function molette(e) {
-      zoom = Math.max(0.55, Math.min(2.6, zoom * (e.deltaY > 0 ? 1.1 : 0.91)));
-      e.preventDefault();
-      relancer();
+
+    /* ══ LE CUBE DE VUE ════════════════════════════════════════════════════
+       Six faces, six points de vue. Il tourne avec la caméra pour dire où l'on
+       se trouve, et se clique pour y aller.
+
+       ─── LES FACES SONT DES BOUTONS, NON UN DESSIN ────────────────────────
+       Bâti en trois dimensions CSS, le cube garde six éléments cliquables,
+       tabulables et énonçables. Dessiné dans la toile, il aurait fallu y
+       ajouter un lancer de rayon pour savoir quelle face est sous le curseur,
+       et rien n'en serait resté pour qui navigue au clavier. */
+    var cube = null;
+
+    /* Le nom des faces, leur transformation dans le cube, et le point de vue
+       qu'elles commandent. L'azimut nul regarde depuis le SUD : la conversion
+       oriente le X de la scène vers l'est et son Z vers le sud. */
+    var FACES = [
+      ['haut',  'rotateX(90deg)',   null,            LIMITE],
+      ['bas',   'rotateX(-90deg)',  null,           -LIMITE],
+      ['nord',  'rotateY(180deg)',  Math.PI,         0],
+      ['sud',   '',                 0,               0],
+      ['est',   'rotateY(90deg)',   Math.PI / 2,     0],
+      ['ouest', 'rotateY(-90deg)', -Math.PI / 2,     0],
+    ];
+
+    function construireCube(cote) {
+      var zone = document.createElement('div');
+      zone.className = 'dc-fosse-cube-zone';
+      var boite3d = document.createElement('div');
+      boite3d.className = 'dc-fosse-cube';
+      var demi = cote / 2;
+
+      FACES.forEach(function (f, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = MOTS_VUES[i] || f[0];
+        b.style.transform = (f[1] ? f[1] + ' ' : '') + 'translateZ(' + demi + 'px)';
+        b.addEventListener('click', function () {
+          allerVers(f[2] === null ? azimut : f[2], f[3]);
+        });
+        boite3d.appendChild(b);
+      });
+      zone.appendChild(boite3d);
+      cube = boite3d;
+      return zone;
+    }
+
+    /* ── LE CUBE SUIT LA CAMÉRA PAR SA MATRICE, NON PAR DEUX ANGLES ───────
+       Écrire « rotateX(-élévation) rotateY(-azimut) » paraît plus simple, mais
+       l'ordre des rotations et le sens des axes CSS, dont le Y descend, y
+       laissent quatre combinaisons de signes dont une seule est juste, et rien
+       à l'écran ne dit laquelle.
+
+       On pose donc la matrice de la caméra elle-même, en changeant de repère :
+       le Y de la scène monte, celui de CSS descend, d'où le renversement de la
+       ligne et de la colonne du milieu. C'est exact par construction. */
+    function orienterCube() {
+      var b = base();
+      var m = [
+        [ b.droite[0], -b.droite[1],  b.droite[2]],
+        [-b.haut[0],    b.haut[1],   -b.haut[2]],
+        [ b.avant[0],  -b.avant[1],   b.avant[2]],
+      ];
+      cube.style.transform =
+        'translateZ(' + (-cube.parentNode.clientWidth / 2) + 'px) matrix3d(' +
+        [m[0][0], m[1][0], m[2][0], 0,
+         m[0][1], m[1][1], m[2][1], 0,
+         m[0][2], m[1][2], m[2][2], 0,
+         0, 0, 0, 1].join(',') + ')';
+    }
+
+    /* ══ LE PANNEAU DES CALQUES ════════════════════════════════════════════ */
+
+    function construireCalques() {
+      var panneau = document.createElement('div');
+      panneau.className = 'dc-fosse-calques';
+      var titre = document.createElement('h3');
+      titre.textContent = MOTS_COUCHES[0] || 'Layers';
+      panneau.appendChild(titre);
+
+      ORDRE.forEach(function (nom, i) {
+        /* Une couche absente du jeu de données n'a pas de case : proposer
+           d'afficher ce qui n'existe pas laisserait croire à une panne. */
+        if (!presentes[nom]) return;
+        var l = document.createElement('label');
+        var c = document.createElement('input');
+        c.type = 'checkbox';
+        c.checked = affichee[nom];
+        c.addEventListener('change', function () {
+          affichee[nom] = c.checked;
+          relancer();
+        });
+        var pastille = document.createElement('span');
+        pastille.className = 'dc-fosse-pastille';
+        pastille.style.background = 'rgb(' + COUCHES[nom].couleur.join(',') + ')';
+        var texte = document.createElement('span');
+        texte.textContent = MOTS_COUCHES[i + 1] || nom;
+        l.appendChild(c); l.appendChild(pastille); l.appendChild(texte);
+        panneau.appendChild(l);
+      });
+      return panneau;
     }
 
     /* ══ OUVRIR ET REFERMER ════════════════════════════════════════════════ */
 
-    var bouton = hote.querySelector('.dc-fosse-ouvrir');
-    if (!bouton) return;
     bouton.hidden = false;
 
     function ouvrir() {
@@ -538,12 +733,15 @@
       aide.textContent = bouton.getAttribute('data-aide') || '';
 
       plein.appendChild(toile);
+      plein.appendChild(construireCube(window.innerWidth < 720 ? 46 : 62));
+      plein.appendChild(construireCalques());
       plein.appendChild(fermer);
       plein.appendChild(aide);
       document.body.appendChild(plein);
       /* La page ne doit pas défiler derrière la vue : sur téléphone, un
          glissement qui déborde de la toile ferait remonter le contenu. */
       document.body.style.overflow = 'hidden';
+      tourneSeule = true;
       brancher(true);
       document.addEventListener('keydown', clavier);
       fermer.focus();
@@ -557,6 +755,9 @@
       hote.appendChild(toile);
       plein.remove();
       plein = null;
+      cube = null;
+      vol = null;
+      zoom = 1;
       document.body.style.overflow = '';
       bouton.focus();
       relancer();

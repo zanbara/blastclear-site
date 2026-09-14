@@ -404,22 +404,20 @@ form input,form textarea,form select{font-family:'Poppins','Segoe UI',system-ui,
    les clics, et couvre l'écran. Le fond sombre n'est pas décoratif : il donne
    au tracé le contraste qu'un fond clair lui refuse. */
 .dc-fosse-plein{position:fixed;inset:0;z-index:80;background:#0C0F14;
-  display:flex;align-items:center;justify-content:center;
   animation:dc-fondu .25s ease both}
 .dc-fosse-plein .dc-fosse-toile{position:absolute;inset:0;pointer-events:auto;
   opacity:1;cursor:grab;touch-action:none}
 .dc-fosse-plein .dc-fosse-toile:active{cursor:grabbing}
 @keyframes dc-fondu{from{opacity:0}to{opacity:1}}
 
-.dc-fosse-fermer{position:absolute;top:16px;right:16px;z-index:2;
+.dc-fosse-fermer{position:absolute;top:16px;right:16px;z-index:3;
   display:inline-flex;align-items:center;gap:8px;min-height:44px;
   background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.28);
   color:#ffffff;font-family:inherit;font-weight:600;font-size:14px;
   padding:10px 18px;border-radius:2px;cursor:pointer}
 @media (hover:hover){.dc-fosse-fermer:hover{background:rgba(255,255,255,.20)}}
-.dc-fosse-fermer:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:2px}
 
-.dc-fosse-aide{position:absolute;left:0;right:0;bottom:18px;z-index:2;
+.dc-fosse-aide{position:absolute;left:0;right:0;bottom:14px;z-index:2;
   text-align:center;color:#9AA3AE;font-size:13px;padding:0 16px;
   pointer-events:none}
 
@@ -431,4 +429,58 @@ form input,form textarea,form select{font-family:'Poppins','Segoe UI',system-ui,
 @media (hover:hover){
   .dc-fosse-ouvrir:hover{background:var(--bc-bleu);color:#ffffff}
 }
+
+.dc-fosse-plein button:focus-visible,
+.dc-fosse-plein input:focus-visible,
 .dc-fosse-ouvrir:focus-visible{outline:2px solid var(--bc-jaune);outline-offset:2px}
+
+/* ══ LE PANNEAU DES CALQUES ════════════════════════════════════════════════
+   Chaque tracé répond à une question différente : où est le terrain, jusqu'où
+   porte le dôme, où est le tir, où passe le périmètre, et ce qu'aurait donné
+   un simple cercle. Les superposer tous rend le dessin illisible ; les éteindre
+   un à un est la seule façon de lire une comparaison.
+
+   Ce sont de vraies cases à cocher, non des pastilles : elles se cochent au
+   clavier, s'annoncent comme telles, et disent leur état sans qu'on ait à
+   deviner ce qu'une couleur veut dire. */
+.dc-fosse-calques{position:absolute;left:16px;bottom:16px;z-index:3;
+  background:rgba(12,15,20,.82);border:1px solid rgba(255,255,255,.16);
+  border-radius:2px;padding:12px 14px;min-width:160px}
+.dc-fosse-calques h3{margin:0 0 9px;font-size:11px;letter-spacing:1.4px;
+  text-transform:uppercase;color:#9AA3AE;font-weight:600}
+.dc-fosse-calques label{display:flex;align-items:center;gap:9px;
+  min-height:30px;color:#E7EAEE;font-size:13px;cursor:pointer;white-space:nowrap}
+.dc-fosse-calques input{accent-color:var(--bc-jaune);width:15px;height:15px;
+  margin:0;cursor:pointer;flex:0 0 auto}
+/* La pastille rappelle la couleur du tracé dans la scène. Elle DOUBLE
+   l'étiquette, elle ne la remplace pas : seule, elle laisserait un lecteur
+   daltonien sans moyen de savoir quelle ligne il éteint. */
+.dc-fosse-pastille{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+
+/* ══ LE CUBE DE VUE ════════════════════════════════════════════════════════
+   Il tourne avec la caméra et se clique par la face. Il est bâti en trois
+   dimensions CSS, non dessiné dans la toile : ses faces restent alors de vrais
+   boutons, atteignables au clavier et énoncés par un lecteur d'écran, ce
+   qu'un dessin dans un canevas ne peut pas offrir. */
+.dc-fosse-cube-zone{position:absolute;top:16px;left:16px;z-index:3;
+  width:104px;height:104px;perspective:460px}
+.dc-fosse-cube{position:absolute;inset:0;transform-style:preserve-3d;
+  transform:translateZ(-52px)}
+.dc-fosse-cube button{position:absolute;left:50%;top:50%;width:62px;height:62px;
+  margin:-31px 0 0 -31px;display:flex;align-items:center;justify-content:center;
+  background:rgba(37,73,138,.62);border:1px solid rgba(255,255,255,.30);
+  color:#ffffff;font-family:inherit;font-size:11px;font-weight:600;
+  letter-spacing:.2px;cursor:pointer;backface-visibility:hidden}
+@media (hover:hover){
+  .dc-fosse-cube button:hover{background:var(--bc-jaune);color:#14171C}
+}
+
+@media (max-width:719px){
+  .dc-fosse-cube-zone{width:78px;height:78px;top:12px;left:12px}
+  .dc-fosse-cube{transform:translateZ(-39px)}
+  .dc-fosse-cube button{width:46px;height:46px;margin:-23px 0 0 -23px;font-size:9px}
+  .dc-fosse-calques{left:12px;right:12px;bottom:12px;padding:10px 12px;
+    display:flex;flex-wrap:wrap;gap:2px 14px;align-items:center}
+  .dc-fosse-calques h3{width:100%;margin:0 0 4px}
+  .dc-fosse-aide{display:none}
+}
