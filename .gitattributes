@@ -8,6 +8,12 @@
 # Binaires : aucune conversion, sous peine de les corrompre.
 *.png   binary
 *.jpg   binary
+# La géométrie de la fosse : des entiers courts, dont rien ne dit qu'ils ne
+# contiendront jamais la suite d'octets d'un retour à la ligne. La règle
+# `text=auto` ci-dessus les a reconnus comme binaires par flair, en cherchant un
+# octet nul dans leurs premiers kilooctets ; un fichier qui n'en aurait pas
+# passerait pour du texte et serait converti, donc détruit, sans un message.
+*.bin   binary
 *.jpeg  binary
 *.ico   binary
 *.woff2 binary
