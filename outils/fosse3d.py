@@ -25,60 +25,72 @@ suivre dans le temps.
 # ══ LES TEXTES DE LA SECTION ══════════════════════════════════════════════════
 #
 # Le surtitre, le titre, la phrase, le libellé du bouton, celui de la fermeture,
-# et l'aide à la manipulation. La phrase dit d'où vient le dessin : un tir réel,
-# une topographie réelle. C'est ce qui le distingue d'une illustration.
+# et l'aide à la manipulation.
+#
+# ─── LES DEUX NOMBRES SONT MESURÉS SUR LE DESSIN QUI LES ACCOMPAGNE ───────────
+# Ils ne sont ni arrondis à l'avantage du produit ni tirés d'un autre chantier.
+# Sur ce tir, le cercle de 500 m couvre 78,5 ha ; le périmètre intersecté avec la
+# topographie en retient 36,3. Le visiteur a les deux tracés sous les yeux et peut
+# vérifier le rapport lui-même, ce qui est la seule raison de citer des chiffres.
+#
+# ─── ET LE PARAGRAPHE DIT LES DEUX CÔTÉS ──────────────────────────────────────
+# Le cercle immobilise le double, ce qui coûte. Mais il reste aussi PLUS COURT que
+# le dôme sur quatre pour cent du pourtour, de treize mètres au plus, là où le
+# terrain s'abaisse. N'énoncer que le premier ferait de l'argument une question de
+# productivité ; c'est d'abord une question de sécurité, et le taire aurait été
+# le rendre moins vrai.
 
 FOSSE3D = {
-    'fr': ("EN TROIS DIMENSIONS", "La fosse, le tir et son dôme",
-           "Le dôme balistique calculé sur un tir réel, posé sur la topographie de la fosse. C'est la géométrie dont BlastClear tire le périmètre d'évacuation.",
+    'fr': ("DÔME OU CERCLE", "Pourquoi pas un simple cercle",
+           "Un cercle applique la même distance dans toutes les directions, sur un terrain qui ne l'est jamais. Sur ce tir, à rayon égal de 500 mètres, il couvre 78 hectares quand le dôme intersecté avec la topographie en retient 36. Il immobilise le double, et reste pourtant plus court que lui là où le terrain s'abaisse.",
            "Explorer en 3D", "Fermer",
            "Faites glisser pour tourner, la molette pour approcher."),
-    'en': ("IN THREE DIMENSIONS", "The pit, the blast and its dome",
-           "The ballistic dome computed on a real blast, set on the pit's own topography. This is the geometry BlastClear draws the clearance perimeter from.",
+    'en': ("DOME OR CIRCLE", "Why not simply a circle",
+           "A circle applies the same distance in every direction, over ground that never is flat. On this blast, at the same 500 m radius, it covers 78 hectares where the dome intersected with the topography holds 36. It ties up twice the ground, and still falls short of the dome where the terrain drops away.",
            "Explore in 3D", "Close",
            "Drag to turn, scroll to zoom."),
-    'es': ("EN TRES DIMENSIONES", "La corta, la voladura y su cúpula",
-           "La cúpula balística calculada sobre una voladura real, apoyada en la topografía de la corta. Es la geometría de la que BlastClear extrae el perímetro de evacuación.",
+    'es': ("CÚPULA O CÍRCULO", "Por qué no un simple círculo",
+           "Un círculo aplica la misma distancia en todas las direcciones, sobre un terreno que nunca lo es. En esta voladura, con el mismo radio de 500 m, cubre 78 hectáreas mientras que la cúpula intersecada con la topografía retiene 36. Inmoviliza el doble y, aun así, se queda corto frente a ella donde el terreno desciende.",
            "Explorar en 3D", "Cerrar",
            "Arrastre para girar, la rueda para acercar."),
-    'pt': ("EM TRÊS DIMENSÕES", "A corta, o fogo e a sua cúpula",
-           "A cúpula balística calculada sobre um fogo real, assente na topografia da corta. É a geometria de que o BlastClear extrai o perímetro de evacuação.",
+    'pt': ("CÚPULA OU CÍRCULO", "Porquê não um simples círculo",
+           "Um círculo aplica a mesma distância em todas as direções, sobre um terreno que nunca é plano. Neste fogo, com o mesmo raio de 500 m, cobre 78 hectares quando a cúpula intersetada com a topografia retém 36. Imobiliza o dobro e, ainda assim, fica aquém dela onde o terreno desce.",
            "Explorar em 3D", "Fechar",
            "Arraste para rodar, a roda para aproximar."),
-    'it': ("IN TRE DIMENSIONI", "La cava, la volata e la sua cupola",
-           "La cupola balistica calcolata su una volata reale, posata sulla topografia della cava. È la geometria da cui BlastClear ricava il perimetro di evacuazione.",
+    'it': ("CUPOLA O CERCHIO", "Perché non un semplice cerchio",
+           "Un cerchio applica la stessa distanza in ogni direzione, su un terreno che non è mai piano. Su questa volata, a parità di raggio di 500 m, copre 78 ettari mentre la cupola intersecata con la topografia ne trattiene 36. Immobilizza il doppio e resta comunque più corta di essa dove il terreno digrada.",
            "Esplora in 3D", "Chiudi",
            "Trascini per ruotare, la rotella per avvicinare."),
-    'de': ("DREIDIMENSIONAL", "Der Tagebau, die Sprengung und ihre Kuppel",
-           "Die ballistische Kuppel, berechnet für eine reale Sprengung und auf das Gelände des Tagebaus gelegt. Aus dieser Geometrie leitet BlastClear den Evakuierungsperimeter ab.",
+    'de': ("KUPPEL ODER KREIS", "Warum nicht einfach ein Kreis",
+           "Ein Kreis legt in alle Richtungen dieselbe Entfernung an, über Gelände, das nie eben ist. Bei dieser Sprengung deckt er bei gleichem Radius von 500 m 78 Hektar ab, während die mit dem Gelände verschnittene Kuppel 36 behält. Er bindet doppelt so viel Fläche und bleibt dennoch hinter ihr zurück, wo das Gelände abfällt.",
            "In 3D erkunden", "Schließen",
            "Ziehen zum Drehen, Mausrad zum Heranholen."),
-    'nl': ("IN DRIE DIMENSIES", "De groeve, het schot en zijn koepel",
-           "De ballistische koepel, berekend op een werkelijk schot en op de topografie van de groeve gelegd. Uit deze geometrie leidt BlastClear de evacuatieperimeter af.",
+    'nl': ("KOEPEL OF CIRKEL", "Waarom niet gewoon een cirkel",
+           "Een cirkel legt in alle richtingen dezelfde afstand op, over terrein dat nooit vlak is. Bij dit schot beslaat hij bij dezelfde straal van 500 m 78 hectare, terwijl de met de topografie doorsneden koepel er 36 overhoudt. Hij legt het dubbele vast en blijft toch achter waar het terrein daalt.",
            "Verken in 3D", "Sluiten",
            "Sleep om te draaien, scrol om in te zoomen."),
-    'sv': ("I TRE DIMENSIONER", "Dagbrottet, salvan och dess kupol",
-           "Den ballistiska kupolen, beräknad på en verklig salva och lagd på dagbrottets topografi. Det är den geometri som BlastClear hämtar utrymningsperimetern ur.",
+    'sv': ("KUPOL ELLER CIRKEL", "Varför inte bara en cirkel",
+           "En cirkel lägger samma avstånd åt alla håll, över mark som aldrig är plan. För den här salvan täcker den vid samma radie på 500 m 78 hektar, medan kupolen skuren mot topografin behåller 36. Den binder upp dubbelt så mycket mark och räcker ändå inte lika långt där terrängen faller.",
            "Utforska i 3D", "Stäng",
            "Dra för att vrida, rulla för att zooma."),
-    'no': ("I TRE DIMENSJONER", "Dagbruddet, salven og kuppelen",
-           "Den ballistiske kuppelen, beregnet på en virkelig salve og lagt på dagbruddets terreng. Det er denne geometrien BlastClear henter evakueringsperimeteren fra.",
+    'no': ("KUPPEL ELLER SIRKEL", "Hvorfor ikke bare en sirkel",
+           "En sirkel legger samme avstand i alle retninger, over terreng som aldri er flatt. For denne salven dekker den ved samme radius på 500 m 78 hektar, mens kuppelen skåret mot terrenget beholder 36. Den båndlegger dobbelt så mye og rekker likevel kortere der terrenget faller.",
            "Utforsk i 3D", "Lukk",
            "Dra for å snu, rull for å zoome."),
-    'da': ("I TRE DIMENSIONER", "Bruddet, sprængningen og dens kuppel",
-           "Den ballistiske kuppel, beregnet på en virkelig sprængning og lagt på bruddets terræn. Det er den geometri, BlastClear henter evakueringsperimeteren fra.",
+    'da': ("KUPPEL ELLER CIRKEL", "Hvorfor ikke bare en cirkel",
+           "En cirkel lægger samme afstand i alle retninger, over terræn der aldrig er fladt. Ved denne sprængning dækker den ved samme radius på 500 m 78 hektar, mens kuplen skåret mod terrænet beholder 36. Den båndlægger det dobbelte og når alligevel kortere, hvor terrænet falder.",
            "Udforsk i 3D", "Luk",
            "Træk for at dreje, rul for at zoome."),
-    'af': ("IN DRIE DIMENSIES", "Die groef, die skoot en sy koepel",
-           "Die ballistiese koepel, bereken op 'n werklike skoot en op die groef se eie topografie geplaas. Dit is die meetkunde waaruit BlastClear die ontruimingsomtrek trek.",
+    'af': ("KOEPEL OF SIRKEL", "Waarom nie net 'n sirkel nie",
+           "'n Sirkel pas dieselfde afstand in alle rigtings toe, oor grond wat nooit gelyk is nie. By hierdie skoot dek dit teen dieselfde radius van 500 m 78 hektaar, terwyl die koepel wat met die topografie gesny is, 36 behou. Dit lê dubbel soveel grond vas en kom steeds korter as dit waar die terrein afval.",
            "Verken in 3D", "Maak toe",
            "Sleep om te draai, rol om in te zoem."),
-    'tr': ("ÜÇ BOYUTTA", "Ocak, atım ve kubbesi",
-           "Gerçek bir atım için hesaplanan ve ocağın topoğrafyasına oturtulan balistik kubbe. BlastClear tahliye çevresini bu geometriden çıkarır.",
+    'tr': ("KUBBE Mİ, ÇEMBER Mİ", "Neden basit bir çember olmasın",
+           "Çember, hiçbir zaman düz olmayan bir arazide her yöne aynı mesafeyi uygular. Bu atımda, aynı 500 m yarıçapla 78 hektar kaplarken, topoğrafyayla kesişen kubbe 36 hektarda kalır. İki katı alanı bağlar ve yine de arazinin alçaldığı yerde kubbeden daha kısa kalır.",
            "3B olarak keşfedin", "Kapat",
            "Döndürmek için sürükleyin, yakınlaştırmak için tekerleği kullanın."),
-    'zh': ("三维视图", "矿坑、爆区与弹道穹顶",
-           "基于真实爆区计算的弹道穹顶，叠加在矿坑实际地形之上。BlastClear 正是由这一几何体推导出疏散警戒范围。",
+    'zh': ("穹顶还是圆", "为什么不用一个简单的圆",
+           "圆在各个方向施加同一距离，而地形从不平坦。本次爆破中，同为 500 m 半径，圆覆盖 78 公顷，而与地形求交后的穹顶只需 36 公顷。圆占用了两倍的场地，在地势下降处却仍比穹顶更短。",
            "以三维查看", "关闭",
            "拖动可旋转，滚轮可缩放。"),
 }
@@ -98,34 +110,45 @@ FOSSE3D = {
 # site, non une direction d'écran.
 
 #
-# ─── LE RAYON N'EST ÉCRIT QU'UNE FOIS ─────────────────────────────────────────
-# Il figurait en toutes lettres dans les treize libellés, et changer de rayon les
-# a tous laissés à mentir. Il vient désormais d'une seule valeur, celle-là même
-# qui engendre le cercle, et les libellés la reçoivent.
+# ─── LES RAYONS NE SONT ÉCRITS QU'UNE FOIS ────────────────────────────────────
+# Ils figuraient en toutes lettres dans les treize libellés, et changer de rayon
+# les a tous laissés à mentir. Ils viennent désormais d'une valeur chacun, et les
+# libellés les reçoivent par un repère.
+#
+# ─── ET CE SONT DEUX VALEURS, NON UNE ─────────────────────────────────────────
+# Les deux valent cinq cents mètres aujourd'hui, et c'est justement pourquoi il
+# serait tentant de n'en garder qu'une. Mais elles ne disent pas la même chose :
+# {d} est le rayon du dôme, qui vient du calque du relevé,
+# « 5-70-014_Contour_R_500_m », et ne change qu'avec un nouveau calcul ; {r} est
+# le rayon du cercle de comparaison, réglé dans le convertisseur, qu'on voudra
+# faire varier le jour où l'on comparera le dôme à une autre règle empirique.
+# Les confondre ferait suivre le libellé du dôme au premier de ces essais.
 
-RAYON_CERCLE_M = 500
+RAYON_DOME_M = 500       # le calque du relevé : 5-70-014_Contour_R_500_m
+RAYON_CERCLE_M = 500     # RAYON_CERCLE, dans outils/convertir_fosse.py
 
 COUCHES3D = {
-    'fr': ("Calques", "Fosse", "Dôme", "Contour du tir", "Périmètre 3D", "Cercle {r} m"),
-    'en': ("Layers", "Pit", "Dome", "Blast outline", "3D perimeter", "{r} m circle"),
-    'es': ("Capas", "Corta", "Cúpula", "Contorno de la voladura", "Perímetro 3D", "Círculo de {r} m"),
-    'pt': ("Camadas", "Corta", "Cúpula", "Contorno do fogo", "Perímetro 3D", "Círculo de {r} m"),
-    'it': ("Livelli", "Cava", "Cupola", "Contorno della volata", "Perimetro 3D", "Cerchio da {r} m"),
-    'de': ("Ebenen", "Tagebau", "Kuppel", "Sprengungskontur", "3D-Perimeter", "{r}-m-Kreis"),
-    'nl': ("Lagen", "Groeve", "Koepel", "Schotcontour", "3D-perimeter", "Cirkel van {r} m"),
-    'sv': ("Lager", "Dagbrott", "Kupol", "Salvans kontur", "3D-perimeter", "{r} m-cirkel"),
-    'no': ("Lag", "Dagbrudd", "Kuppel", "Salvens kontur", "3D-perimeter", "{r} m-sirkel"),
-    'da': ("Lag", "Brud", "Kuppel", "Sprængningens kontur", "3D-perimeter", "{r} m-cirkel"),
-    'af': ("Lae", "Groef", "Koepel", "Skootkontoer", "3D-omtrek", "{r} m-sirkel"),
-    'tr': ("Katmanlar", "Ocak", "Kubbe", "Atım konturu", "3B çevre", "{r} m çember"),
-    'zh': ("图层", "矿坑", "穹顶", "爆区轮廓", "三维警戒范围", "{r} m 圆"),
+    'fr': ("Calques", "Fosse", "Dôme {d} m", "Contour du tir", "Périmètre 3D", "Cercle {r} m"),
+    'en': ("Layers", "Pit", "{d} m dome", "Blast outline", "3D perimeter", "{r} m circle"),
+    'es': ("Capas", "Corta", "Cúpula de {d} m", "Contorno de la voladura", "Perímetro 3D", "Círculo de {r} m"),
+    'pt': ("Camadas", "Corta", "Cúpula de {d} m", "Contorno do fogo", "Perímetro 3D", "Círculo de {r} m"),
+    'it': ("Livelli", "Cava", "Cupola da {d} m", "Contorno della volata", "Perimetro 3D", "Cerchio da {r} m"),
+    'de': ("Ebenen", "Tagebau", "{d}-m-Kuppel", "Sprengungskontur", "3D-Perimeter", "{r}-m-Kreis"),
+    'nl': ("Lagen", "Groeve", "Koepel van {d} m", "Schotcontour", "3D-perimeter", "Cirkel van {r} m"),
+    'sv': ("Lager", "Dagbrott", "{d} m-kupol", "Salvans kontur", "3D-perimeter", "{r} m-cirkel"),
+    'no': ("Lag", "Dagbrudd", "{d} m-kuppel", "Salvens kontur", "3D-perimeter", "{r} m-sirkel"),
+    'da': ("Lag", "Brud", "{d} m-kuppel", "Sprængningens kontur", "3D-perimeter", "{r} m-cirkel"),
+    'af': ("Lae", "Groef", "{d} m-koepel", "Skootkontoer", "3D-omtrek", "{r} m-sirkel"),
+    'tr': ("Katmanlar", "Ocak", "{d} m kubbe", "Atım konturu", "3B çevre", "{r} m çember"),
+    'zh': ("图层", "矿坑", "{d} m 穹顶", "爆区轮廓", "三维警戒范围", "{r} m 圆"),
 }
 
 
 def couches_traduites(code: str) -> list[str]:
-    """Les noms des couches, le rayon du cercle mis en place."""
+    """Les noms des couches, les deux rayons mis en place."""
     t = COUCHES3D.get(code) or COUCHES3D['en']
-    return [m.replace('{r}', str(RAYON_CERCLE_M)) for m in t]
+    return [m.replace('{d}', str(RAYON_DOME_M)).replace('{r}', str(RAYON_CERCLE_M))
+            for m in t]
 
 VUES3D = {
     'fr': ("Haut", "Bas", "Nord", "Sud", "Est", "Ouest"),
@@ -381,14 +404,28 @@ JS_FOSSE = r"""/* ════════════════════�
      C'est le TRAIT qui les sépare : plein pour le périmètre calculé, tireté
      pour le cercle, selon l'usage du dessin technique où un tireté marque ce
      qui est supposé plutôt que relevé. Le tireté vient de la géométrie
-     elle-même, un segment sur cinq n'étant pas émis. */
+     elle-même, un segment sur cinq n'étant pas émis.
+
+     ─── « clair » : LA COULEUR SUR LE FOND CLAIR DU FILIGRANE ─────────────
+     Le fond de la section est presque blanc. Le jaune de la charte y tombe à
+     1,6:1 et le dôme s'y effacerait : il y passe donc au bleu, avec le
+     terrain, et se distingue par la densité de son tracé.
+
+     Le rouge, lui, y tient 3,2:1, au-dessus du seuil que la règle fixe aux
+     éléments graphiques. Les deux périmètres gardent donc leur couleur, et
+     c'est ce qui permet au filigrane de porter la comparaison du texte
+     plutôt que de rester un décor. */
   var COUCHES = {
-    fosse:     { rang: 0, couleur: [0x25, 0x49, 0x8A], filigrane: true,  traverse: false },
-    dome:      { rang: 1, couleur: [0xFD, 0xC3, 0x0E], filigrane: true,  traverse: false },
-    contour:   { rang: 2, couleur: [0xFF, 0xFF, 0xFF], filigrane: false, traverse: true },
-    perimetre: { rang: 3, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true },
-    cercle:    { rang: 4, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true,
-                 tirets: true },
+    fosse:     { rang: 0, couleur: [0x25, 0x49, 0x8A], clair: [0x25, 0x49, 0x8A],
+                 filigrane: true,  traverse: false },
+    dome:      { rang: 1, couleur: [0xFD, 0xC3, 0x0E], clair: [0x25, 0x49, 0x8A],
+                 filigrane: true,  traverse: false },
+    contour:   { rang: 2, couleur: [0xFF, 0xFF, 0xFF], clair: [0x25, 0x49, 0x8A],
+                 filigrane: false, traverse: true },
+    perimetre: { rang: 3, couleur: [0xFF, 0x3B, 0x30], clair: [0xE0, 0x2B, 0x20],
+                 filigrane: true,  traverse: true },
+    cercle:    { rang: 4, couleur: [0xFF, 0x3B, 0x30], clair: [0xE0, 0x2B, 0x20],
+                 filigrane: true,  traverse: true, tirets: true },
   };
   var ORDRE = ['fosse', 'dome', 'contour', 'perimetre', 'cercle'];
 
@@ -578,8 +615,6 @@ JS_FOSSE = r"""/* ════════════════════�
     var uCouleur = gl.getUniformLocation(prog, 'u_couleur');
     var uOpacite = gl.getUniformLocation(prog, 'u_opacite');
     var uUni = gl.getUniformLocation(prog, 'u_uni');
-
-    var BLEU = [0x25 / 255, 0x49 / 255, 0x8A / 255];
 
     var objets = [];
     var presentes = {};
@@ -773,37 +808,39 @@ JS_FOSSE = r"""/* ════════════════════�
           gl.vertexAttrib3f(aNor, 0, 1, 0);
         }
 
-        /* ── LE JAUNE NE PARAÎT QUE SUR FOND SOMBRE ─────────────────────
-           En filigrane, le fond de la section est clair, et le jaune de la
-           charte y tombe à 1,6:1 : le dôme s'y effacerait. Tout y est donc
-           dans le bleu, distingué par la densité du tracé et non par la
-           teinte. Au premier plan, sur fond anthracite, chaque couche
-           retrouve sa couleur, et le contraste avec elle. */
-        var couleur = plein
-          ? [reglage.couleur[0] / 255, reglage.couleur[1] / 255, reglage.couleur[2] / 255]
-          : BLEU;
-        gl.uniform3fv(uCouleur, couleur);
+        var t = plein ? reglage.couleur : reglage.clair;
+        gl.uniform3fv(uCouleur, [t[0] / 255, t[1] / 255, t[2] / 255]);
         gl.uniform1f(uUni, triangles ? 0 : 1);
 
         /* Chaque tracé a sa raison d'être plus ou moins présent. La surface de
            la fosse ne sert qu'à masquer ce qui passe dessous : elle reste la
            plus effacée. Ses arêtes portent les gradins, donc la lecture du
-           relief. Les périmètres, eux, sont le sujet. */
+           relief. Les deux périmètres, eux, sont le sujet, en filigrane comme
+           au premier plan : c'est leur comparaison que le texte annonce, et un
+           filigrane où on les chercherait ne l'illustrerait pas. */
         var opacite;
         if (plein) {
           if (triangles) opacite = 1;
           else if (o.couche === 'fosse') opacite = 0.5;
           else opacite = 0.92;
+        } else if (triangles) {
+          opacite = 0.26;
+        } else if (o.couche === 'perimetre' || o.couche === 'cercle') {
+          /* Presque pleins. Le filigrane n'est pas uniformément pâle : le
+             terrain s'efface, les deux tracés qui portent la démonstration
+             restent lisibles. Un décor où il faudrait chercher le sujet
+             n'illustrerait pas le paragraphe qu'il accompagne. */
+          opacite = 0.9;
         } else {
-          opacite = triangles ? 0.30 : (o.couche === 'dome' ? 0.42 : 0.22);
-          /* ── SUR ÉCRAN ÉTROIT, LE FILIGRANE S'EFFACE ENCORE ──────────
-             Sur écran large, le dessin est rangé à droite et le texte occupe
-             la gauche : les deux ne se rencontrent pas. Sur téléphone, le
-             texte tient toute la largeur et le dessin passe forcément
-             dessous. Entre un décor et un texte qui se lit, c'est le décor
-             qui cède. */
-          if (!decalage) opacite *= 0.62;
+          opacite = o.couche === 'dome' ? 0.34 : 0.18;
         }
+        /* ── SUR ÉCRAN ÉTROIT, LE FILIGRANE S'EFFACE ──────────────────
+           Sur écran large, le dessin est rangé à droite et le texte occupe
+           la gauche : les deux ne se rencontrent pas. Sur téléphone, le
+           texte tient toute la largeur et le dessin passe forcément
+           dessous. Entre un décor et un texte qui se lit, c'est le décor
+           qui cède. */
+        if (!plein && !decalage) opacite *= 0.62;
         gl.uniform1f(uOpacite, opacite);
 
         /* Les fils de fer n'écrivent pas dans le tampon de profondeur : leurs
@@ -852,11 +889,54 @@ JS_FOSSE = r"""/* ════════════════════�
     var sobre = window.matchMedia &&
                 window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* ══ LE FILIGRANE PASSE PAR LA VUE EN PLAN ═════════════════════════════
+       Le texte de la section oppose le périmètre calculé au cercle plat. C'est
+       en vue de dessus, et là seulement, que les deux tracés se superposent et
+       que l'écart se lit : de biais, la perspective en fausse les distances.
+
+       Le décor décrit donc un cycle. Il tourne de trois quarts, se redresse
+       jusqu'à la verticale, s'y tient le temps qu'on saisisse la superposition,
+       puis redescend. Les paliers comptent autant que les passages : une
+       bascule continue ne s'arrêterait jamais sur ce qu'elle doit montrer.
+
+       L'AZIMUT RALENTIT PENDANT LE PALIER, sans s'arrêter. Immobile, le dessin
+       cesserait d'attirer l'œil au moment où il a quelque chose à dire ; à sa
+       vitesse ordinaire, la carte tournerait sous le regard qui la compare. */
+    var CYCLE = 26000;                 /* ms */
+    var OBLIQUE = 0.52, PLAN = 1.45;
+    var debutCycle = 0;
+
+    function adoucir(x) { return x * x * (3 - 2 * x); }
+
+    function partDePlan(maintenant) {
+      var p = ((maintenant - debutCycle) % CYCLE) / CYCLE;
+      if (p < 0.34) return 0;                              /* de biais */
+      if (p < 0.46) return adoucir((p - 0.34) / 0.12);     /* redressement */
+      if (p < 0.70) return 1;                              /* palier en plan */
+      if (p < 0.82) return 1 - adoucir((p - 0.70) / 0.12); /* retour */
+      return 0;
+    }
+
     function boucle(maintenant) {
       image = 0;
-      avancerVol(maintenant || (performance && performance.now ? performance.now() : Date.now()));
-      var anime = !saisie && !vol && (plein ? tourneSeule : !sobre);
-      if (anime) azimut += plein ? 0.0009 : 0.0016;
+      var t = maintenant ||
+              (performance && performance.now ? performance.now() : Date.now());
+      if (!debutCycle) debutCycle = t;
+      avancerVol(t);
+
+      if (plein) {
+        if (!saisie && !vol && tourneSeule) azimut += 0.0009;
+      } else if (sobre) {
+        /* Sans mouvement, il faut tout de même montrer ce que le cycle
+           montrerait : on se pose une fois pour toutes en vue haute, d'où la
+           superposition se lit encore. */
+        elevation = 1.15;
+      } else if (!saisie && !vol) {
+        var m = partDePlan(t);
+        elevation = OBLIQUE + (PLAN - OBLIQUE) * m;
+        azimut += 0.0016 * (1 - 0.72 * m);
+      }
+
       dessiner();
       if (visible || plein) image = requestAnimationFrame(boucle);
     }
@@ -1093,6 +1173,11 @@ JS_FOSSE = r"""/* ════════════════════�
       cube = null;
       vol = null;
       zoom = 1;
+      /* Le cycle du filigrane reprend à son début, de biais. Le laisser courir
+         ferait réapparaître le décor à l'élévation où le visiteur avait laissé
+         l'explorateur, puis sauter d'un coup à celle du cycle. */
+      debutCycle = performance && performance.now ? performance.now() : Date.now();
+      elevation = OBLIQUE;
       document.body.style.overflow = '';
       bouton.focus();
       relancer();

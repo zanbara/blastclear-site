@@ -58,14 +58,28 @@
      C'est le TRAIT qui les sépare : plein pour le périmètre calculé, tireté
      pour le cercle, selon l'usage du dessin technique où un tireté marque ce
      qui est supposé plutôt que relevé. Le tireté vient de la géométrie
-     elle-même, un segment sur cinq n'étant pas émis. */
+     elle-même, un segment sur cinq n'étant pas émis.
+
+     ─── « clair » : LA COULEUR SUR LE FOND CLAIR DU FILIGRANE ─────────────
+     Le fond de la section est presque blanc. Le jaune de la charte y tombe à
+     1,6:1 et le dôme s'y effacerait : il y passe donc au bleu, avec le
+     terrain, et se distingue par la densité de son tracé.
+
+     Le rouge, lui, y tient 3,2:1, au-dessus du seuil que la règle fixe aux
+     éléments graphiques. Les deux périmètres gardent donc leur couleur, et
+     c'est ce qui permet au filigrane de porter la comparaison du texte
+     plutôt que de rester un décor. */
   var COUCHES = {
-    fosse:     { rang: 0, couleur: [0x25, 0x49, 0x8A], filigrane: true,  traverse: false },
-    dome:      { rang: 1, couleur: [0xFD, 0xC3, 0x0E], filigrane: true,  traverse: false },
-    contour:   { rang: 2, couleur: [0xFF, 0xFF, 0xFF], filigrane: false, traverse: true },
-    perimetre: { rang: 3, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true },
-    cercle:    { rang: 4, couleur: [0xFF, 0x3B, 0x30], filigrane: false, traverse: true,
-                 tirets: true },
+    fosse:     { rang: 0, couleur: [0x25, 0x49, 0x8A], clair: [0x25, 0x49, 0x8A],
+                 filigrane: true,  traverse: false },
+    dome:      { rang: 1, couleur: [0xFD, 0xC3, 0x0E], clair: [0x25, 0x49, 0x8A],
+                 filigrane: true,  traverse: false },
+    contour:   { rang: 2, couleur: [0xFF, 0xFF, 0xFF], clair: [0x25, 0x49, 0x8A],
+                 filigrane: false, traverse: true },
+    perimetre: { rang: 3, couleur: [0xFF, 0x3B, 0x30], clair: [0xE0, 0x2B, 0x20],
+                 filigrane: true,  traverse: true },
+    cercle:    { rang: 4, couleur: [0xFF, 0x3B, 0x30], clair: [0xE0, 0x2B, 0x20],
+                 filigrane: true,  traverse: true, tirets: true },
   };
   var ORDRE = ['fosse', 'dome', 'contour', 'perimetre', 'cercle'];
 
@@ -255,8 +269,6 @@
     var uCouleur = gl.getUniformLocation(prog, 'u_couleur');
     var uOpacite = gl.getUniformLocation(prog, 'u_opacite');
     var uUni = gl.getUniformLocation(prog, 'u_uni');
-
-    var BLEU = [0x25 / 255, 0x49 / 255, 0x8A / 255];
 
     var objets = [];
     var presentes = {};
@@ -450,37 +462,39 @@
           gl.vertexAttrib3f(aNor, 0, 1, 0);
         }
 
-        /* ── LE JAUNE NE PARAÎT QUE SUR FOND SOMBRE ─────────────────────
-           En filigrane, le fond de la section est clair, et le jaune de la
-           charte y tombe à 1,6:1 : le dôme s'y effacerait. Tout y est donc
-           dans le bleu, distingué par la densité du tracé et non par la
-           teinte. Au premier plan, sur fond anthracite, chaque couche
-           retrouve sa couleur, et le contraste avec elle. */
-        var couleur = plein
-          ? [reglage.couleur[0] / 255, reglage.couleur[1] / 255, reglage.couleur[2] / 255]
-          : BLEU;
-        gl.uniform3fv(uCouleur, couleur);
+        var t = plein ? reglage.couleur : reglage.clair;
+        gl.uniform3fv(uCouleur, [t[0] / 255, t[1] / 255, t[2] / 255]);
         gl.uniform1f(uUni, triangles ? 0 : 1);
 
         /* Chaque tracé a sa raison d'être plus ou moins présent. La surface de
            la fosse ne sert qu'à masquer ce qui passe dessous : elle reste la
            plus effacée. Ses arêtes portent les gradins, donc la lecture du
-           relief. Les périmètres, eux, sont le sujet. */
+           relief. Les deux périmètres, eux, sont le sujet, en filigrane comme
+           au premier plan : c'est leur comparaison que le texte annonce, et un
+           filigrane où on les chercherait ne l'illustrerait pas. */
         var opacite;
         if (plein) {
           if (triangles) opacite = 1;
           else if (o.couche === 'fosse') opacite = 0.5;
           else opacite = 0.92;
+        } else if (triangles) {
+          opacite = 0.26;
+        } else if (o.couche === 'perimetre' || o.couche === 'cercle') {
+          /* Presque pleins. Le filigrane n'est pas uniformément pâle : le
+             terrain s'efface, les deux tracés qui portent la démonstration
+             restent lisibles. Un décor où il faudrait chercher le sujet
+             n'illustrerait pas le paragraphe qu'il accompagne. */
+          opacite = 0.9;
         } else {
-          opacite = triangles ? 0.30 : (o.couche === 'dome' ? 0.42 : 0.22);
-          /* ── SUR ÉCRAN ÉTROIT, LE FILIGRANE S'EFFACE ENCORE ──────────
-             Sur écran large, le dessin est rangé à droite et le texte occupe
-             la gauche : les deux ne se rencontrent pas. Sur téléphone, le
-             texte tient toute la largeur et le dessin passe forcément
-             dessous. Entre un décor et un texte qui se lit, c'est le décor
-             qui cède. */
-          if (!decalage) opacite *= 0.62;
+          opacite = o.couche === 'dome' ? 0.34 : 0.18;
         }
+        /* ── SUR ÉCRAN ÉTROIT, LE FILIGRANE S'EFFACE ──────────────────
+           Sur écran large, le dessin est rangé à droite et le texte occupe
+           la gauche : les deux ne se rencontrent pas. Sur téléphone, le
+           texte tient toute la largeur et le dessin passe forcément
+           dessous. Entre un décor et un texte qui se lit, c'est le décor
+           qui cède. */
+        if (!plein && !decalage) opacite *= 0.62;
         gl.uniform1f(uOpacite, opacite);
 
         /* Les fils de fer n'écrivent pas dans le tampon de profondeur : leurs
@@ -529,11 +543,54 @@
     var sobre = window.matchMedia &&
                 window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* ══ LE FILIGRANE PASSE PAR LA VUE EN PLAN ═════════════════════════════
+       Le texte de la section oppose le périmètre calculé au cercle plat. C'est
+       en vue de dessus, et là seulement, que les deux tracés se superposent et
+       que l'écart se lit : de biais, la perspective en fausse les distances.
+
+       Le décor décrit donc un cycle. Il tourne de trois quarts, se redresse
+       jusqu'à la verticale, s'y tient le temps qu'on saisisse la superposition,
+       puis redescend. Les paliers comptent autant que les passages : une
+       bascule continue ne s'arrêterait jamais sur ce qu'elle doit montrer.
+
+       L'AZIMUT RALENTIT PENDANT LE PALIER, sans s'arrêter. Immobile, le dessin
+       cesserait d'attirer l'œil au moment où il a quelque chose à dire ; à sa
+       vitesse ordinaire, la carte tournerait sous le regard qui la compare. */
+    var CYCLE = 26000;                 /* ms */
+    var OBLIQUE = 0.52, PLAN = 1.45;
+    var debutCycle = 0;
+
+    function adoucir(x) { return x * x * (3 - 2 * x); }
+
+    function partDePlan(maintenant) {
+      var p = ((maintenant - debutCycle) % CYCLE) / CYCLE;
+      if (p < 0.34) return 0;                              /* de biais */
+      if (p < 0.46) return adoucir((p - 0.34) / 0.12);     /* redressement */
+      if (p < 0.70) return 1;                              /* palier en plan */
+      if (p < 0.82) return 1 - adoucir((p - 0.70) / 0.12); /* retour */
+      return 0;
+    }
+
     function boucle(maintenant) {
       image = 0;
-      avancerVol(maintenant || (performance && performance.now ? performance.now() : Date.now()));
-      var anime = !saisie && !vol && (plein ? tourneSeule : !sobre);
-      if (anime) azimut += plein ? 0.0009 : 0.0016;
+      var t = maintenant ||
+              (performance && performance.now ? performance.now() : Date.now());
+      if (!debutCycle) debutCycle = t;
+      avancerVol(t);
+
+      if (plein) {
+        if (!saisie && !vol && tourneSeule) azimut += 0.0009;
+      } else if (sobre) {
+        /* Sans mouvement, il faut tout de même montrer ce que le cycle
+           montrerait : on se pose une fois pour toutes en vue haute, d'où la
+           superposition se lit encore. */
+        elevation = 1.15;
+      } else if (!saisie && !vol) {
+        var m = partDePlan(t);
+        elevation = OBLIQUE + (PLAN - OBLIQUE) * m;
+        azimut += 0.0016 * (1 - 0.72 * m);
+      }
+
       dessiner();
       if (visible || plein) image = requestAnimationFrame(boucle);
     }
@@ -770,6 +827,11 @@
       cube = null;
       vol = null;
       zoom = 1;
+      /* Le cycle du filigrane reprend à son début, de biais. Le laisser courir
+         ferait réapparaître le décor à l'élévation où le visiteur avait laissé
+         l'explorateur, puis sauter d'un coup à celle du cycle. */
+      debutCycle = performance && performance.now ? performance.now() : Date.now();
+      elevation = OBLIQUE;
       document.body.style.overflow = '';
       bouton.focus();
       relancer();

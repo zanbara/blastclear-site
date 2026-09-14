@@ -211,19 +211,22 @@ CORRECTIONS = {
 }
 
 
-def capitaliser_sous_titre(corps: str) -> str:
-    """Met une majuscule au premier mot du sous-titre du bandeau.
+def capitaliser_titre(corps: str) -> str:
+    """Met une majuscule au premier mot de chaque ligne du titre du bandeau.
 
-    ─── POURQUOI IL ÉTAIT EN MINUSCULE ────────────────────────────────────────
-    La maquette en faisait la suite de la phrase du titre : « générateur de
-    périmètres… pour les tirs… ». Le titre s'étant étoffé, les deux lignes se
-    lisent désormais comme deux énoncés distincts, et la seconde commence par une
-    minuscule sans que rien ne la précède.
+    ─── POURQUOI ELLES ÉTAIENT EN MINUSCULE ───────────────────────────────────
+    La maquette faisait du titre UNE phrase répartie sur trois lignes :
+    « Générateur de / périmètres d'évacuation… / pour les tirs… ». Les deux
+    dernières lignes commençaient donc en minuscule, comme une suite.
+
+    Le titre s'est étoffé, et les trois lignes se lisent désormais comme un
+    empilement : une accroche, un intitulé, une précision. Chacune commence donc
+    par une majuscule, et une minuscule y paraît une coquille.
 
     ─── ELLE S'APPLIQUE AUX TREIZE LANGUES ────────────────────────────────────
-    Douze versions portent la même ligne, construite de la même façon. Ne relever
-    que le français donnerait douze pages qui gardent la minuscule, pour une
-    différence qui ne tient à rien dans la langue.
+    Douze versions portent les mêmes lignes, construites de la même façon. Ne
+    relever que le français donnerait douze pages qui gardent la minuscule, pour
+    une différence qui ne tient à rien dans la langue.
 
     ─── LE « i » TURC N'EST PAS LE NÔTRE ──────────────────────────────────────
     Le turc distingue le i pointé du i sans point, et la majuscule du premier est
@@ -231,27 +234,60 @@ def capitaliser_sous_titre(corps: str) -> str:
     orthographié. Le chinois, lui, n'a pas de casse : la ligne en ressort
     inchangée, ce qui est le résultat voulu.
 
-    Le sous-titre est repéré par sa place, dernier bloc du titre, et non par son
-    contenu : les treize langues n'ont aucun mot en commun."""
+    Les lignes sont repérées à leur `display:block`, et non à leur contenu : les
+    treize langues n'ont aucun mot en commun. Le « 3D » niché dans la deuxième
+    ligne n'en porte pas et reste donc à l'écart, ce qui est heureux, la fin
+    d'une ligne n'ayant pas à être relevée."""
     MAJUSCULES = {'i': 'İ', 'ı': 'I'}
 
     m = re.search(r'<h1\b', corps)
     if not m:
         return corps
     _, _, fin = bloc_equilibre(corps, m.start(), 'h1')
-    titre = corps[m.start():fin]
 
-    m_sous = re.search(r'(<span\b[^>]*>)([^<]+)(</span>\s*</h1>)\s*$', titre)
-    if not m_sous:
-        return corps
-    texte = m_sous.group(2)
-    premiere = texte[:1]
-    relevee = MAJUSCULES.get(premiere, premiere.upper())
-    if relevee == premiere:
-        return corps                      # déjà en majuscule, ou langue sans casse
+    def relever(bloc):
+        premiere = bloc.group(2)
+        return bloc.group(1) + MAJUSCULES.get(premiere, premiere.upper())
 
-    nouveau = titre[:m_sous.start(2)] + relevee + texte[1:] + titre[m_sous.end(2):]
-    return corps[:m.start()] + nouveau + corps[fin:]
+    titre = re.sub(r'(<span\b[^>]*display:block[^>]*>)([^<\s])', relever,
+                   corps[m.start():fin])
+    return corps[:m.start()] + titre + corps[fin:]
+
+
+def retirer_gain_monetaire(corps: str) -> str:
+    """Retire la carte de résultats qui chiffre un gain en dollars.
+
+    ─── POURQUOI ELLE PART ────────────────────────────────────────────────────
+    Les quatre autres cartes chiffrent du temps, des déplacements, des reprises :
+    des grandeurs que le logiciel produit et que le client peut rapprocher de son
+    propre chantier. Celle-ci convertissait en dollars, ce qui suppose un coût
+    horaire, un nombre de tirs par an et un taux de change, dont aucun n'est
+    affiché et dont aucun ne vaut d'un site à l'autre.
+
+    ─── LA CARTE ENTIÈRE, NON LA SEULE PHRASE ─────────────────────────────────
+    Retirer « par tir, sur 150 tirs par an » aurait laissé « ~60 USD » suspendu
+    sous son icône, sans rien pour dire de quoi il s'agit, ce qui serait pire que
+    de tout garder.
+
+    Elle est repérée à « USD », qui est le code de la monnaie et figure tel quel
+    dans les treize versions. La grille voisine se répartit d'elle-même : elle est
+    en `auto-fit`, et passe de cinq colonnes à quatre sans qu'on y touche.
+
+    ─── ON PARCOURT LES CARTES, ON NE CHERCHE PAS LE CHIFFRE ──────────────────
+    Une première version visait le chiffre puis remontait à son conteneur. Elle ne
+    trouvait rien : le repère qu'elle visait est posé plus tard dans la
+    conversion, et n'existe pas encore ici. Partir des cartes, qui viennent de la
+    maquette, ne dépend d'aucun traitement voisin ni de leur ordre."""
+    ANCRE = '<div style="border-left:3px solid #FDC30E'
+    depart = 0
+    while True:
+        debut = corps.find(ANCRE, depart)
+        if debut < 0:
+            return corps
+        _, _, fin = bloc_equilibre(corps, debut, 'div')
+        if 'USD' in corps[debut:fin]:
+            return corps[:debut].rstrip() + '\n        ' + corps[fin:].lstrip()
+        depart = fin
 
 
 def aligner_adresse_affichee(corps: str) -> str:
@@ -2733,7 +2769,8 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
         corps = corps.replace(ancienne, nouvelle)
 
     corps = appliquer_corrections(corps, code, chemin.name)
-    corps = capitaliser_sous_titre(corps)
+    corps = capitaliser_titre(corps)
+    corps = retirer_gain_monetaire(corps)
     corps = aligner_adresse_affichee(corps)
     corps = nettoyer_typographie(corps)
     corps = renforcer_bandeau(corps)
