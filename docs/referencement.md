@@ -55,46 +55,56 @@ l'empêcher.
 
 ---
 
-## Ce qui reste à faire, une fois
+## Les deux comptes, et les deux fichiers qui les tiennent
 
-### 1. Google Search Console
+Fait le 15 septembre 2026. Les deux vérifications sont **par fichier**, et les deux
+fichiers sont versionnés dans `site/`.
 
-Sans elle, on publie à l'aveugle : aucun moyen de savoir si Google a vu le site, ce
-qu'il en a indexé, ni sur quelles recherches il l'affiche.
+| Service | Fichier | Adresse publique |
+|---|---|---|
+| Google Search Console | `site/googlefbfcd3bf7b632e2b.html` | `/googlefbfcd3bf7b632e2b.html` |
+| Bing Webmaster Tools | `site/BingSiteAuth.xml` | `/BingSiteAuth.xml` |
 
-1. Ouvrir <https://search.google.com/search-console> et ajouter une propriété.
-2. Choisir **Domaine** (`blastclear.com`), et non « Préfixe d'URL ». La propriété de
-   domaine couvre `www`, la racine, `http`, `https` et tout sous-domaine à venir, d'un
-   seul enregistrement. Le préfixe d'URL en demanderait un par variante.
-3. Google donne un enregistrement **TXT** à poser chez Namecheap, onglet *Advanced
-   DNS* : hôte `@`, valeur `google-site-verification=…`.
+> **Ne jamais supprimer ces deux fichiers.** Les deux services revérifient la
+> propriété périodiquement, et leur disparition la ferait perdre — avec l'historique
+> de performance qui l'accompagne. Versionnés, ils sont à l'abri d'un effacement par
+> mégarde ; la conversion ne les touche pas, elle n'écrit que les fichiers qu'elle
+> connaît.
 
-   > **Ne toucher à aucun autre enregistrement TXT.** Ils portent SPF, DKIM et DMARC,
-   > et la messagerie tombe sans avertissement si l'un d'eux disparaît. Voir
-   > `docs/dns-et-messagerie.md`.
+### Ce que la vérification par fichier couvre, et ce qu'elle ne couvre pas
 
-4. La vérification prend de quelques minutes à quelques heures, le temps de la
-   propagation.
-5. Une fois vérifiée : menu **Sitemaps**, déclarer `https://www.blastclear.com/sitemap.xml`.
-   Une seule fois, définitivement.
+Elle vaut pour **`https://www.blastclear.com/` seulement** : ni la racine sans le
+`www`, ni `http://`, ni un sous-domaine à venir. Cela suffit aujourd'hui, les pages
+déclarant toutes `www` en adresse canonique.
 
-### 2. Bing Webmaster Tools
+Pour tout couvrir d'un coup, ajouter plus tard une **seconde** propriété, de type
+**Domaine** cette fois, vérifiée par un enregistrement TXT chez Namecheap. Les deux
+propriétés coexistent sans se gêner.
 
-Bing alimente Bing, Yahoo, DuckDuckGo et la recherche intégrée à Windows. Ce n'est pas
-un marché à négliger : c'est celui des postes d'entreprise, et les ingénieurs
-d'exploitation cherchent depuis un poste d'entreprise.
+> **Ne toucher alors à aucun autre enregistrement TXT.** Ils portent SPF, DKIM et
+> DMARC, et la messagerie tombe sans avertissement si l'un d'eux disparaît. Voir
+> `docs/dns-et-messagerie.md`.
 
-1. Ouvrir <https://www.bing.com/webmasters>.
-2. **Importer depuis Google Search Console.** C'est proposé à la première ouverture et
-   cela reprend la propriété et le plan du site sans rien vérifier à nouveau. Faire
-   donc la Search Console d'abord.
-3. Sinon, vérification par DNS de la même façon qu'au-dessus.
+### Ce qui reste à faire dans la Search Console
 
-### 3. Rien d'autre
+Menu **Sitemaps**, saisir `sitemap.xml`, envoyer. Une seule fois, définitivement.
+C'est ce qui déclenche l'exploration des 26 pages au lieu d'attendre que Google
+trouve le site de lui-même.
+
+### Et pourquoi Bing n'est pas un supplément
+
+Bing alimente Bing, Yahoo, DuckDuckGo, Ecosia et la recherche intégrée à Windows.
+C'est le moteur des postes d'entreprise, et les ingénieurs d'exploitation cherchent
+depuis un poste d'entreprise.
+
+Son portail sert aussi à autre chose : c'est là que se constate l'effet des annonces
+IndexNow, rubrique *IndexNow*, avec l'état de la clé et le détail des envois.
+
+### Rien d'autre
 
 Il n'y a pas d'autre moteur à prévenir. Yahoo, DuckDuckGo et Ecosia se servent de
-Bing ou de Google ; Yandex et Seznam sont prévenus par IndexNow, ci-dessous, sans
-inscription.
+Bing ou de Google ; Yandex, Seznam, Naver et Yep sont prévenus par IndexNow,
+ci-dessous, sans inscription.
 
 ---
 
@@ -131,14 +141,20 @@ vérifie que celui qui annonce possède bien le domaine. Elle n'ouvre aucun acc�
 **Le lendemain de la publication**, et sans attendre d'être indexé :
 
 ```
-https://www.blastclear.com/robots.txt      s'ouvre, et cite le plan du site
-https://www.blastclear.com/sitemap.xml     s'ouvre, 26 adresses
-https://www.blastclear.com/zz/             affiche la page des introuvables
+https://www.blastclear.com/robots.txt        s'ouvre, et cite le plan du site
+https://www.blastclear.com/sitemap.xml       s'ouvre, 26 adresses
+https://www.blastclear.com/zz/               affiche la page des introuvables
+https://www.blastclear.com/BingSiteAuth.xml  s'ouvre
+https://www.blastclear.com/googlefbfcd3bf7b632e2b.html   s'ouvre
 ```
 
+Les deux derniers ne servent qu'à cela, et ils servent longtemps : c'est par eux que
+Google et Bing revérifient périodiquement la propriété.
+
 Dans l'onglet *Actions* du dépôt, l'étape « Prévenir les moteurs » doit afficher
-`IndexNow a répondu 200 : reçu`. Un `403` signifie que le fichier de clé n'est pas
-encore en ligne : republier suffit.
+`IndexNow a répondu 200 : reçu`. Un `202` au tout premier envoi est normal : le
+service est allé lire le fichier de clé et l'a acceptée sous réserve. Un `403`
+signifie que ce fichier n'était pas encore en ligne, et republier suffit.
 
 **Une semaine après**, dans la Search Console : *Indexation des pages* doit montrer
 des pages indexées, et *Inspection d'URL* sur `https://www.blastclear.com/fr/` doit
