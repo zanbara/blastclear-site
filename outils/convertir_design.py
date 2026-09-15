@@ -40,11 +40,13 @@ Usage :
 
 from __future__ import annotations
 
+import datetime
 import html as htmlmod
 import json
 import pathlib
 import re
 import shutil
+import subprocess
 import unicodedata
 
 from pourquoi import POURQUOI
@@ -398,6 +400,152 @@ def fond_balistique() -> str:
 def inliner_fond_balistique(corps: str) -> str:
     """Substitue le SVG intégré à la balise <img> de la maquette."""
     return re.sub(r'<img\b[^>]*ballistic-bg\.svg[^>]*/?>', lambda _: fond_balistique(), corps)
+
+
+# ══ LE PICTOGRAMME DE DANGER D'EXPLOSIF ═══════════════════════════════════════
+#
+# ─── IL N'Y A RIEN À SUPERPOSER ───────────────────────────────────────────────
+# Deux fichiers ont été fournis, « Picto_Explosive Hazard.svg » et le même suffixé
+# de 2. Ils pèsent 17 698 octets chacun, au même octet près, et sont
+# GÉOMÉTRIQUEMENT IDENTIQUES : même viewBox, un seul groupe, 44 polygones, 1 130
+# sommets. Leur seule différence tient à une couleur — trois polygones valent
+# #f8e628 dans l'un et #f39204 dans l'autre.
+#
+# L'alternance demandée se fait donc sur UN SEUL fichier, dont ces trois polygones
+# changent de teinte. Deux fichiers superposés auraient doublé le poids, demandé un
+# fondu croisé, et donné exactement le même résultat à l'écran.
+#
+# LE SECOND FICHIER N'EST PAS OUBLIÉ : il est délibérément ignoré. Sa couleur vit
+# désormais dans la feuille de style.
+#
+# ─── ET SES COULEURS NE SONT PAS RAMENÉES À LA CHARTE ─────────────────────────
+# C'est l'inverse de ce que fait preparer_fond_balistique juste au-dessus, dont le
+# commentaire explique pourquoi le faisceau a été ramené au bleu et au jaune de la
+# marque. Ici, le jaune et l'orange sont ceux d'une signalétique normalisée, qu'un
+# œil du métier reconnaît comme telle. Les accorder au jaune de la charte ferait
+# d'un panneau de danger un ornement.
+#
+# C'est aussi pourquoi le pictogramme est posé LOIN des autres jaunes de la page :
+# à quelques pixels du bouton #FDC30E, l'écart se lirait comme une faute plutôt
+# que comme une citation.
+
+_picto_svg: str | None = None
+
+
+def picto_danger() -> str:
+    """Le panneau de danger, prêt à être posé DANS la page.
+
+    ─── POURQUOI IL EST INTÉGRÉ ET NON CHARGÉ COMME IMAGE ─────────────────────
+    Même raison que le faisceau balistique : une image chargée par <img> est une
+    boîte noire, que ni la feuille de style ni le script de la page n'atteignent.
+    Or l'alternance de teinte se fait en CSS, et surtout son ARRÊT sous
+    prefers-reduced-motion doit être garanti. Enfermée dans un fichier, la règle
+    d'arrêt dépendrait de la façon dont chaque navigateur évalue une requête de
+    média à l'intérieur d'une image référencée. Posée dans la page, elle ne
+    dépend de rien.
+
+    ─── L'ALLÈGEMENT, ET SA MESURE ────────────────────────────────────────────
+    Les coordonnées passent à une décimale et les points de fermeture dupliqués
+    partent : 17 698 octets deviennent 14 059, soit 79 %. Sur un viewBox de 275
+    unités affiché à 116 px au plus, une décimale vaut quatre centièmes de pixel.
+    Zéro décimale descendrait à 11 216 octets, mais la marge ne serait plus
+    démontrable et le gain ne la vaut pas.
+
+    ─── ET IL EST DÉCORATIF, DONC MASQUÉ AUX LECTEURS D'ÉCRAN ────────────────
+    Le premier réflexe était de lui donner un intitulé traduit dans les treize
+    langues. C'était une faute, pour deux raisons.
+
+    Il n'apprend rien de neuf : le titre du même bandeau dit déjà « pour les tirs
+    à l'explosif de mines et carrières ». Un lecteur d'écran énoncerait donc deux
+    fois la même chose.
+
+    Et surtout, le panneau se trouve AVANT le titre dans le document. « Danger :
+    explosifs » serait la toute première chose énoncée de la page — un
+    avertissement de danger là où il n'y en a aucun. Le visiteur est devant une
+    page de produit, pas sur un chantier de tir. C'eût été une affirmation fausse,
+    et une affirmation fausse énoncée en premier.
+    """
+    global _picto_svg
+    if _picto_svg is None:
+        source = SOURCE / 'assets' / 'Picto_Explosive Hazard.svg'
+        # ARRÊTER PLUTÔT QUE DE PRODUIRE TREIZE PAGES SANS PANNEAU. Un retour
+        # discret aurait donné une conversion « réussie » dont il aurait fallu
+        # remarquer soi-même ce qui manque.
+        if not source.exists():
+            raise SystemExit(
+                f"Pictogramme introuvable : {source}\n"
+                "Il est attendu dans les ressources de la maquette.")
+        svg = source.read_text(encoding='utf-8')
+        svg = re.sub(r'<\?xml[^>]*\?>', '', svg)
+        # Le groupe ne porte aucun attribut : il n'enveloppe rien qu'il modifie.
+        svg = svg.replace('<g>', '').replace('</g>', '')
+
+        def alleger(m):
+            v = m.group(1).split()
+            pts = [(f'{round(float(v[i]), 1):g}', f'{round(float(v[i + 1]), 1):g}')
+                   for i in range(0, len(v) - 1, 2)]
+            # Le dernier point répète souvent le premier : le segment de fermeture
+            # est implicite dans un polygone, et ce doublon ne dessine rien.
+            while len(pts) > 3 and pts[-1] == pts[0]:
+                pts.pop()
+            return 'points="' + ' '.join(f'{a} {b}' for a, b in pts) + '"'
+
+        svg = re.sub(r'points="([^"]+)"', alleger, svg)
+
+        # LES TROIS POLYGONES COLORÉS REÇOIVENT UNE CLASSE, ET GARDENT LEUR FILL.
+        # La classe, parce qu'ils n'ont ni identifiant ni classe dans le fichier
+        # fourni et que la feuille de style n'a aucun autre moyen de les atteindre.
+        # Le fill, parce qu'une règle CSS l'emporte de toute façon sur un attribut
+        # de présentation : le retirer ne servirait qu'à rendre le triangle NOIR
+        # le temps que la feuille arrive, ou définitivement si elle manque.
+        #
+        # ET LE COMPTE EST VÉRIFIÉ. Toute l'animation tient à ces trois marques :
+        # si un jour le fichier fourni écrit ses couleurs autrement — en
+        # majuscules, en « rgb() », dans un attribut « style » — le remplacement
+        # ne trouverait rien et le panneau resterait jaune sans que rien ne le
+        # dise. Le défaut serait à peine visible : un panneau correct, mais figé.
+        svg, poses = re.subn(r'fill="#f8e628"',
+                             'fill="#f8e628" class="dc-picto-fond"', svg,
+                             flags=re.I)
+        if poses != 3:
+            raise SystemExit(
+                f"Pictogramme : {poses} polygone(s) jaune(s) marqué(s) au lieu de 3.\n"
+                f"Le fichier {source.name} a changé ; l'animation de teinte ne "
+                "porterait plus sur le bon dessin.")
+
+        svg = re.sub(r'\n\s+', '\n', svg).strip()
+        _picto_svg = svg
+
+    return re.sub(
+        r'<svg\b[^>]*?(viewBox="[^"]*")[^>]*>',
+        '<svg \\1 class="dc-picto-danger" aria-hidden="true" focusable="false">',
+        _picto_svg, count=1)
+
+
+def inserer_picto_danger(corps: str) -> str:
+    """Pose le panneau dans le bandeau, juste après le voile.
+
+    ─── FRÈRE DU VOILE, ET NON ENFANT DU BLOC DE TEXTE ───────────────────────
+    Le bloc de contenu porte « position:relative » — c'est lui qui soulève le
+    texte au-dessus du voile. Un élément placé dedans et positionné en absolu se
+    calerait donc sur CE BLOC, large de 1 120 px au plus et centré, et non sur le
+    bandeau : sur un écran large, le panneau se poserait au bout de la ligne des
+    boutons au lieu d'être posé sur la photographie.
+
+    Placé après le voile, il passe au-dessus de la photographie et du voile ; le
+    bloc de texte venant après lui dans le document, le texte reste au-dessus de
+    tout sans qu'aucun z-index n'ait à l'arbitrer.
+    """
+    ancre = '<div class="dc-voile" style="position:absolute;inset:0"></div>'
+    # L'ANCRE EST UNIQUE DANS CHAQUE ACCUEIL, ET SON ABSENCE EST UNE ERREUR.
+    # Un « replace » qui ne trouve rien rend la chaîne inchangée, sans un mot :
+    # la maquette serait retouchée et treize accueils sortiraient sans panneau.
+    if corps.count(ancre) != 1:
+        raise SystemExit(
+            f"Pictogramme : voile du bandeau trouvé {corps.count(ancre)} fois "
+            "au lieu d'une.\nLa maquette a changé ; le panneau n'a plus de place "
+            "sûre où se poser.")
+    return corps.replace(ancre, ancre + '\n    ' + picto_danger(), 1)
 
 
 def preparer_fond_balistique() -> None:
@@ -1263,17 +1411,107 @@ def texte_nu(fragment: str) -> str:
     return re.sub(r'\s+', ' ', htmlmod.unescape(re.sub(r'<[^>]+>', ' ', fragment))).strip()
 
 
-def extraire_metadonnees(corps: str) -> tuple[str, str]:
+# Ce que Google et Bing affichent d'un titre tient dans une largeur, non dans un
+# nombre de signes : environ 600 pixels, soit une soixantaine de caractères
+# latins. Au-delà, la fin est remplacée par des points de suspension. La borne
+# est donc un avertissement, pas un couperet : mieux vaut un titre juste qui
+# déborde de deux signes qu'un titre tronqué au milieu d'un mot.
+TITRE_LISIBLE = 62
+
+# Les descriptions se coupent vers 155 à 160 signes selon le moteur.
+DESCRIPTION_LISIBLE = 158
+
+
+def phrases(texte: str, code: str) -> list[str]:
+    """Découpe en phrases, ponctuation comprise. Le chinois n'use ni du point ni
+    de l'espace : il termine ses phrases par « 。» et enchaîne sans blanc."""
+    if code == 'zh':
+        return [p + '。' for p in texte.split('。') if p.strip()]
+    return re.findall(r'[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$', texte)
+
+
+def composer_description(chapeau: str, corps_texte: str, code: str) -> str:
+    """Assemble une description qui tient dans un extrait de résultat, SANS JAMAIS
+    COUPER UNE PHRASE.
+
+    ─── POURQUOI LA LIGNE DU PUBLIC PASSE EN PREMIER ──────────────────────────
+    Le paragraphe du bandeau dit ce que fait le logiciel : « calcul précis,
+    interface unique, du contour au plan ». C'est juste, et c'est illisible pour
+    qui cherche. Personne ne tape « interface unique » ; on tape « périmètre
+    d'évacuation tir de mines », « blast exclusion zone », « Sperrbereich
+    Sprengung ». Ces mots-là sont dans la TROISIÈME ligne du titre du bandeau,
+    celle qui nomme le métier et les chantiers.
+
+    Elle passe donc en tête de la description, et le paragraphe la complète tant
+    qu'il reste de la place. L'extrait de résultat dit alors à la fois pour qui
+    c'est fait et ce que cela fait.
+
+    ─── ET POURQUOI ON COUPE À LA PHRASE, JAMAIS AU SIGNE ─────────────────────
+    Une coupe au signe près produisait « … Voici ce que le ». Le moteur ajoute
+    ses propres points de suspension par-dessus, et le visiteur lit une phrase
+    inachevée à l'endroit exact où il décide de cliquer ou non.
+    """
+    morceaux = []
+    if chapeau:
+        # La ligne du public est un fragment nominal, sans ponctuation finale.
+        morceaux.append(chapeau if chapeau[-1] in '.!?。' else
+                        chapeau + ('。' if code == 'zh' else '.'))
+    morceaux += [p.strip() for p in phrases(corps_texte, code)]
+
+    liaison = '' if code == 'zh' else ' '
+    retenu = ''
+    for m in morceaux:
+        essai = (retenu + liaison + m).strip() if retenu else m
+        if len(essai) > DESCRIPTION_LISIBLE:
+            break
+        retenu = essai
+    # Aucune phrase entière ne tient : on rend la première, quitte à déborder.
+    # Un moteur la coupera, ce qui reste préférable à une description vide.
+    return retenu or (morceaux[0] if morceaux else '')
+
+
+def extraire_metadonnees(corps: str, code: str) -> tuple[str, str]:
     """Le titre et la description viennent du bandeau de la page elle-même : c'est
-    ce qui les rend justes dans les treize langues sans table de traduction."""
+    ce qui les rend justes dans les treize langues sans table de traduction.
+
+    ─── LE NOM EST PASSÉ À LA FIN, ET CE N'EST PAS UN DÉTAIL DE STYLE ─────────
+    Le titre commençait par « BlastClear | ». Or les premiers pixels d'un titre
+    sont ce qu'un moteur pèse le plus et ce qu'un lecteur voit d'abord, et
+    « BlastClear » n'est encore le nom de rien pour personne : nul ne le cherche.
+    Les dépenser pour une marque inconnue revient à se présenter avant d'avoir
+    dit pourquoi on appelle. La phrase que l'on cherche vraiment passe donc
+    devant, et le nom ferme la ligne, où il se retient tout aussi bien.
+
+    ─── ET LE TITRE NE SE COUPE PLUS AU MILIEU D'UN MOT ───────────────────────
+    Le titre reprenait les TROIS lignes du bandeau bout à bout, puis coupait à
+    62 signes. Tant que le bandeau tenait en deux lignes, la coupe ne servait
+    jamais. La troisième ligne ajoutée, les treize pages se sont mises à
+    annoncer « … par dôme balistique… » et « … clearance perimeters For… ».
+
+    On ne prend donc plus que la ligne PRINCIPALE du bandeau, celle qui nomme le
+    produit. Le surtitre (« Générateur de ») et la ligne du public passent dans
+    la description, où la place ne manque pas.
+    """
     h1 = re.search(r'<h1\b[^>]*>(.*?)</h1>', corps, re.S)
-    titre = texte_nu(h1.group(1)) if h1 else 'BlastClear'
-    titre = re.sub(r'\s*\|\s*', ' ', titre)
-    if len(titre) > 62:
-        titre = titre[:59].rsplit(' ', 1)[0] + '…'
+    # ON DÉCOUPE AUX OUVERTURES, ON N'APPARIE PAS LES FERMETURES.
+    # Une expression « <span…>(.*?)</span> » semble plus directe, et elle est
+    # fausse ici : la ligne principale contient un span imbriqué, celui qui met
+    # « 3D » en jaune. La fermeture la plus proche est la sienne, et la capture
+    # s'y arrêtait. En anglais, en turc et en chinois, où le « 3D » ouvre la
+    # ligne au lieu de la clore, les treize titres se réduisaient à « 3D ».
+    morceaux = re.split(r'<span\b[^>]*display:block[^>]*>', h1.group(1) if h1 else '')
+    lignes = [t for t in (texte_nu(m) for m in morceaux[1:]) if t]
+
+    principale = lignes[1] if len(lignes) > 1 else (
+        texte_nu(h1.group(1)) if h1 else 'BlastClear')
+    titre = re.sub(r'\s*\|\s*', ' ', principale) + ' | BlastClear'
+    if len(titre) > TITRE_LISIBLE:
+        print(f'  ATTENTION  [{code}] titre de {len(titre)} signes, '
+              f'coupé à l\'affichage : "{titre}"')
+
     p = re.search(r'</h1>\s*<p\b[^>]*>(.*?)</p>', corps, re.S)
-    description = texte_nu(p.group(1)) if p else ''
-    return f'BlastClear | {titre}', description[:180]
+    public = lignes[2] if len(lignes) > 2 else ''
+    return titre, composer_description(public, texte_nu(p.group(1)) if p else '', code)
 
 
 # ══ RÉÉCRITURES DE CONTENU ════════════════════════════════════════════════════
@@ -2018,6 +2256,90 @@ a[style*="border-radius:2px"]:active{transform:translateY(1px)}
 }
 .dc-bandeau h1,
 .dc-bandeau p{text-shadow:0 2px 16px rgba(20,23,28,.8),0 1px 3px rgba(20,23,28,.75)}
+
+/* ══ LE PANNEAU DE DANGER D'EXPLOSIF ═══════════════════════════════════════
+   Posé sur la photographie, en bas à droite, comme un panneau planté sur le
+   site. Loin de la colonne de texte et des deux boutons : un élément ANIMÉ
+   placé sous l'appel à l'action lui disputerait le regard à l'instant même où
+   le visiteur va cliquer.
+
+   ─── LES DÉCALAGES SONT POSITIFS, ET CE N'EST PAS UN DÉTAIL ───────────────
+   Le bandeau porte « overflow:hidden ». Un décalage négatif, qui ferait
+   déborder le panneau pour l'asseoir sur le bord, le ferait simplement rogner.
+
+   ─── ET IL SE CALE SUR LE BANDEAU, NON SUR LE BLOC DE TEXTE ───────────────
+   Sur un écran large, il s'éloigne donc du texte au lieu de le suivre. C'est
+   voulu : un panneau est planté sur le terrain, pas accroché au paragraphe.
+
+   ─── LE DÉCALAGE DROIT EST « 5cqw », ET C'EST LE MÊME QUE PARTOUT AILLEURS ─
+   La barre de navigation porte « padding:14px 5cqw » et le bandeau
+   « padding: … 5cqw ». Le panneau se pose donc sur la MÊME LIGNE VERTICALE que
+   le bouton « Demander une démo » de la barre, à toutes les largeurs et sans
+   qu'aucune valeur n'ait à être tenue à jour. Un clamp en pixels aurait donné
+   un alignement juste à une largeur et faux à toutes les autres.
+
+   L'ombre portée le détache de la roche claire aux heures où la photographie
+   est la plus lumineuse. Le liseré noir du panneau y suffirait presque ; elle
+   règle le presque. */
+.dc-picto-danger{
+  position:absolute;
+  right:5cqw;
+  bottom:clamp(16px,3.2vw,48px);
+  width:clamp(72px,9vw,116px);
+  height:auto;
+  pointer-events:none;
+  filter:drop-shadow(0 2px 10px rgba(20,23,28,.55));
+}
+
+/* ── L'ALTERNANCE JAUNE-ORANGE ────────────────────────────────────────────
+   Trois secondes, en fondu, sur la COULEUR SEULE. Ni l'échelle ni l'opacité ne
+   bougent : un panneau de danger qui enfle et se rétracte ressemble à une
+   bannière publicitaire, pas à de la signalétique.
+
+   Les deux teintes sont celles des deux fichiers fournis. C'est la feuille de
+   style qui porte désormais la seconde, le second fichier n'ayant rien d'autre
+   à apporter. */
+@keyframes dc-danger{
+  from{fill:#f8e628}
+  to  {fill:#f39204}
+}
+.dc-picto-fond{animation:dc-danger 3s ease-in-out infinite alternate}
+
+/* L'ARRÊT N'EST PAS FACULTATIF. Une couleur qui bat en permanence dans le coin
+   de l'écran gêne réellement certains lecteurs, et le panneau dit la même chose
+   immobile.
+
+   « animation:none » ET NON UNE DURÉE RACCOURCIE. La règle générale de ce même
+   bloc raccourcit toutes les durées à .01 ms sans toucher au nombre de cycles :
+   une animation « infinite » n'y ralentit pas, elle se met à battre cent fois
+   par seconde. Seul le retrait du nom l'arrête vraiment.
+
+   Aucune couleur de repos n'est écrite ici : le polygone a gardé son attribut
+   « fill="#f8e628" », qui reprend la main dès que l'animation disparaît. */
+@media (prefers-reduced-motion:reduce){
+  .dc-picto-fond{animation:none}
+}
+
+/* ── SOUS 900 PX, IL RÉTRÉCIT, ET C'EST TOUT ──────────────────────────────
+   LE REPLI EN HAUT À DROITE A ÉTÉ ESSAYÉ, MESURÉ, PUIS ABANDONNÉ.
+   En haut, le panneau tombe sur le ciel de la photographie, l'endroit le plus
+   clair de toute la page, et à trente pixels sous le bouton jaune de la barre
+   de navigation : deux jaunes voisins, dont l'un bat. C'est exactement ce qui
+   avait fait écarter la place sous les deux boutons.
+
+   En bas, le voile vertical atteint 0,76 puis 0,90 : c'est le fond le plus
+   sombre de la page, et le panneau y ressort le mieux. Le seul risque était que
+   les deux boutons, passant l'un sous l'autre, viennent occuper ce coin.
+   Mesuré dans les treize langues : à 412 px il reste de 91 à 166 px sous eux, à
+   360 px de 77 à 144, pour un panneau qui en demande 63. Le coin est libre
+   partout, la langue la plus bavarde comprise.
+
+   Reste donc à le rétrécir, un panneau de 116 px occupant le quart de la
+   largeur d'un téléphone. La place, elle, ne change pas : moins de règles, et
+   rien à retenir d'accord entre deux largeurs. */
+@media (max-width:899px){
+  .dc-picto-danger{width:clamp(44px,13vw,64px)}
+}
 
 /* Sous 900 px le texte prend toute la largeur : un dégradé horizontal laisserait
    sa fin sur la partie claire de la photographie. On revient au voile vertical. */
@@ -2825,13 +3147,30 @@ def donnees_structurees(code: str, titre: str, description: str, fichier: str) -
     Aucun prix n'y figure : la grille n'est pas publiée, et annoncer un prix dans
     les données structurées le rendrait visible dans les résultats de recherche,
     ce qui reviendrait à le publier par une autre porte.
+
+    ─── ET « offers » A ÉTÉ RETIRÉ, POUR LA MÊME RAISON PRISE À L'ENVERS ──────
+    Une offre y figurait, réduite à « disponible ». Une offre sans prix n'est pas
+    une offre au sens de schema.org : le contrôle de Google la signale comme
+    incomplète, et une déclaration incomplète vaut moins qu'une déclaration
+    absente. Tant que la grille n'est pas publique, il n'y a pas d'offre à
+    déclarer, et c'est très bien ainsi.
+
+    ─── DEUX DÉCLARATIONS PLUTÔT QU'UNE ───────────────────────────────────────
+    « SoftwareApplication » dit ce qu'est le produit. « WebSite » dit ce qu'est
+    le site, et le relie à son auteur : c'est ce qui permet à un moteur de
+    rattacher les cinquante-deux pages à une seule entité plutôt qu'à autant de
+    documents sans parenté.
+
+    Aucun « sameAs » n'y figure encore. Les adresses des quatre réseaux sont
+    posées dans le pied de page, mais les comptes ne sont pas ouverts : les
+    déclarer reviendrait à donner pour vraies des pages qui n'existent pas.
     """
     if fichier:          # seules les pages d'accueil portent la déclaration
         return ''
 
     import json
-    bloc = {
-        "@context": "https://schema.org",
+    auteur = {"@type": "Person", "name": "Anouar Zanbara"}
+    logiciel = {
         "@type": "SoftwareApplication",
         "name": "BlastClear",
         "url": f"https://www.blastclear.com/{code}/",
@@ -2843,10 +3182,17 @@ def donnees_structurees(code: str, titre: str, description: str, fichier: str) -
         "softwareVersion": "2.2",
         "image": "https://www.blastclear.com/assets/design/"
                  + IMAGE_SOCIALE.get("fichier", "hero-dome.webp"),
-        "author": {"@type": "Person", "name": "Anouar Zanbara"},
-        "publisher": {"@type": "Person", "name": "Anouar Zanbara"},
-        "offers": {"@type": "Offer", "availability": "https://schema.org/InStock"},
+        "author": auteur,
+        "publisher": auteur,
     }
+    site = {
+        "@type": "WebSite",
+        "name": "BlastClear",
+        "url": "https://www.blastclear.com/",
+        "inLanguage": list(LANGUES),
+        "publisher": auteur,
+    }
+    bloc = {"@context": "https://schema.org", "@graph": [logiciel, site]}
     return ('<script type="application/ld+json">'
             + json.dumps(bloc, ensure_ascii=False, separators=(',', ':'))
             + '</script>')
@@ -2914,6 +3260,8 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     corps = respecter_taille_minimale_logo(corps)
     corps = inliner_fond_balistique(corps)
     if fichier == 'index.html':
+        # Après « renforcer_bandeau », qui pose la classe du voile servant d'ancre.
+        corps = inserer_picto_danger(corps)
         corps = inserer_definition(corps, code)
         # Le carrousel se repère à la capture d'origine : il doit donc passer
         # AVANT que les noms de fichiers ne soient rectifiés.
@@ -2926,7 +3274,7 @@ def convertir(chemin: pathlib.Path, code: str, fichier: str) -> str:
     corps = poser_reseaux(corps)
     verifier_liens(corps, chemin.name, code)
 
-    titre, description = extraire_metadonnees(corps)
+    titre, description = extraire_metadonnees(corps, code)
 
     alternats = '\n'.join(
         f'<link rel="alternate" hreflang="{c}" href="https://www.blastclear.com/{c}/">'
@@ -3208,6 +3556,237 @@ def convertir_demo(chemin: pathlib.Path, code: str) -> tuple[str, str]:
     )
 
 
+# ══ CE QUE LES MOTEURS LISENT AVANT LES PAGES ═════════════════════════════════
+#
+# Trois fichiers de service, longtemps tenus à la main dans site/. Ils sont
+# désormais produits ici, pour une raison simple : LE SITE CHANGE, EUX NON.
+# Le plan du site annonçait encore la date du 13 septembre alors que les pages
+# avaient changé depuis, et il n'y avait aucun mécanisme pour s'en apercevoir.
+#
+# Un plan de site faux est pire qu'un plan absent : un moteur qui constate des
+# dates immobiles cesse de les lire, et l'on perd alors le seul moyen de lui
+# signaler qu'une page vient d'être refaite.
+
+DOMAINE = 'https://www.blastclear.com'
+
+# La clé IndexNow. Ce n'est PAS un secret : le protocole exige qu'elle soit
+# publiée en clair à la racine du site, c'est précisément ainsi que le moteur
+# vérifie que celui qui le prévient est bien le propriétaire du domaine.
+CLE_INDEXNOW = '887411f5597148abb2d565e405f86a1e'
+
+
+def date_de_derniere_modification(chemin: pathlib.Path) -> str:
+    """Quand cette page a-t-elle changé pour de bon ?
+
+    ─── NI LA DATE DU JOUR, NI LA DATE DU FICHIER ─────────────────────────────
+    La date du jour serait fausse : une conversion relancée pour une virgule de
+    feuille de style réécrit les cinquante-deux pages sans en changer une seule.
+    Google a publié la règle : un plan de site dont les dates suivent toujours le
+    jour de génération est traité comme non fiable, et ses dates sont ignorées.
+    On perd alors l'outil au moment où l'on en a besoin.
+
+    La date du fichier ne vaut pas mieux : un clone neuf du dépôt les ramène
+    toutes au jour du clone.
+
+    Reste la seule source qui sache vraiment quand un contenu a changé : le
+    dépôt. La date est celle du dernier enregistrement ayant touché la page, et
+    le jour même si la page est modifiée mais pas encore enregistrée — ce qui est
+    exact, puisqu'elle change à l'instant où l'on génère.
+    """
+    relatif = chemin.relative_to(RACINE).as_posix()
+    try:
+        modifie = subprocess.run(
+            ['git', 'status', '--porcelain', '--', relatif],
+            cwd=RACINE, capture_output=True, text=True, timeout=20)
+        if modifie.returncode == 0 and modifie.stdout.strip():
+            return datetime.date.today().isoformat()
+        journal = subprocess.run(
+            ['git', 'log', '-1', '--format=%cs', '--', relatif],
+            cwd=RACINE, capture_output=True, text=True, timeout=20)
+        if journal.returncode == 0 and journal.stdout.strip():
+            return journal.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass          # hors dépôt, ou git absent : la date du jour reste juste
+    return datetime.date.today().isoformat()
+
+
+def pages_indexables() -> list[str]:
+    """Les adresses que l'on demande aux moteurs d'explorer.
+
+    Les pages « demo » et « merci » n'y sont pas : elles portent « noindex ». La
+    racine non plus : elle ne fait que rediriger, et son adresse canonique est
+    celle de la version anglaise, déjà listée.
+    """
+    adresses = []
+    for code in LANGUES:
+        adresses.append(f'{DOMAINE}/{code}/')
+        if (SITE / code / 'pourquoi.html').exists():
+            adresses.append(f'{DOMAINE}/{code}/pourquoi.html')
+    return adresses
+
+
+def ecrire_plan_du_site() -> None:
+    """Le plan du site, avec les treize versions de chaque page déclarées entre
+    elles.
+
+    ─── LES « xhtml:link » NE SONT PAS UN DOUBLON DES BALISES DE PAGE ─────────
+    Chaque page déclare déjà ses douze sœurs. Le redire ici sert au cas où le
+    moteur découvre le plan avant les pages : il sait alors d'emblée qu'il a
+    affaire à treize traductions d'un même document, et non à treize pages
+    distinctes dont douze seraient du contenu dupliqué.
+    """
+    blocs = []
+    for adresse in pages_indexables():
+        fichier = adresse[len(DOMAINE) + 1:]                  # « fr/ » ou « fr/pourquoi.html »
+        chemin = SITE / (fichier + 'index.html' if fichier.endswith('/') else fichier)
+        alternats = []
+        for c in LANGUES:
+            jumelle = adresse.replace(f'{DOMAINE}/{fichier[:2]}/', f'{DOMAINE}/{c}/')
+            alternats.append(f'    <xhtml:link rel="alternate" hreflang="{c}" href="{jumelle}"/>')
+        alternats.append(
+            '    <xhtml:link rel="alternate" hreflang="x-default" href="'
+            + adresse.replace(f'{DOMAINE}/{fichier[:2]}/', f'{DOMAINE}/en/') + '"/>')
+        blocs.append(
+            '  <url>\n'
+            f'    <loc>{adresse}</loc>\n'
+            + '\n'.join(alternats) + '\n'
+            f'    <lastmod>{date_de_derniere_modification(chemin)}</lastmod>\n'
+            '  </url>')
+
+    (SITE / 'sitemap.xml').write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<!-- PRODUIT PAR outils/convertir_design.py. Ne pas corriger ici. -->\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'
+        ' xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+        + '\n'.join(blocs) + '\n</urlset>\n',
+        encoding='utf-8', newline='\n')
+    print(f'  écrit  site/sitemap.xml  ({len(blocs)} adresses)')
+
+
+ROBOTS = f"""# PRODUIT PAR outils/convertir_design.py. Ne pas corriger ici.
+#
+# TOUT EST OUVERT À L'EXPLORATION, Y COMPRIS CE QUI NE DOIT PAS ÊTRE INDEXÉ.
+#
+# Ce fichier interdisait l'exploration de /*/demo.html. L'intention était juste,
+# le moyen se retournait contre elle : « Disallow » interdit de LIRE la page, et
+# les pages de demande et de remerciement portent justement, dans leur en-tête,
+# la consigne « noindex » qui demande à ne pas les indexer. Interdite d'entrée,
+# la consigne n'était jamais lue. Le moteur, sachant l'adresse par les liens de
+# la page d'accueil sans pouvoir en voir le contenu, la publiait alors comme un
+# lien nu, sans titre ni description — exactement ce que l'on voulait éviter.
+#
+# L'exploration est donc ouverte, et « noindex » fait son travail.
+
+User-agent: *
+Allow: /
+
+Sitemap: {DOMAINE}/sitemap.xml
+"""
+
+
+def ecrire_fichiers_de_service() -> None:
+    (SITE / 'robots.txt').write_text(ROBOTS, encoding='utf-8', newline='\n')
+    print('  écrit  site/robots.txt')
+
+    # La clé IndexNow, au format exigé : un fichier portant la clé pour nom, et
+    # la clé pour seul contenu.
+    (SITE / f'{CLE_INDEXNOW}.txt').write_text(CLE_INDEXNOW, encoding='utf-8', newline='\n')
+    print(f'  écrit  site/{CLE_INDEXNOW}.txt  (clé IndexNow)')
+
+    (SITE / '404.html').write_text(PAGE_404, encoding='utf-8', newline='\n')
+    print('  écrit  site/404.html')
+
+
+# ── LA PAGE DES ADRESSES INTROUVABLES ────────────────────────────────────────
+# GitHub Pages sert ce fichier pour toute adresse inconnue, à n'importe quelle
+# profondeur : /zz/, /fr/tarifs.html, /assets/absent.png. Ses chemins sont donc
+# ABSOLUS, et sa mise en forme est dans la page. Une feuille de style chargée
+# par un chemin relatif serait introuvable une fois sur deux, et le visiteur
+# perdu lirait un texte brut sur fond blanc.
+#
+# Elle n'a pas besoin de « noindex » : le serveur répond 404, ce qui suffit à
+# tout moteur. Et elle n'est pas traduite : elle s'adresse à quelqu'un dont on
+# ne sait rien, pas même par quelle porte il est entré.
+PAGE_404 = """<!doctype html>
+<!-- PRODUIT PAR outils/convertir_design.py. Ne pas corriger ici. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | BlastClear</title>
+<link rel="icon" href="/assets/logo/favicon.ico" sizes="any">
+<link rel="icon" href="/assets/logo/BlastClear_B_bleu_256.png" type="image/png">
+<style>
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#25498A;color:#fff;margin:0;
+       min-height:100vh;display:grid;place-content:center;gap:1.2rem;text-align:center;padding:24px}
+  img{height:52px;margin:0 auto}
+  h1{font-size:clamp(22px,4vw,30px);font-weight:700;margin:0;letter-spacing:-.6px}
+  p{margin:0;color:#D5DCE6;max-width:34rem}
+  a{color:#FDC30E;font-weight:600}
+  ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;
+     gap:.4rem 1.1rem;justify-content:center}
+</style>
+</head>
+<body>
+  <img src="/assets/logo/Logo_BlastClear_FondSombre_web.svg" alt="BlastClear">
+  <h1>This page does not exist</h1>
+  <p>The address may have changed, or been mistyped. Choose a language below to
+     reach the home page.</p>
+  <ul>
+    <li><a href="/en/" hreflang="en">English</a></li>
+    <li><a href="/fr/" hreflang="fr">Français</a></li>
+    <li><a href="/es/" hreflang="es">Español</a></li>
+    <li><a href="/pt/" hreflang="pt">Português</a></li>
+    <li><a href="/it/" hreflang="it">Italiano</a></li>
+    <li><a href="/de/" hreflang="de">Deutsch</a></li>
+    <li><a href="/nl/" hreflang="nl">Nederlands</a></li>
+    <li><a href="/sv/" hreflang="sv">Svenska</a></li>
+    <li><a href="/no/" hreflang="no">Norsk</a></li>
+    <li><a href="/da/" hreflang="da">Dansk</a></li>
+    <li><a href="/af/" hreflang="af">Afrikaans</a></li>
+    <li><a href="/tr/" hreflang="tr">Türkçe</a></li>
+    <li><a href="/zh/" hreflang="zh">中文</a></li>
+  </ul>
+</body>
+</html>
+"""
+
+
+# La quatrième des cinq sections de la page « pourquoi » est celle qui nomme le
+# dôme balistique — « Ce que le dôme balistique change ». Les trois premières
+# parlent du cercle et de ses limites, la cinquième du logiciel.
+SECTION_DU_DOME = 3
+
+
+def titre_pourquoi(t: dict, code: str) -> str:
+    """Le titre de l'onglet et des résultats de recherche, pour la page « pourquoi ».
+
+    ─── LE NOM N'EST PAS RÉPÉTÉ, ET LE SUJET EST DIT ──────────────────────────
+    Le titre valait « Pourquoi BlastClear | BlastClear ». Le nom y figurait deux
+    fois, et le reste ne disait rien : personne ne cherche « pourquoi
+    BlastClear », puisque personne ne connaît encore le nom. La page, elle,
+    compare le cercle au dôme balistique, ce qui EST une question que le métier
+    se pose.
+
+    Le sous-titre est donc emprunté à la page elle-même, à l'intitulé de sa
+    quatrième section. C'est du texte déjà traduit dans les treize langues et
+    déjà relu : rien n'est inventé ici, et le titre ne peut pas promettre autre
+    chose que ce que la page contient.
+
+    ─── ET L'EMPRUNT EST VÉRIFIÉ ──────────────────────────────────────────────
+    Une section ajoutée ou retirée ferait glisser le rang, et le titre
+    annoncerait « ce que le cercle apporte » pour une page qui démontre le
+    contraire. On s'arrête plutôt que de l'écrire.
+    """
+    sections = t.get('sections') or []
+    if len(sections) != 5:
+        raise SystemExit(
+            f"Page « pourquoi » [{code}] : {len(sections)} sections au lieu de 5.\n"
+            "Le titre emprunte l'intitulé de la quatrième ; vérifier "
+            "SECTION_DU_DOME dans outils/convertir_design.py.")
+    return f"{t['titre']} | {sections[SECTION_DU_DOME][0]}"
+
+
 def main() -> int:
     if not SOURCE.is_dir():
         raise SystemExit(f'Dossier des canevas introuvable : {SOURCE}')
@@ -3258,8 +3837,9 @@ def main() -> int:
                     image_sociale=bloc_image_sociale(),
                     source=canevas.name + ' + outils/pourquoi.py',
                     lang=code, locale=langue['locale'],
-                    titre=htmlmod.escape(f"{t['titre']} | BlastClear", quote=True),
-                    description=htmlmod.escape(t['chapo'][:180], quote=True),
+                    titre=htmlmod.escape(titre_pourquoi(t, code), quote=True),
+                    description=htmlmod.escape(
+                        composer_description('', t['chapo'], code), quote=True),
                     fichier='pourquoi.html', alternats=alternats,
                     DONNEES_STRUCTUREES='',
                     survols=survols.group(1) if survols else '',
@@ -3287,6 +3867,11 @@ def main() -> int:
 
     preparer_fond_balistique()
     preparer_logos()
+
+    # APRÈS les pages : le plan du site date chacune d'elles, et ne peut le faire
+    # qu'une fois qu'elles sont écrites.
+    ecrire_plan_du_site()
+    ecrire_fichiers_de_service()
 
     print(f'{total} page(s) produite(s).')
     return 0

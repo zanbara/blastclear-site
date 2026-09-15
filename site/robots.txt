@@ -1,5 +1,18 @@
+# PRODUIT PAR outils/convertir_design.py. Ne pas corriger ici.
+#
+# TOUT EST OUVERT À L'EXPLORATION, Y COMPRIS CE QUI NE DOIT PAS ÊTRE INDEXÉ.
+#
+# Ce fichier interdisait l'exploration de /*/demo.html. L'intention était juste,
+# le moyen se retournait contre elle : « Disallow » interdit de LIRE la page, et
+# les pages de demande et de remerciement portent justement, dans leur en-tête,
+# la consigne « noindex » qui demande à ne pas les indexer. Interdite d'entrée,
+# la consigne n'était jamais lue. Le moteur, sachant l'adresse par les liens de
+# la page d'accueil sans pouvoir en voir le contenu, la publiait alors comme un
+# lien nu, sans titre ni description — exactement ce que l'on voulait éviter.
+#
+# L'exploration est donc ouverte, et « noindex » fait son travail.
+
 User-agent: *
 Allow: /
-Disallow: /*/demo.html
 
 Sitemap: https://www.blastclear.com/sitemap.xml

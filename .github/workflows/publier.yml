@@ -17,6 +17,10 @@
 #  Il ne relance PAS la conversion des canevas. Ceux-ci ne sont pas versionnés, et
 #  les pages de /site sont générées sur le poste puis validées. Ce workflow ne fait
 #  que publier ce qui est déjà dans le dépôt.
+#
+#  ─── ET CE QU'IL FAIT EN PLUS, DEPUIS LE 15 SEPTEMBRE 2026 ────────────────────
+#  Il prévient les moteurs de recherche, par le protocole IndexNow, des seules
+#  adresses qui viennent de changer. Voir le commentaire de l'étape concernée.
 # ════════════════════════════════════════════════════════════════════════════════
 
 name: Publier le site
@@ -47,6 +51,12 @@ jobs:
     steps:
       - name: Récupérer le dépôt
         uses: actions/checkout@v4
+        with:
+          # L'HISTORIQUE COMPLET, POUR UNE SEULE RAISON : savoir CE QUI A CHANGÉ.
+          # L'étape IndexNow ne prévient les moteurs que des adresses réellement
+          # modifiées, et cela demande de comparer deux états du dépôt. Une copie
+          # superficielle n'en contient qu'un.
+          fetch-depth: 0
 
       - name: Préparer Pages
         uses: actions/configure-pages@v5
@@ -59,3 +69,38 @@ jobs:
       - name: Déployer
         id: deploiement
         uses: actions/deploy-pages@v4
+
+      # ══════════════════════════════════════════════════════════════════════════
+      #  PRÉVENIR LES MOTEURS, PAR INDEXNOW
+      #
+      #  ─── CE QUE CELA CHANGE ────────────────────────────────────────────────
+      #  Un moteur repasse sur un site neuf quand il le décide, ce qui peut
+      #  prendre des semaines. IndexNow inverse le sens : le site annonce lui-même
+      #  qu'une page a changé, et le moteur vient la chercher dans l'heure.
+      #  Bing, Yandex, Seznam, Naver et Yep partagent le même point d'entrée : une
+      #  seule annonce les atteint tous.
+      #
+      #  GOOGLE N'EN FAIT PAS PARTIE, et c'est à savoir. Il a essayé le protocole
+      #  puis s'en est tenu à l'écart. Pour lui, le plan du site et la Search
+      #  Console restent les seuls leviers — voir docs/referencement.md.
+      #
+      #  ─── POURQUOI SEULEMENT LES ADRESSES MODIFIÉES ─────────────────────────
+      #  Le protocole demande de n'annoncer que ce qui a changé. Réannoncer les
+      #  vingt-six adresses à chaque envoi, y compris pour une correction de
+      #  feuille de style, ferait perdre au signal ce qui en fait la valeur : sa
+      #  rareté. Les moteurs limitent d'ailleurs les domaines qui en abusent.
+      #
+      #  ─── ET POURQUOI APRÈS LE DÉPLOIEMENT, JAMAIS AVANT ────────────────────
+      #  Le moteur vient chercher la page dans les minutes qui suivent l'annonce.
+      #  Annoncée avant, il trouverait l'ancienne, et l'enregistrerait comme
+      #  étant la nouvelle.
+      # ══════════════════════════════════════════════════════════════════════════
+      - name: Prévenir les moteurs (IndexNow)
+        # Un échec ici ne doit pas colorer en rouge une publication réussie : le
+        # site est en ligne, seule l'annonce a manqué.
+        continue-on-error: true
+        env:
+          AVANT: ${{ github.event.before }}
+          APRES: ${{ github.sha }}
+          MANUEL: ${{ github.event_name == 'workflow_dispatch' }}
+        run: python3 .github/indexnow.py

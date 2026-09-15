@@ -220,6 +220,90 @@ a[style*="border-radius:2px"]:active{transform:translateY(1px)}
 .dc-bandeau h1,
 .dc-bandeau p{text-shadow:0 2px 16px rgba(20,23,28,.8),0 1px 3px rgba(20,23,28,.75)}
 
+/* ══ LE PANNEAU DE DANGER D'EXPLOSIF ═══════════════════════════════════════
+   Posé sur la photographie, en bas à droite, comme un panneau planté sur le
+   site. Loin de la colonne de texte et des deux boutons : un élément ANIMÉ
+   placé sous l'appel à l'action lui disputerait le regard à l'instant même où
+   le visiteur va cliquer.
+
+   ─── LES DÉCALAGES SONT POSITIFS, ET CE N'EST PAS UN DÉTAIL ───────────────
+   Le bandeau porte « overflow:hidden ». Un décalage négatif, qui ferait
+   déborder le panneau pour l'asseoir sur le bord, le ferait simplement rogner.
+
+   ─── ET IL SE CALE SUR LE BANDEAU, NON SUR LE BLOC DE TEXTE ───────────────
+   Sur un écran large, il s'éloigne donc du texte au lieu de le suivre. C'est
+   voulu : un panneau est planté sur le terrain, pas accroché au paragraphe.
+
+   ─── LE DÉCALAGE DROIT EST « 5cqw », ET C'EST LE MÊME QUE PARTOUT AILLEURS ─
+   La barre de navigation porte « padding:14px 5cqw » et le bandeau
+   « padding: … 5cqw ». Le panneau se pose donc sur la MÊME LIGNE VERTICALE que
+   le bouton « Demander une démo » de la barre, à toutes les largeurs et sans
+   qu'aucune valeur n'ait à être tenue à jour. Un clamp en pixels aurait donné
+   un alignement juste à une largeur et faux à toutes les autres.
+
+   L'ombre portée le détache de la roche claire aux heures où la photographie
+   est la plus lumineuse. Le liseré noir du panneau y suffirait presque ; elle
+   règle le presque. */
+.dc-picto-danger{
+  position:absolute;
+  right:5cqw;
+  bottom:clamp(16px,3.2vw,48px);
+  width:clamp(72px,9vw,116px);
+  height:auto;
+  pointer-events:none;
+  filter:drop-shadow(0 2px 10px rgba(20,23,28,.55));
+}
+
+/* ── L'ALTERNANCE JAUNE-ORANGE ────────────────────────────────────────────
+   Trois secondes, en fondu, sur la COULEUR SEULE. Ni l'échelle ni l'opacité ne
+   bougent : un panneau de danger qui enfle et se rétracte ressemble à une
+   bannière publicitaire, pas à de la signalétique.
+
+   Les deux teintes sont celles des deux fichiers fournis. C'est la feuille de
+   style qui porte désormais la seconde, le second fichier n'ayant rien d'autre
+   à apporter. */
+@keyframes dc-danger{
+  from{fill:#f8e628}
+  to  {fill:#f39204}
+}
+.dc-picto-fond{animation:dc-danger 3s ease-in-out infinite alternate}
+
+/* L'ARRÊT N'EST PAS FACULTATIF. Une couleur qui bat en permanence dans le coin
+   de l'écran gêne réellement certains lecteurs, et le panneau dit la même chose
+   immobile.
+
+   « animation:none » ET NON UNE DURÉE RACCOURCIE. La règle générale de ce même
+   bloc raccourcit toutes les durées à .01 ms sans toucher au nombre de cycles :
+   une animation « infinite » n'y ralentit pas, elle se met à battre cent fois
+   par seconde. Seul le retrait du nom l'arrête vraiment.
+
+   Aucune couleur de repos n'est écrite ici : le polygone a gardé son attribut
+   « fill="#f8e628" », qui reprend la main dès que l'animation disparaît. */
+@media (prefers-reduced-motion:reduce){
+  .dc-picto-fond{animation:none}
+}
+
+/* ── SOUS 900 PX, IL RÉTRÉCIT, ET C'EST TOUT ──────────────────────────────
+   LE REPLI EN HAUT À DROITE A ÉTÉ ESSAYÉ, MESURÉ, PUIS ABANDONNÉ.
+   En haut, le panneau tombe sur le ciel de la photographie, l'endroit le plus
+   clair de toute la page, et à trente pixels sous le bouton jaune de la barre
+   de navigation : deux jaunes voisins, dont l'un bat. C'est exactement ce qui
+   avait fait écarter la place sous les deux boutons.
+
+   En bas, le voile vertical atteint 0,76 puis 0,90 : c'est le fond le plus
+   sombre de la page, et le panneau y ressort le mieux. Le seul risque était que
+   les deux boutons, passant l'un sous l'autre, viennent occuper ce coin.
+   Mesuré dans les treize langues : à 412 px il reste de 91 à 166 px sous eux, à
+   360 px de 77 à 144, pour un panneau qui en demande 63. Le coin est libre
+   partout, la langue la plus bavarde comprise.
+
+   Reste donc à le rétrécir, un panneau de 116 px occupant le quart de la
+   largeur d'un téléphone. La place, elle, ne change pas : moins de règles, et
+   rien à retenir d'accord entre deux largeurs. */
+@media (max-width:899px){
+  .dc-picto-danger{width:clamp(44px,13vw,64px)}
+}
+
 /* Sous 900 px le texte prend toute la largeur : un dégradé horizontal laisserait
    sa fin sur la partie claire de la photographie. On revient au voile vertical. */
 @media (max-width:899px){
