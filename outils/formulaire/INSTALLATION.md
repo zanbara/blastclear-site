@@ -105,14 +105,26 @@ sans laisser de trace.
 
 ## 5. Brancher le site
 
-Dans `outils/convertir_design.py`, en tête de fichier :
+**Votre part s'arrête ici.** Il n'y a ni fichier à modifier, ni commande à taper.
+
+Transmettez les deux valeurs :
+
+| Valeur | Où la prendre |
+|---|---|
+| L'adresse de l'application web | Copiée à l'étape 4, elle finit par `/exec` |
+| Le jeton | Celui que vous avez choisi à l'étape 2 |
+
+Le reste est du travail de publication, et il se fait en une fois : les deux valeurs
+sont posées en tête de `outils/convertir_design.py`, la conversion est relancée, et
+les treize pages basculent ensemble.
+
+<details>
+<summary>Ce qui se passe alors, si vous voulez le savoir</summary>
 
 ```python
-COLLECTE_URL = 'https://script.google.com/macros/s/AKfycb…/exec'
-JETON_FORMULAIRE = 'une-chaine-a-vous-choisir'     # LE MÊME que dans Code.gs
+COLLECTE_URL     = 'https://script.google.com/macros/s/AKfycb…/exec'
+JETON_FORMULAIRE = 'le-jeton-choisi-a-l-etape-2'   # LE MÊME que dans Code.gs
 ```
-
-Puis :
 
 ```
 python outils/convertir_design.py
@@ -121,8 +133,14 @@ git commit -m "Branche le formulaire sur la feuille de collecte"
 git push
 ```
 
-Les treize pages basculent ensemble. **Le jeton doit être identique des deux côtés**,
-sinon le script refuse tout, sans message visible pour le visiteur.
+Le formulaire perd son ouverture de messagerie et prend une destination ; la mention
+de traitement des données paraît sous le bouton d'envoi, dans les treize langues.
+
+</details>
+
+**Le jeton doit être identique des deux côtés.** S'il diffère, le script refuse tout
+sans le moindre message visible pour le visiteur, qui croit avoir envoyé sa demande.
+C'est la seule erreur de cette procédure qui ne se voit pas.
 
 ---
 

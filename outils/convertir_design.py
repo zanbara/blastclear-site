@@ -1068,7 +1068,7 @@ DIAPOS = [
 
 PHOTOS = [
     # source dans design/, nom publié, largeur visée, qualité
-    ('Blast Perimeter Generator.webp', 'hero-dome.webp', 2200, 78),
+    ('Blast Perimeter Generator2.webp', 'hero-dome.webp', 2200, 78),
     ('2026-09-13_164207.webp', 'app-screen.webp', 1600, 86),
     ('pit-dome.jpg', 'pit-dome.webp', 1600, 80),
 ]
@@ -1698,8 +1698,8 @@ def poser_animations(corps: str) -> str:
 # LE JETON DOIT ÊTRE LE MÊME DES DEUX CÔTÉS. Il ne protège aucun secret : il filtre
 # les envois automatisés, qui arrivent tôt ou tard sur une application web ouverte.
 
-COLLECTE_URL = ''
-JETON_FORMULAIRE = 'REMPLACER_PAR_UNE_CHAINE_A_VOUS'
+COLLECTE_URL = 'https://script.google.com/macros/s/AKfycbw7Ucuy1HUSF8kghOErOfGtr49Rmy7aRA2P_Kh2k9XKuVFFUqPfjG0AAs2ycGPmd0v7ow/exec'
+JETON_FORMULAIRE = 'jeton_BlastClear'
 
 # ══ LA MENTION DE TRAITEMENT DES DONNÉES ══════════════════════════════════════
 #
