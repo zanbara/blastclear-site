@@ -3626,38 +3626,56 @@ def pages_indexables() -> list[str]:
 
 
 def ecrire_plan_du_site() -> None:
-    """Le plan du site, avec les treize versions de chaque page déclarées entre
-    elles.
+    """Le plan du site : une adresse, une date, et rien d'autre.
 
-    ─── LES « xhtml:link » NE SONT PAS UN DOUBLON DES BALISES DE PAGE ─────────
-    Chaque page déclare déjà ses douze sœurs. Le redire ici sert au cas où le
-    moteur découvre le plan avant les pages : il sait alors d'emblée qu'il a
-    affaire à treize traductions d'un même document, et non à treize pages
-    distinctes dont douze seraient du contenu dupliqué.
+    ─── LES « xhtml:link » ONT ÉTÉ RETIRÉS, ET C'EST UNE MESURE ──────────────
+    Le plan déclarait dans chaque entrée les treize traductions de la page, par
+    des balises « xhtml:link ». La Search Console a répondu « impossible de lire
+    le sitemap ».
+
+    Le fichier était pourtant servi correctement, et cela a été vérifié plutôt
+    que supposé : 200 en application/xml, y compris pour l'agent de Google, sans
+    marque d'ordre en tête, sans boucle de redirection depuis aucune des quatre
+    formes de l'adresse, et robots.txt ouvert. Il était aussi bien formé.
+
+    Validé contre le SCHÉMA OFFICIEL, il rendait 390 erreurs, une par balise
+    « xhtml:link » : « No matching global element declaration available, but
+    demanded by the strict wildcard ». Le schéma des plans de site n'admet pas
+    cette extension. Elle est une convention de Google, que Google sait lire —
+    mais elle est la seule chose de ce fichier qu'un analyseur strict refuse, et
+    c'était le seul fichier qui n'était pas lu.
+
+    ─── ET CE RETRAIT NE COÛTE RIEN, CE QUI EMPORTE LA DÉCISION ──────────────
+    Chaque page porte déjà ses quatorze « link rel=alternate » dans son en-tête.
+    Le plan ne faisait que redire la même chose une seconde fois, et Google
+    recommande lui-même de n'employer qu'UNE seule des trois méthodes. Il n'y a
+    donc aucune information à perdre : il y a un doublon à supprimer.
+
+    Le plan passe de 36 768 à moins de 3 000 octets et devient strictement
+    conforme au schéma, ce qui se vérifie désormais d'une commande.
+
+    Si la Search Console refusait encore, la cause serait ailleurs, et ce fichier
+    aura cessé d'être suspect.
     """
     blocs = []
     for adresse in pages_indexables():
         fichier = adresse[len(DOMAINE) + 1:]                  # « fr/ » ou « fr/pourquoi.html »
         chemin = SITE / (fichier + 'index.html' if fichier.endswith('/') else fichier)
-        alternats = []
-        for c in LANGUES:
-            jumelle = adresse.replace(f'{DOMAINE}/{fichier[:2]}/', f'{DOMAINE}/{c}/')
-            alternats.append(f'    <xhtml:link rel="alternate" hreflang="{c}" href="{jumelle}"/>')
-        alternats.append(
-            '    <xhtml:link rel="alternate" hreflang="x-default" href="'
-            + adresse.replace(f'{DOMAINE}/{fichier[:2]}/', f'{DOMAINE}/en/') + '"/>')
+        # L'ORDRE N'EST PAS LIBRE : le schéma définit les enfants de <url> comme
+        # une séquence loc, lastmod, changefreq, priority, et non comme un
+        # ensemble où l'ordre serait indifférent.
         blocs.append(
             '  <url>\n'
             f'    <loc>{adresse}</loc>\n'
-            + '\n'.join(alternats) + '\n'
             f'    <lastmod>{date_de_derniere_modification(chemin)}</lastmod>\n'
             '  </url>')
 
     (SITE / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<!-- PRODUIT PAR outils/convertir_design.py. Ne pas corriger ici. -->\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'
-        ' xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        '  <!-- PRODUIT PAR outils/convertir_design.py. Ne pas corriger ici.\n'
+        '       Les traductions sont déclarées dans l\'en-tête de chaque page,\n'
+        '       et une seule fois : voir docs/referencement.md. -->\n'
         + '\n'.join(blocs) + '\n</urlset>\n',
         encoding='utf-8', newline='\n')
     print(f'  écrit  site/sitemap.xml  ({len(blocs)} adresses)')

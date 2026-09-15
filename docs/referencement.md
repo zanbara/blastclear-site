@@ -24,7 +24,7 @@ fichiers ne se modifie à la main** : la conversion suivante écraserait la reto
 
 | Fichier | Rôle |
 |---|---|
-| `site/sitemap.xml` | Les 26 adresses publiques, avec la date réelle du dernier changement de chacune et ses treize traductions déclarées |
+| `site/sitemap.xml` | Les 26 adresses publiques, avec la date réelle du dernier changement de chacune |
 | `site/robots.txt` | Ouvre l'exploration, et indique le plan du site |
 | `site/404.html` | La page des adresses introuvables, servie par GitHub Pages à toute profondeur |
 | `site/<clé>.txt` | La clé IndexNow, publiée en clair comme le protocole l'exige |
@@ -43,6 +43,48 @@ Cela a l'air d'un détail, et c'en est un jusqu'au jour où ce n'en est plus un.
 a publié la règle : un plan dont les dates suivent le jour de génération est considéré
 comme non fiable, et **ses dates cessent alors d'être lues**. On perd l'outil au
 moment exact où l'on voudrait signaler qu'une page vient d'être refaite.
+
+### Les traductions sont déclarées UNE fois, dans les pages
+
+Le plan du site les déclarait aussi, par des balises `xhtml:link`. La Search Console
+a répondu « impossible de lire le sitemap ».
+
+Le fichier était pourtant servi correctement, et cela a été vérifié plutôt que
+supposé : `200` en `application/xml` y compris pour l'agent de Google, sans marque
+d'ordre en tête, sans boucle de redirection depuis aucune des quatre formes de
+l'adresse, `robots.txt` ouvert, et XML bien formé.
+
+Validé contre le **schéma officiel**, il rendait pourtant **390 erreurs**, une par
+balise `xhtml:link` :
+
+```
+Element '{http://www.w3.org/1999/xhtml}link': No matching global element
+declaration available, but demanded by the strict wildcard.
+```
+
+Le schéma des plans de site n'admet pas cette extension. C'est une convention de
+Google, que Google sait lire, mais c'était la seule chose de ce fichier qu'un
+analyseur strict refuse, et c'était le seul fichier qui n'était pas lu.
+
+**Le retrait ne coûte rien, et c'est ce qui emporte la décision.** Chaque page porte
+déjà ses quatorze `link rel="alternate"` dans son en-tête, et Google recommande de
+n'employer qu'**une seule** des trois méthodes possibles. Il n'y avait donc pas
+d'information à perdre, seulement un doublon à supprimer. Le plan est passé de 36 768
+à 3 000 octets et il est désormais strictement conforme.
+
+Pour le revérifier après une modification :
+
+```
+pip install lxml
+python - <<'FIN'
+from lxml import etree
+import urllib.request
+xsd = 'https://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd'
+s = etree.XMLSchema(etree.parse(xsd))
+a = etree.parse('site/sitemap.xml')
+print('conforme' if s.validate(a) else list(s.error_log)[:5])
+FIN
+```
 
 ### Les pages de demande et de remerciement
 
