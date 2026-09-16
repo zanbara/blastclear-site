@@ -57,7 +57,7 @@ POURQUOI = {
     "<b>Il se module par secteur.</b> Chaque cadran reçoit son rayon selon l'orientation du tir, au lieu d'un rayon unique appliqué partout.",
     "<b>Il rend le résultat reproductible.</b> Les mêmes données et les mêmes réglages donnent le même périmètre, quelle que soit la personne qui le calcule."]),
   ("Ce que BlastClear en fait",
-   ["BlastClear applique cette approche aux trois familles de tirs dans un seul environnement : contours fermés pour la production, polylignes pour le pré-découpage, points pour le pétardage et le tir de blocs. Les tirs d'une même volée se fondent en un périmètre unique, et le résultat sort en plan PDF, en DXF ou en image."],
+   ["BlastClear applique cette approche aux trois familles de tirs dans un seul environnement : contours fermés pour la production, polylignes pour le pré-découpage, points pour le tir de blocs. Les tirs d'une même volée se fondent en un périmètre unique, et le résultat sort en plan PDF, en DXF ou en image."],
    []),
  ],
  'note': "Sur une exploitation à ciel ouvert, le temps repris sur ces manipulations est estimé à environ deux cents heures par an. Les gains réels dépendent du contexte du site.",

@@ -184,7 +184,19 @@ POLICES = [
 # La correction est appliquée ici, et non dans les canevas : un nouvel export
 # depuis Claude Design écraserait une retouche faite dans design/.
 #
-# L'allemand n'y figure pas : « Knäppern » désigne déjà le pétardage de blocs.
+# L'allemand n'y figure pas : « Knäppern » désigne déjà le tir de blocs.
+#
+# ─── ET « PÉTARDAGE » A ÉTÉ RETIRÉ DU FRANÇAIS ────────────────────────────────
+# La légende française portait les DEUX termes, « Pétardage / tir de blocs »,
+# comme si l'un éclairait l'autre. Ils désignent la même opération, et en donner
+# deux noms dans une légende de quatre mots fait chercher la nuance qu'il n'y a
+# pas. « Tir de blocs » est retenu : c'est le terme que l'exploitation emploie,
+# et c'est celui que le logiciel affiche désormais dans sa fenêtre d'import.
+#
+# Les douze autres langues ne sont pas touchées : elles n'emploient pas ce mot,
+# et leur propre couple — « secondary blasting / boulder blasting » — relève
+# d'un arbitrage de vocabulaire à mener langue par langue, avec un lecteur de
+# cette langue.
 
 # Le sous-titre du bandeau disait « tirs de mine », qui se lit aussi bien comme
 # un tir DE mine que comme un tir DANS une mine. « Tirs à l'explosif » lève
@@ -193,7 +205,7 @@ POLICES = [
 # elles n'ont donc rien à corriger sur ce point.
 
 CORRECTIONS = {
-    'fr': [("Pétardage / tri de blocs : points", "Pétardage / tir de blocs : points"),
+    'fr': [("Pétardage / tri de blocs : points", "Tir de blocs : points"),
            ("pour les tirs de mine et carrières à ciel ouvert et chantiers de génie civil",
             "pour les tirs à l'explosif de mines et carrières à ciel ouvert et chantiers de génie civil")],
     'en': [("Secondary blasting / boulder sorting: points", "Secondary blasting / boulder blasting: points"),
@@ -873,7 +885,7 @@ DEFINITION = {
     'fr': ("DÉFINITION", "Ce que fait BlastClear",
            "BlastClear génère le périmètre d'évacuation d'un tir à l'explosif à partir du dôme balistique correspondant au rayon maximal retenu. La portée se module ensuite par secteur autour du tir : entière vers l'avant, où partent les projections, réduite sur les côtés, davantage réduite à l'arrière.",
            "Le dôme est intersecté avec la topographie réelle du site. Le périmètre tracé épouse donc le terrain, ses banquettes et ses ruptures de pente, et non un plan horizontal théorique.",
-           "Les trois familles de tirs sont traitées dans le même projet : production sur contour fermé, pré-découpage sur polylignes, pétardage et tir de blocs sur points. Plusieurs tirs d'une même volée se fondent en un périmètre unique, sans raccord manuel. Le résultat sort en plan PDF prêt à signer, en DXF pour les plans du site, ou en image."),
+           "Les trois familles de tirs sont traitées dans le même projet : production sur contour fermé, pré-découpage sur polylignes, tir de blocs sur points. Plusieurs tirs d'une même volée se fondent en un périmètre unique, sans raccord manuel. Le résultat sort en plan PDF prêt à signer, en DXF pour les plans du site, ou en image."),
     'en': ("DEFINITION", "What BlastClear does",
            "BlastClear builds the clearance perimeter of a blast from the ballistic dome matching the maximum radius you set. The reach is then graded sector by sector around the blast: full to the front, where the throw goes, reduced laterally, reduced further to the rear.",
            "The dome is intersected with the actual site topography. The perimeter therefore follows the ground, its benches and its breaks of slope, rather than a theoretical horizontal plane.",
