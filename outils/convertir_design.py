@@ -193,10 +193,16 @@ POLICES = [
 # pas. « Tir de blocs » est retenu : c'est le terme que l'exploitation emploie,
 # et c'est celui que le logiciel affiche désormais dans sa fenêtre d'import.
 #
-# Les douze autres langues ne sont pas touchées : elles n'emploient pas ce mot,
-# et leur propre couple — « secondary blasting / boulder blasting » — relève
-# d'un arbitrage de vocabulaire à mener langue par langue, avec un lecteur de
-# cette langue.
+# LES DOUZE AUTRES LANGUES ONT SUIVI, et il le fallait. Elles n'emploient pas ce
+# mot-ci, mais elles portaient toutes le MÊME défaut : un couple de synonymes,
+# « secondary blasting / boulder blasting », « Nachsprengung und Knäppern »,
+# « voladura secundaria y de bolones ». Corriger le seul français aurait donné un
+# site dont une version dit une chose et douze en disent deux.
+#
+# Aucun terme n'a été inventé : dans chaque couple, le SECOND était déjà le terme
+# de tir de blocs retenu, et c'est le premier, le synonyme, qui part. L'arbitrage
+# de vocabulaire proprement dit reste donc entier, et se mènera langue par langue
+# avec un lecteur de cette langue le jour où il se posera.
 
 # Le sous-titre du bandeau disait « tirs de mine », qui se lit aussi bien comme
 # un tir DE mine que comme un tir DANS une mine. « Tirs à l'explosif » lève
@@ -208,20 +214,25 @@ CORRECTIONS = {
     'fr': [("Pétardage / tri de blocs : points", "Tir de blocs : points"),
            ("pour les tirs de mine et carrières à ciel ouvert et chantiers de génie civil",
             "pour les tirs à l'explosif de mines et carrières à ciel ouvert et chantiers de génie civil")],
-    'en': [("Secondary blasting / boulder sorting: points", "Secondary blasting / boulder blasting: points"),
+    'en': [("Secondary blasting / boulder sorting: points", "Boulder blasting: points"),
            # La tournure d'origine enchaînait deux « and » et se lisait mal.
            ("for open-pit mine and quarry blasting and civil engineering worksites",
             "for blasting in open-pit mines, quarries and civil engineering worksites")],
-    'es': [("Voladura secundaria / selección de bolones: puntos", "Voladura secundaria / voladura de bolones: puntos")],
-    'pt': [("Fogo secundário / seleção de matacões: pontos", "Fogo secundário / desmonte de matacões: pontos")],
-    'it': [("Brillamento secondario / selezione blocchi: punti", "Brillamento secondario / brillamento di blocchi: punti")],
-    'nl': [("Nasprengen / blokkenselectie: punten", "Nasprengen / blokken sprengen: punten")],
-    'sv': [("Skutknackning / blocksortering: punkter", "Skutknackning / blocksprängning: punkter")],
-    'no': [("Etterskyting / blokksortering: punkter", "Etterskyting / blokksprengning: punkter")],
-    'da': [("Efterskydning / bloksortering: punkter", "Efterskydning / bloksprængning: punkter")],
-    'af': [("Nasketing / bloksortering: punte", "Nasketing / bloksketing: punte")],
-    'tr': [("İkincil atım / blok ayıklama: noktalar", "İkincil atım / blok patlatma: noktalar")],
-    'zh': [("二次爆破／大块处理：点位", "二次爆破／大块爆破：点位")],
+    'es': [("Voladura secundaria / selección de bolones: puntos", "Voladura de bolones: puntos")],
+    'pt': [("Fogo secundário / seleção de matacões: pontos", "Desmonte de matacões: pontos")],
+    'it': [("Brillamento secondario / selezione blocchi: punti", "Brillamento di blocchi: punti")],
+    # L'ALLEMAND N'AVAIT AUCUNE ENTRÉE, et il en fallait une. Son canevas produisait
+    # déjà le bon second terme — « Knäppern » est le mot du métier pour le tir de
+    # blocs — donc rien n'était à corriger tant que le couple restait. Il part avec
+    # les onze autres.
+    'de': [("Nachsprengung / Knäppern: Punkte", "Knäppern: Punkte")],
+    'nl': [("Nasprengen / blokkenselectie: punten", "Blokken sprengen: punten")],
+    'sv': [("Skutknackning / blocksortering: punkter", "Blocksprängning: punkter")],
+    'no': [("Etterskyting / blokksortering: punkter", "Blokksprengning: punkter")],
+    'da': [("Efterskydning / bloksortering: punkter", "Bloksprængning: punkter")],
+    'af': [("Nasketing / bloksortering: punte", "Bloksketing: punte")],
+    'tr': [("İkincil atım / blok ayıklama: noktalar", "Blok patlatma: noktalar")],
+    'zh': [("二次爆破／大块处理：点位", "大块爆破：点位")],
 }
 
 
@@ -889,51 +900,51 @@ DEFINITION = {
     'en': ("DEFINITION", "What BlastClear does",
            "BlastClear builds the clearance perimeter of a blast from the ballistic dome matching the maximum radius you set. The reach is then graded sector by sector around the blast: full to the front, where the throw goes, reduced laterally, reduced further to the rear.",
            "The dome is intersected with the actual site topography. The perimeter therefore follows the ground, its benches and its breaks of slope, rather than a theoretical horizontal plane.",
-           "All three families of blast are handled in the same project: production on a closed contour, pre-splitting on polylines, secondary and boulder blasting on points. Several blasts of the same round merge into a single perimeter, with no manual rework. The result comes out as a PDF drawing ready to sign, as DXF for the site drawings, or as an image."),
+           "All three families of blast are handled in the same project: production on a closed contour, pre-splitting on polylines, boulder blasting on points. Several blasts of the same round merge into a single perimeter, with no manual rework. The result comes out as a PDF drawing ready to sign, as DXF for the site drawings, or as an image."),
     'es': ("DEFINICIÓN", "Qué hace BlastClear",
            "BlastClear genera el perímetro de evacuación de una voladura a partir de la cúpula balística correspondiente al radio máximo establecido. El alcance se gradúa después por sectores alrededor de la voladura: completo hacia el frente, por donde salen las proyecciones, reducido en los laterales y más reducido en la parte trasera.",
            "La cúpula se interseca con la topografía real del emplazamiento. El perímetro trazado sigue por tanto el terreno, sus bancos y sus quiebres de pendiente, y no un plano horizontal teórico.",
-           "Las tres familias de voladura se tratan en el mismo proyecto: producción sobre contorno cerrado, precorte sobre polilíneas, voladura secundaria y de bolones sobre puntos. Varias voladuras de una misma pega se funden en un perímetro único, sin retoque manual. El resultado sale en plano PDF listo para firmar, en DXF para los planos del emplazamiento, o en imagen."),
+           "Las tres familias de voladura se tratan en el mismo proyecto: producción sobre contorno cerrado, precorte sobre polilíneas, voladura de bolones sobre puntos. Varias voladuras de una misma pega se funden en un perímetro único, sin retoque manual. El resultado sale en plano PDF listo para firmar, en DXF para los planos del emplazamiento, o en imagen."),
     'pt': ("DEFINIÇÃO", "O que faz o BlastClear",
            "O BlastClear gera o perímetro de evacuação de um fogo a partir da cúpula balística correspondente ao raio máximo definido. O alcance é depois graduado por setores em torno do fogo: total para a frente, por onde saem as projeções, reduzido lateralmente e mais reduzido atrás.",
            "A cúpula é intersetada com a topografia real do local. O perímetro traçado acompanha portanto o terreno, as suas bancadas e as suas quebras de declive, e não um plano horizontal teórico.",
-           "As três famílias de fogo são tratadas no mesmo projeto: produção sobre contorno fechado, pré-corte sobre polilinhas, fogo secundário e desmonte de matacões sobre pontos. Vários fogos da mesma pega fundem-se num perímetro único, sem retrabalho manual. O resultado sai em desenho PDF pronto a assinar, em DXF para os desenhos do local, ou em imagem."),
+           "As três famílias de fogo são tratadas no mesmo projeto: produção sobre contorno fechado, pré-corte sobre polilinhas, desmonte de matacões sobre pontos. Vários fogos da mesma pega fundem-se num perímetro único, sem retrabalho manual. O resultado sai em desenho PDF pronto a assinar, em DXF para os desenhos do local, ou em imagem."),
     'it': ("DEFINIZIONE", "Che cosa fa BlastClear",
            "BlastClear genera il perimetro di evacuazione di una volata a partire dalla cupola balistica corrispondente al raggio massimo impostato. La portata viene poi graduata per settori attorno alla volata: intera verso il fronte, da cui partono le proiezioni, ridotta lateralmente e ridotta ulteriormente sul retro.",
            "La cupola viene intersecata con la topografia reale del sito. Il perimetro tracciato segue quindi il terreno, le sue gradonature e le sue rotture di pendenza, e non un piano orizzontale teorico.",
-           "Le tre famiglie di volata sono trattate nello stesso progetto: produzione su contorno chiuso, pretaglio su polilinee, brillamento secondario e di blocchi su punti. Più volate della stessa serie si fondono in un perimetro unico, senza ritocchi manuali. Il risultato esce come disegno PDF pronto da firmare, come DXF per i disegni del sito, o come immagine."),
+           "Le tre famiglie di volata sono trattate nello stesso progetto: produzione su contorno chiuso, pretaglio su polilinee, brillamento di blocchi su punti. Più volate della stessa serie si fondono in un perimetro unico, senza ritocchi manuali. Il risultato esce come disegno PDF pronto da firmare, come DXF per i disegni del sito, o come immagine."),
     'de': ("DEFINITION", "Was BlastClear leistet",
            "BlastClear erzeugt den Evakuierungsperimeter einer Sprengung aus der ballistischen Kuppel zum eingestellten Maximalradius. Die Reichweite wird anschließend sektorweise um die Sprengung herum abgestuft: voll nach vorn, wohin der Wurf geht, seitlich reduziert und nach hinten stärker reduziert.",
            "Die Kuppel wird mit der realen Geländeoberfläche des Standorts verschnitten. Der gezeichnete Perimeter folgt daher dem Gelände, seinen Bermen und Geländekanten, und nicht einer theoretischen Horizontalebene.",
-           "Alle drei Sprengungsarten werden im selben Projekt behandelt: Produktion auf geschlossener Kontur, Vorspaltsprengung auf Polylinien, Nachsprengung und Knäppern auf Punkten. Mehrere Sprengungen desselben Abschlags verschmelzen zu einem einzigen Perimeter, ohne Nacharbeit. Das Ergebnis liegt als unterschriftsreifer PDF-Plan, als DXF für die Standortpläne oder als Bild vor."),
+           "Alle drei Sprengungsarten werden im selben Projekt behandelt: Produktion auf geschlossener Kontur, Vorspaltsprengung auf Polylinien, Knäppern auf Punkten. Mehrere Sprengungen desselben Abschlags verschmelzen zu einem einzigen Perimeter, ohne Nacharbeit. Das Ergebnis liegt als unterschriftsreifer PDF-Plan, als DXF für die Standortpläne oder als Bild vor."),
     'nl': ("DEFINITIE", "Wat BlastClear doet",
            "BlastClear genereert de evacuatieperimeter van een schot op basis van de ballistische koepel die hoort bij de ingestelde maximale straal. Het bereik wordt vervolgens per sector rond het schot gegradeerd: volledig naar voren, waar de worp heen gaat, zijwaarts gereduceerd en naar achteren sterker gereduceerd.",
            "De koepel wordt doorsneden met de werkelijke topografie van de locatie. De getekende perimeter volgt dus het terrein, de bermen en de hellingbreuken, en niet een theoretisch horizontaal vlak.",
-           "De drie soorten schoten worden in hetzelfde project behandeld: productie op gesloten contour, voorsplijten op polylijnen, nasprengen en blokken sprengen op punten. Meerdere schoten van dezelfde ronde smelten samen tot één perimeter, zonder handwerk. Het resultaat komt eruit als een ondertekenklare PDF-tekening, als DXF voor de locatietekeningen, of als afbeelding."),
+           "De drie soorten schoten worden in hetzelfde project behandeld: productie op gesloten contour, voorsplijten op polylijnen, blokken sprengen op punten. Meerdere schoten van dezelfde ronde smelten samen tot één perimeter, zonder handwerk. Het resultaat komt eruit als een ondertekenklare PDF-tekening, als DXF voor de locatietekeningen, of als afbeelding."),
     'sv': ("DEFINITION", "Vad BlastClear gör",
            "BlastClear tar fram utrymningsperimetern för en salva utifrån den ballistiska kupol som motsvarar den inställda maximala radien. Räckvidden graderas därefter sektorvis runt salvan: full framåt, dit kastet går, reducerad i sidled och kraftigare reducerad bakåt.",
            "Kupolen skärs mot platsens verkliga topografi. Den ritade perimetern följer alltså terrängen, dess pallar och lutningsbrott, och inte ett teoretiskt horisontalplan.",
-           "Alla tre typer av salvor hanteras i samma projekt: produktion på sluten kontur, förspräckning på polylinjer, skutknackning och blocksprängning på punkter. Flera salvor i samma runda slås samman till en enda perimeter, utan manuellt efterarbete. Resultatet levereras som en underskriftsklar PDF-ritning, som DXF för platsens ritningar, eller som bild."),
+           "Alla tre typer av salvor hanteras i samma projekt: produktion på sluten kontur, förspräckning på polylinjer, blocksprängning på punkter. Flera salvor i samma runda slås samman till en enda perimeter, utan manuellt efterarbete. Resultatet levereras som en underskriftsklar PDF-ritning, som DXF för platsens ritningar, eller som bild."),
     'no': ("DEFINISJON", "Hva BlastClear gjør",
            "BlastClear lager evakueringsperimeteren for en salve ut fra den ballistiske kuppelen som svarer til den innstilte maksimale radien. Rekkevidden graderes deretter sektorvis rundt salven: full forover, dit kastet går, redusert sideveis og kraftigere redusert bakover.",
            "Kuppelen skjæres mot stedets virkelige topografi. Den tegnede perimeteren følger dermed terrenget, pallene og hellingsbruddene, og ikke et teoretisk horisontalplan.",
-           "Alle tre salvetyper håndteres i samme prosjekt: produksjon på lukket kontur, forspalting på polylinjer, etterskyting og blokksprengning på punkter. Flere salver i samme runde slås sammen til én perimeter, uten manuelt etterarbeid. Resultatet leveres som en signeringsklar PDF-tegning, som DXF for stedets tegninger, eller som bilde."),
+           "Alle tre salvetyper håndteres i samme prosjekt: produksjon på lukket kontur, forspalting på polylinjer, blokksprengning på punkter. Flere salver i samme runde slås sammen til én perimeter, uten manuelt etterarbeid. Resultatet leveres som en signeringsklar PDF-tegning, som DXF for stedets tegninger, eller som bilde."),
     'da': ("DEFINITION", "Hvad BlastClear gør",
            "BlastClear danner evakueringsperimeteren for en sprængning ud fra den ballistiske kuppel, der svarer til den valgte maksimale radius. Rækkevidden gradueres derefter sektorvis omkring sprængningen: fuld fremad, hvor kastet går hen, reduceret til siden og kraftigere reduceret bagud.",
            "Kuplen skæres mod stedets virkelige topografi. Den tegnede perimeter følger derfor terrænet, dets bænke og hældningsbrud, og ikke et teoretisk vandret plan.",
-           "Alle tre sprængningstyper håndteres i samme projekt: produktion på lukket kontur, forspaltning på polylinjer, efterskydning og bloksprængning på punkter. Flere sprængninger i samme runde lægges sammen til én perimeter, uden manuelt efterarbejde. Resultatet leveres som en underskriftsklar PDF-tegning, som DXF til stedets tegninger, eller som billede."),
+           "Alle tre sprængningstyper håndteres i samme projekt: produktion på lukket kontur, forspaltning på polylinjer, bloksprængning på punkter. Flere sprængninger i samme runde lægges sammen til én perimeter, uden manuelt efterarbejde. Resultatet leveres som en underskriftsklar PDF-tegning, som DXF til stedets tegninger, eller som billede."),
     'af': ("DEFINISIE", "Wat BlastClear doen",
            "BlastClear skep die ontruimingsomtrek van 'n skoot uit die ballistiese koepel wat by die ingestelde maksimum radius pas. Die bereik word daarna sektorsgewys om die skoot gegradeer: vol na voor, waarheen die werp gaan, sywaarts verminder en agter sterker verminder.",
            "Die koepel word met die terrein se werklike topografie gesny. Die omtrek wat geteken word, volg dus die terrein, sy banke en hellingbreuke, en nie 'n teoretiese horisontale vlak nie.",
-           "Al drie soorte skote word in dieselfde projek hanteer: produksie op geslote kontoer, voorsplyting op pollyne, nasketing en bloksketing op punte. Verskeie skote van dieselfde ronde smelt saam tot een enkele omtrek, sonder handwerk. Die resultaat kom uit as 'n PDF-tekening gereed vir ondertekening, as DXF vir die terrein se tekeninge, of as beeld."),
+           "Al drie soorte skote word in dieselfde projek hanteer: produksie op geslote kontoer, voorsplyting op pollyne, bloksketing op punte. Verskeie skote van dieselfde ronde smelt saam tot een enkele omtrek, sonder handwerk. Die resultaat kom uit as 'n PDF-tekening gereed vir ondertekening, as DXF vir die terrein se tekeninge, of as beeld."),
     'tr': ("TANIM", "BlastClear ne yapar",
            "BlastClear, belirlenen azami yarıçapa karşılık gelen balistik kubbeden yola çıkarak bir atımın tahliye çevresini üretir. Erişim mesafesi daha sonra atımın çevresinde sektör sektör ayarlanır: savrulmanın gittiği ön tarafta tam, yanlarda azaltılmış, arkada daha da azaltılmış.",
            "Kubbe, sahanın gerçek topografyasıyla kesiştirilir. Çizilen çevre böylece araziyi, basamaklarını ve eğim kırıklıklarını izler; teorik bir yatay düzlemi değil.",
-           "Üç atım ailesi de aynı projede ele alınır: kapalı kontur üzerinde üretim, polilinyalar üzerinde ön çatlatma, noktalar üzerinde ikincil atım ve blok patlatma. Aynı seriye ait birden çok atım, elle düzeltme olmadan tek bir çevrede birleşir. Sonuç, imzaya hazır PDF planı, saha planları için DXF veya görüntü olarak çıkar."),
+           "Üç atım ailesi de aynı projede ele alınır: kapalı kontur üzerinde üretim, polilinyalar üzerinde ön çatlatma, noktalar üzerinde blok patlatma. Aynı seriye ait birden çok atım, elle düzeltme olmadan tek bir çevrede birleşir. Sonuç, imzaya hazır PDF planı, saha planları için DXF veya görüntü olarak çıkar."),
     'zh': ("定义", "BlastClear 的作用",
            "BlastClear 依据所设定的最大半径对应的弹道穹顶，生成一次爆破的疏散警戒范围。随后按扇区调整作用距离：抛掷方向的前方取全值，侧向折减，后方折减更多。",
            "穹顶与现场真实地形求交。因此所绘的警戒范围贴合地面、台阶与坡度转折，而非一个理论水平面。",
-           "三类爆破在同一项目中处理：闭合轮廓上的生产爆破、多段线上的预裂爆破、点位上的二次爆破与大块爆破。同一轮次的多次爆破自动合并为单一警戒范围，无需手工返工。成果可输出为可直接签署的 PDF 图纸、用于现场图纸的 DXF，或图像。"),
+           "三类爆破在同一项目中处理：闭合轮廓上的生产爆破、多段线上的预裂爆破、点位上的大块爆破。同一轮次的多次爆破自动合并为单一警戒范围，无需手工返工。成果可输出为可直接签署的 PDF 图纸、用于现场图纸的 DXF，或图像。"),
 }
 
 
