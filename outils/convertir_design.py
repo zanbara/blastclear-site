@@ -243,11 +243,15 @@ POLICES = [
 #   tr  emniyet bölgesi / taş savrulması — le terme de la réglementation minière.
 #   zh  安全警戒范围 / 飞石
 #
-# ─── « BLAST FLYROCK MODELLING », ET NON « BLAST & FLYROCK MODELLING » ───────
-# L'esperluette annonçait qu'on modélise DEUX choses, le tir et la projection.
-# BlastClear ne modélise pas le tir : il modélise l'enveloppe de projection que
-# le tir engendre. « Blast flyrock » est d'ailleurs la collocation de la
-# littérature, qui écrit couramment « blast-induced flyrock ».
+# ─── OÙ SE PLACE L'ESPERLUETTE, EN ANGLAIS ──────────────────────────────────
+# « Blast & Flyrock Modelling » annonçait qu'on modélise DEUX choses, le tir et
+# la projection. BlastClear ne modélise pas le tir : il modélise l'enveloppe de
+# projection que le tir engendre. « Blast flyrock » est du reste la collocation
+# de la littérature, qui écrit « blast-induced flyrock ».
+#
+# L'esperluette est donc déplacée d'un cran, entre les deux LIVRABLES :
+# « Blast Flyrock Modelling & Safety Exclusion Zone » — on modélise la
+# projection, on en tire la zone. C'est ce que fait le logiciel, dans l'ordre.
 #
 #   af  L'AFRIKAANS GARDE « FLYROCK », et c'est un choix, pas un oubli. La
 #       filière sud-africaine travaille en anglais, les normes SANS sont en
@@ -276,7 +280,7 @@ TITRE_BANDEAU = {
     ],
     'en': [
         ('<span style="color:#FDC30E">3D</span> ballistic-dome clearance perimeters</span>',
-         'Blast <span style="color:#FDC30E">Flyrock</span> Modelling, Safety Exclusion Zone</span>'),
+         'Blast <span style="color:#FDC30E">Flyrock</span> Modelling &amp; Safety Exclusion Zone</span>'),
         ('for open-pit mine and quarry blasting and civil engineering worksites</span>',
          'based on a 3D ballistic dome, for blasting in open-pit mines, quarries and civil engineering worksites</span>')
     ],
