@@ -243,6 +243,12 @@ POLICES = [
 #   tr  emniyet bölgesi / taş savrulması — le terme de la réglementation minière.
 #   zh  安全警戒范围 / 飞石
 #
+# ─── « BLAST FLYROCK MODELLING », ET NON « BLAST & FLYROCK MODELLING » ───────
+# L'esperluette annonçait qu'on modélise DEUX choses, le tir et la projection.
+# BlastClear ne modélise pas le tir : il modélise l'enveloppe de projection que
+# le tir engendre. « Blast flyrock » est d'ailleurs la collocation de la
+# littérature, qui écrit couramment « blast-induced flyrock ».
+#
 #   af  L'AFRIKAANS GARDE « FLYROCK », et c'est un choix, pas un oubli. La
 #       filière sud-africaine travaille en anglais, les normes SANS sont en
 #       anglais, et aucun terme afrikaans n'est attesté dans la littérature du
@@ -263,108 +269,82 @@ POLICES = [
 
 TITRE_BANDEAU = {
     'fr': [
-        ('Générateur de</span>',
-         'Sécurité des tirs</span>'),
         ('périmètres d\'évacuation par dôme balistique <span style="color:#FDC30E">3D</span></span>',
          'périmètre d\'évacuation des <span style="color:#FDC30E">tirs à l\'explosif</span></span>'),
         ('pour les tirs de mine et carrières à ciel ouvert et chantiers de génie civil</span>',
          "d'après un dôme balistique 3D et la modélisation des projections, pour mines et carrières à ciel ouvert et génie civil</span>")
     ],
     'en': [
-        ('Generator of</span>',
-         'Blast safety</span>'),
         ('<span style="color:#FDC30E">3D</span> ballistic-dome clearance perimeters</span>',
-         '<span style="color:#FDC30E">Safety Exclusion Zone</span> and Flyrock Boundary</span>'),
+         'Blast <span style="color:#FDC30E">Flyrock</span> Modelling, Safety Exclusion Zone</span>'),
         ('for open-pit mine and quarry blasting and civil engineering worksites</span>',
-         'based on a 3D ballistic dome and flyrock modelling, for open-pit mines, quarries and civil engineering worksites</span>')
+         'based on a 3D ballistic dome, for blasting in open-pit mines, quarries and civil engineering worksites</span>')
     ],
     'es': [
-        ('Generador de</span>',
-         'Seguridad en voladuras</span>'),
         ('perímetros de evacuación por domo balístico <span style="color:#FDC30E">3D</span></span>',
-         'zona de exclusión y límite de <span style="color:#FDC30E">proyección de rocas</span></span>'),
+         'modelado de <span style="color:#FDC30E">proyecciones</span> y zona de exclusión</span>'),
         ('para voladuras en minas y canteras a cielo abierto y obras de ingeniería civil</span>',
-         'a partir de un domo balístico 3D y del modelado de proyecciones, para minas y canteras a cielo abierto y obras de ingeniería civil</span>')
+         'a partir de un domo balístico 3D, para voladuras en minas y canteras a cielo abierto y obras de ingeniería civil</span>')
     ],
     'pt': [
-        ('Gerador de</span>',
-         'Segurança nos desmontes</span>'),
         ('perímetros de evacuação por domo balístico <span style="color:#FDC30E">3D</span></span>',
-         'zona de exclusão e limite de <span style="color:#FDC30E">ultralançamento</span></span>'),
+         'modelação do <span style="color:#FDC30E">ultralançamento</span> e zona de exclusão</span>'),
         ('para desmontes em minas e pedreiras a céu aberto e obras de engenharia civil</span>',
-         'a partir de uma cúpula balística 3D e da modelação do ultralançamento, para minas e pedreiras a céu aberto e obras de engenharia civil</span>')
+         'a partir de uma cúpula balística 3D, para desmontes em minas e pedreiras a céu aberto e obras de engenharia civil</span>')
     ],
     'it': [
-        ('Generatore di</span>',
-         'Sicurezza delle volate</span>'),
         ('perimetri di evacuazione con cupola balistica <span style="color:#FDC30E">3D</span></span>',
-         'zona di esclusione e limite delle <span style="color:#FDC30E">proiezioni</span></span>'),
+         'modellazione <span style="color:#FDC30E">proiezioni</span> e zona di esclusione</span>'),
         ('per volate in miniere e cave a cielo aperto e cantieri di ingegneria civile</span>',
-         'a partire da una cupola balistica 3D e dalla modellazione delle proiezioni, per miniere e cave a cielo aperto e cantieri di ingegneria civile</span>')
+         'a partire da una cupola balistica 3D, per volate in miniere e cave a cielo aperto e cantieri di ingegneria civile</span>')
     ],
     'de': [
-        ('Generator für</span>',
-         'Sprengsicherheit</span>'),
         ('Sperrbereiche per ballistischer <span style="color:#FDC30E">3D-Kuppel</span></span>',
-         'Sperrbereich und Grenze des <span style="color:#FDC30E">Steinflugs</span></span>'),
+         'Modellierung des <span style="color:#FDC30E">Steinflugs</span> und Sperrbereich</span>'),
         ('für Sprengungen in Tagebauen, Steinbrüchen und im Tiefbau</span>',
-         'auf Basis einer ballistischen 3D-Kuppel und der Steinflugmodellierung, für Tagebaue, Steinbrüche und den Tiefbau</span>')
+         'auf Basis einer ballistischen 3D-Kuppel, für Sprengungen in Tagebauen, Steinbrüchen und im Tiefbau</span>')
     ],
     'nl': [
-        ('Generator voor</span>',
-         'Veilig springwerk</span>'),
         ('evacuatieperimeters met ballistische <span style="color:#FDC30E">3D-koepel</span></span>',
-         'veiligheidszone en grens van de <span style="color:#FDC30E">steenworp</span></span>'),
+         'modellering van de <span style="color:#FDC30E">steenworp</span> en veiligheidszone</span>'),
         ('voor sprengingen in dagbouwmijnen, groeves en civieltechnische werven</span>',
-         'op basis van een ballistische 3D-koepel en steenworpmodellering, voor dagbouwmijnen, groeves en civieltechnische werven</span>')
+         'op basis van een ballistische 3D-koepel, voor sprengingen in dagbouwmijnen, groeves en civieltechnische werven</span>')
     ],
     'sv': [
-        ('Generator för</span>',
-         'Säkra salvor</span>'),
         ('utrymningsperimetrar med ballistisk <span style="color:#FDC30E">3D-kupol</span></span>',
-         'skyddsområde och gräns för <span style="color:#FDC30E">stenkast</span></span>'),
+         'modellering av <span style="color:#FDC30E">stenkast</span> och skyddsområde</span>'),
         ('för salvor i dagbrott, bergtäkter och anläggningsarbeten</span>',
-         'utifrån en ballistisk 3D-kupol och stenkastmodellering, för dagbrott, bergtäkter och anläggningsarbeten</span>')
+         'utifrån en ballistisk 3D-kupol, för salvor i dagbrott, bergtäkter och anläggningsarbeten</span>')
     ],
     'no': [
-        ('Generator for</span>',
-         'Sikre salver</span>'),
         ('evakueringssoner med ballistisk <span style="color:#FDC30E">3D-kuppel</span></span>',
-         'sikringssone og grense for <span style="color:#FDC30E">steinsprut</span></span>'),
+         'modellering av <span style="color:#FDC30E">steinsprut</span> og sikringssone</span>'),
         ('for salver i dagbrudd, steinbrudd og anleggsarbeid</span>',
-         'basert på en ballistisk 3D-kuppel og modellering av steinsprut, for dagbrudd, steinbrudd og anleggsarbeid</span>')
+         'basert på en ballistisk 3D-kuppel, for salver i dagbrudd, steinbrudd og anleggsarbeid</span>')
     ],
     'da': [
-        ('Generator til</span>',
-         'Sikre sprængninger</span>'),
         ('evakueringszoner med ballistisk <span style="color:#FDC30E">3D-kuppel</span></span>',
-         'sikkerhedszone og grænse for <span style="color:#FDC30E">stenkast</span></span>'),
+         'modellering af <span style="color:#FDC30E">stenkast</span> og sikkerhedszone</span>'),
         ('til sprængninger i åbne brud, stenbrud og anlægsarbejder</span>',
-         'på grundlag af en ballistisk 3D-kuppel og modellering af stenkast, til åbne brud, stenbrud og anlægsarbejder</span>')
+         'på grundlag af en ballistisk 3D-kuppel, til sprængninger i åbne brud, stenbrud og anlægsarbejder</span>')
     ],
     'af': [
-        ('Generator vir</span>',
-         'Veilige skote</span>'),
         ('ontruimingsgrense met ballistiese <span style="color:#FDC30E">3D-koepel</span></span>',
-         'veiligheidsone en grens van <span style="color:#FDC30E">flyrock</span></span>'),
+         'modellering van <span style="color:#FDC30E">flyrock</span> en veiligheidsone</span>'),
         ('vir skote in oopgroefmyne, klipgroewe en siviele bouterreine</span>',
-         "op grond van 'n ballistiese 3D-koepel en flyrock-modellering, vir oopgroefmyne, klipgroewe en siviele bouterreine</span>")
+         "op grond van 'n ballistiese 3D-koepel, vir skote in oopgroefmyne, klipgroewe en siviele bouterreine</span>")
     ],
     'tr': [
-        ('OLUŞTURUCU</span>',
-         'PATLATMA GÜVENLİĞİ</span>'),
         ('<span style="color:#FDC30E">3B</span> balistik kubbe ile tahliye çevreleri</span>',
-         '<span style="color:#FDC30E">Emniyet bölgesi</span> ve taş savrulması sınırı</span>'),
+         '<span style="color:#FDC30E">Taş savrulması</span> modellemesi ve emniyet bölgesi</span>'),
         ('açık ocak madenciliği, taş ocağı atımları ve inşaat şantiyeleri için</span>',
-         '3B balistik kubbe ve taş savrulması modellemesi temelinde; açık ocak madenciliği, taş ocakları ve inşaat şantiyeleri için</span>')
+         '3B balistik kubbe temelinde; açık ocak madenciliği, taş ocağı atımları ve inşaat şantiyeleri için</span>')
     ],
     'zh': [
-        ('生成器</span>',
-         '爆破安全</span>'),
         ('<span style="color:#FDC30E">三维</span>弹道穹顶疏散警戒范围</span>',
-         '<span style="color:#FDC30E">安全警戒范围</span>与飞石边界</span>'),
+         '<span style="color:#FDC30E">飞石</span>模拟与安全警戒范围</span>'),
         ('适用于露天矿山、采石场爆破及土木工程施工现场</span>',
-         '基于三维弹道穹顶与飞石模拟，适用于露天矿山、采石场和土木工程施工现场</span>')
+         '基于三维弹道穹顶，适用于露天矿山、采石场爆破及土木工程施工现场</span>')
     ],
 }
 
