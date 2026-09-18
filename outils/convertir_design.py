@@ -3816,6 +3816,62 @@ def pages_indexables() -> list[str]:
     return adresses
 
 
+
+# ══ LES BALISES DE PARTAGE DE LA PAGE RACINE ══════════════════════════════════
+
+DEBUT_SOCIAL = '<!-- BLOC-SOCIAL : POSÉ PAR convertir_design.py, NE PAS ÉDITER -->'
+FIN_SOCIAL = '<!-- FIN BLOC-SOCIAL -->'
+
+
+def poser_bloc_social_racine(page_en: str) -> None:
+    """Recopie dans site/index.html le bloc de partage de la page anglaise.
+
+    ─── POURQUOI LA RACINE EN A BESOIN ────────────────────────────────────────
+    Partagée sur WhatsApp, « https://www.blastclear.com/ » ne montrait ni image
+    ni titre : la page d'aiguillage ne porte qu'un <title>. Or c'est l'adresse
+    qui se communique et s'imprime, donc celle qui se partage le plus.
+
+    ─── POURQUOI ON GÉNÈRE PLUTÔT QUE DE RECOPIER ─────────────────────────────
+    Un bloc écrit à la main dans la page racine serait une SECONDE source de
+    vérité pour le titre. Elle divergerait au premier changement, et en silence.
+    On extrait donc de la page anglaise qui vient d'être écrite.
+
+    ─── LA SEULE DIFFÉRENCE EST « og:url » ────────────────────────────────────
+    Il désigne la RACINE et non « /en/ », pour que le lien du carton partagé mène
+    à l'aiguillage : un lecteur francophone arrive alors en français. Le
+    « canonical » de la page, lui, continue de désigner « /en/ », parce qu'il
+    s'adresse aux moteurs, pour qui la racine est une redirection sans contenu.
+    """
+    fichier = SITE / 'index.html'
+    if not fichier.exists():
+        print('  ABSENT site/index.html — bloc de partage non posé')
+        return
+
+    voulues = re.findall(
+        r'<meta (?:name="description"|property="og:[a-z:]+"|name="twitter:card")'
+        r' content="[^"]*">', page_en)
+    if not voulues:
+        print('  ATTENTION  aucune balise de partage trouvée dans la page anglaise')
+        return
+
+    bloc = []
+    for balise in voulues:
+        if 'property="og:url"' in balise:
+            balise = f'<meta property="og:url" content="{DOMAINE}/">'
+        bloc.append(balise)
+
+    texte = fichier.read_text(encoding='utf-8')
+    if DEBUT_SOCIAL not in texte or FIN_SOCIAL not in texte:
+        print('  ATTENTION  marqueurs BLOC-SOCIAL absents de site/index.html')
+        return
+
+    avant = texte[:texte.index(DEBUT_SOCIAL) + len(DEBUT_SOCIAL)]
+    apres = texte[texte.index(FIN_SOCIAL):]
+    fichier.write_text(avant + '\n' + '\n'.join(bloc) + '\n' + apres,
+                       encoding='utf-8', newline='\n')
+    print(f'  écrit  site/index.html  ({len(bloc)} balises de partage)')
+
+
 def ecrire_plan_du_site() -> None:
     """Le plan du site : une adresse, une date, et rien d'autre.
 
@@ -4027,6 +4083,9 @@ def main() -> int:
         cible.write_text(page, encoding='utf-8', newline='\n')
         total += 1
         print(f'  écrit  site/{code}/index.html   ({len(page) // 1024} Ko)')
+        # La page anglaise sert de source aux balises de partage de la racine.
+        if code == 'en':
+            page_anglaise = page
 
         # ── LA PAGE « POURQUOI », BÂTIE SUR L'HABILLAGE DE CELLE-CI ─────────
         # On repart de la page qu'on vient d'écrire plutôt que de recomposer une
@@ -4079,6 +4138,13 @@ def main() -> int:
 
     # APRÈS les pages : le plan du site date chacune d'elles, et ne peut le faire
     # qu'une fois qu'elles sont écrites.
+    # La racine n'est pas régénérée — elle est écrite à la main — mais son
+    # bloc de partage, lui, est tenu à jour depuis la page anglaise.
+    if 'page_anglaise' in dir():
+        poser_bloc_social_racine(page_anglaise)
+    else:
+        print('  ATTENTION  page anglaise absente : racine sans bloc de partage')
+
     ecrire_plan_du_site()
     ecrire_fichiers_de_service()
 
