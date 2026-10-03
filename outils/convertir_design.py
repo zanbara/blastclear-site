@@ -353,7 +353,12 @@ TITRE_BANDEAU = {
 }
 
 CORRECTIONS = {
-    'fr': [("Pétardage / tri de blocs : points", "Tir de blocs : points")],
+    # Les « cadrans de réduction » à pourcentages fixes ne décrivent plus le logiciel :
+    # le rayon varie continûment avec l'écart au sens du tir (demande de l'auteur du
+    # 3 octobre 2026).
+    'fr': [("Pétardage / tri de blocs : points", "Tir de blocs : points"),
+           ("Cadrans de réduction : Exp : arrière −30 %, latéral −15 %, avant non réduit",
+            "Dômes à rayon dynamique qui prennent en considération le sens du tir")],
     'en': [("Secondary blasting / boulder sorting: points", "Boulder blasting: points")],
     'es': [("Voladura secundaria / selección de bolones: puntos", "Voladura de bolones: puntos")],
     'pt': [("Fogo secundário / seleção de matacões: pontos", "Desmonte de matacões: pontos")],
