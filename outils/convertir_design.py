@@ -385,6 +385,41 @@ for _code, _paires in TITRE_BANDEAU.items():
     CORRECTIONS.setdefault(_code, []).extend(_paires)
 del _code, _paires
 
+# LES DOUZE AUTRES LANGUES SUIVENT LE FRANÇAIS (demande de l'auteur du 9 octobre 2026) :
+# leurs « secteurs de réduction » à pourcentages fixes deviennent, comme en français, des
+# dômes à rayon dynamique qui prennent en compte le sens du tir. Le « sens du tir » et le
+# « dôme » reprennent les mots que l'application et le reste de la page emploient déjà
+# dans chaque langue (Flyrock.Coupe.SensDuTir ; « 3D dome », « 3D-Kuppel »…).
+RAYON_DYNAMIQUE = {
+    'en': ("Reduction sectors: e.g. rear −30 %, lateral −15 %, front not reduced",
+           "Dynamic-radius domes that take the throw direction into account"),
+    'es': ("Sectores de reducción: ej. atrás −30 %, lateral −15 %, frente sin reducir",
+           "Domos de radio dinámico que tienen en cuenta el sentido de proyección"),
+    'pt': ("Setores de redução: ex. atrás −30 %, lateral −15 %, frente sem redução",
+           "Domos de raio dinâmico que levam em conta o sentido de projeção"),
+    'de': ("Reduktionssektoren: z. B. hinten −30 %, seitlich −15 %, vorn ohne Reduktion",
+           "Kuppeln mit dynamischem Radius, die die Wurfrichtung berücksichtigen"),
+    'it': ("Settori di riduzione: es. retro −30 %, laterale −15 %, fronte non ridotto",
+           "Cupole a raggio dinamico che tengono conto della direzione di lancio"),
+    'nl': ("Reductiesectoren: bv. achter −30 %, zijwaarts −15 %, voor niet gereduceerd",
+           "Koepels met dynamische straal die rekening houden met de werprichting"),
+    'sv': ("Reduktionssektorer: t.ex. bakåt −30 %, i sidled −15 %, framåt utan reduktion",
+           "Kupoler med dynamisk radie som tar hänsyn till kastriktningen"),
+    'no': ("Reduksjonssektorer: f.eks. bakover −30 %, sideveis −15 %, forover uten reduksjon",
+           "Kupler med dynamisk radius som tar hensyn til kasteretningen"),
+    'da': ("Reduktionssektorer: f.eks. bagud −30 %, til siden −15 %, fremad uden reduktion",
+           "Kupler med dynamisk radius, der tager højde for kasteretningen"),
+    'tr': ("Yarıçap azaltma sektörleri: örn. arka −30 %, yan −15 %, ön azaltmasız",
+           "Atım yönünü dikkate alan dinamik yarıçaplı kubbeler"),
+    'zh': ("折减扇区：例如后方 −30 %、侧向 −15 %、前方不折减",
+           "考虑抛掷方向的动态半径穹顶"),
+    'af': ("Verminderingsektore: bv. agter −30 %, sywaarts −15 %, voor onverminderd",
+           "Koepels met dinamiese radius wat die gooirigting in ag neem"),
+}
+for _code, _paire in RAYON_DYNAMIQUE.items():
+    CORRECTIONS.setdefault(_code, []).append(_paire)
+del _code, _paire
+
 
 def capitaliser_titre(corps: str) -> str:
     """Met une majuscule au premier mot de chaque ligne du titre du bandeau.
