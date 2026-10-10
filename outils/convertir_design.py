@@ -456,6 +456,60 @@ for _code, _paire in EXPORTS.items():
     CORRECTIONS.setdefault(_code, []).append(_paire)
 del _code, _paire
 
+# LES IMPORTS ET L'ACCROCHE RATTRAPENT L'APPLICATION (demande de l'auteur du 10 octobre
+# 2026). La puce d'import ne citait que DXF et CSV ; elle nomme les formats ouverts, puis
+# les logiciels dont l'application lit les fichiers — leurs noms parlent davantage que des
+# extensions comme 00T ou DUF. L'accroche disait encore « cadrans de réduction
+# appliqués », que la ligne des fonctionnalités a remplacés par le rayon dynamique : elle
+# dit maintenant un rayon ajusté au sens du tir, avec le mot de l'application.
+IMPORTS = {
+    'fr': ("<li>Import libre (DXF, CSV)</li>",
+           "<li>Import libre : DXF, CSV, OBJ, Shapefile, fichiers de points, et formats Datamine, Surpac, Vulcan, Deswik et Leapfrog</li>"),
+    'en': ("<li>Open import (DXF, CSV)</li>",
+           "<li>Open import: DXF, CSV, OBJ, Shapefile, point files, and Datamine, Surpac, Vulcan, Deswik and Leapfrog formats</li>"),
+    'es': ("<li>Importación libre (DXF, CSV)</li>",
+           "<li>Importación libre: DXF, CSV, OBJ, Shapefile, archivos de puntos y formatos de Datamine, Surpac, Vulcan, Deswik y Leapfrog</li>"),
+    'pt': ("<li>Importação livre (DXF, CSV)</li>",
+           "<li>Importação livre: DXF, CSV, OBJ, Shapefile, arquivos de pontos e formatos Datamine, Surpac, Vulcan, Deswik e Leapfrog</li>"),
+    'de': ("<li>Freier Import (DXF, CSV)</li>",
+           "<li>Freier Import: DXF, CSV, OBJ, Shapefile, Punktdateien sowie Formate von Datamine, Surpac, Vulcan, Deswik und Leapfrog</li>"),
+    'it': ("<li>Importazione libera (DXF, CSV)</li>",
+           "<li>Importazione libera: DXF, CSV, OBJ, Shapefile, file di punti e formati Datamine, Surpac, Vulcan, Deswik e Leapfrog</li>"),
+    'nl': ("<li>Vrije import (DXF, CSV)</li>",
+           "<li>Vrije import: DXF, CSV, OBJ, Shapefile, puntbestanden en formaten van Datamine, Surpac, Vulcan, Deswik en Leapfrog</li>"),
+    'sv': ("<li>Fri import (DXF, CSV)</li>",
+           "<li>Fri import: DXF, CSV, OBJ, Shapefile, punktfiler och format från Datamine, Surpac, Vulcan, Deswik och Leapfrog</li>"),
+    'no': ("<li>Fri import (DXF, CSV)</li>",
+           "<li>Fri import: DXF, CSV, OBJ, Shapefile, punktfiler og formater fra Datamine, Surpac, Vulcan, Deswik og Leapfrog</li>"),
+    'da': ("<li>Fri import (DXF, CSV)</li>",
+           "<li>Fri import: DXF, CSV, OBJ, Shapefile, punktfiler og formater fra Datamine, Surpac, Vulcan, Deswik og Leapfrog</li>"),
+    'tr': ("<li>Serbest içe aktarım (DXF, CSV)</li>",
+           "<li>Serbest içe aktarım: DXF, CSV, OBJ, Shapefile, nokta dosyaları ve Datamine, Surpac, Vulcan, Deswik ve Leapfrog biçimleri</li>"),
+    'zh': ("<li>自由导入（DXF、CSV）</li>",
+           "<li>自由导入：DXF、CSV、OBJ、Shapefile、点文件，以及 Datamine、Surpac、Vulcan、Deswik 和 Leapfrog 格式</li>"),
+    'af': ("<li>Vrye invoer (DXF, CSV)</li>",
+           "<li>Vrye invoer: DXF, CSV, OBJ, Shapefile, puntlêers en formate van Datamine, Surpac, Vulcan, Deswik en Leapfrog</li>"),
+}
+ACCROCHE_RAYON = {
+    'fr': ("cadrans de réduction appliqués", "rayon ajusté au sens du tir"),
+    'en': ("reduction sectors applied", "radius adjusted to the throw direction"),
+    'es': ("sectores de reducción aplicados", "radio ajustado al sentido de proyección"),
+    'pt': ("setores de redução aplicados", "raio ajustado ao sentido de projeção"),
+    'de': ("Reduktionssektoren angewendet", "Radius an die Wurfrichtung angepasst"),
+    'it': ("settori di riduzione applicati", "raggio adattato alla direzione di lancio"),
+    'nl': ("reductiesectoren toegepast", "straal afgestemd op de werprichting"),
+    'sv': ("reduktionssektorer tillämpade", "radie anpassad efter kastriktningen"),
+    'no': ("reduksjonssektorer anvendt", "radius tilpasset kasteretningen"),
+    'da': ("reduktionssektorer anvendt", "radius tilpasset kasteretningen"),
+    'tr': ("uygulanan azaltma sektörleri", "atım yönüne göre ayarlanan yarıçap"),
+    'zh': ("应用折减扇区", "半径随抛掷方向调整"),
+    'af': ("verminderingsektore toegepas", "radius aangepas by die gooirigting"),
+}
+for _table in (IMPORTS, ACCROCHE_RAYON):
+    for _code, _paire in _table.items():
+        CORRECTIONS.setdefault(_code, []).append(_paire)
+del _table, _code, _paire
+
 
 def capitaliser_titre(corps: str) -> str:
     """Met une majuscule au premier mot de chaque ligne du titre du bandeau.
