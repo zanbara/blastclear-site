@@ -420,6 +420,42 @@ for _code, _paire in RAYON_DYNAMIQUE.items():
     CORRECTIONS.setdefault(_code, []).append(_paire)
 del _code, _paire
 
+# LES EXPORTS NE SE LIMITENT PLUS AU DXF (demande de l'auteur du 10 octobre 2026) : la
+# ligne nomme les formats que l'application écrit, Datamine (DM) et Surpac (STR) compris.
+# La cible porte les balises de la puce : « Export DXF » seul pourrait se retrouver
+# ailleurs dans la page, la puce entière ne s'y trouve qu'une fois.
+EXPORTS = {
+    'fr': ("<li>Export DXF</li>",
+           "<li>Export vers : DXF, CSV, KMZ, DM, STR, OBJ, Shapefile et autres formats</li>"),
+    'en': ("<li>DXF export</li>",
+           "<li>Export to DXF, CSV, KMZ, DM, STR, OBJ, Shapefile and other formats</li>"),
+    'es': ("<li>Exportación DXF</li>",
+           "<li>Exportación a DXF, CSV, KMZ, DM, STR, OBJ, Shapefile y otros formatos</li>"),
+    'pt': ("<li>Exportação DXF</li>",
+           "<li>Exportação para DXF, CSV, KMZ, DM, STR, OBJ, Shapefile e outros formatos</li>"),
+    'de': ("<li>DXF-Export</li>",
+           "<li>Export nach DXF, CSV, KMZ, DM, STR, OBJ, Shapefile und weitere Formate</li>"),
+    'it': ("<li>Esportazione DXF</li>",
+           "<li>Esportazione in DXF, CSV, KMZ, DM, STR, OBJ, Shapefile e altri formati</li>"),
+    'nl': ("<li>DXF-export</li>",
+           "<li>Export naar DXF, CSV, KMZ, DM, STR, OBJ, Shapefile en andere formaten</li>"),
+    'sv': ("<li>DXF-export</li>",
+           "<li>Export till DXF, CSV, KMZ, DM, STR, OBJ, Shapefile och andra format</li>"),
+    'no': ("<li>DXF-eksport</li>",
+           "<li>Eksport til DXF, CSV, KMZ, DM, STR, OBJ, Shapefile og andre formater</li>"),
+    'da': ("<li>DXF-eksport</li>",
+           "<li>Eksport til DXF, CSV, KMZ, DM, STR, OBJ, Shapefile og andre formater</li>"),
+    'tr': ("<li>DXF dışa aktarımı</li>",
+           "<li>DXF, CSV, KMZ, DM, STR, OBJ, Shapefile ve diğer biçimlere dışa aktarım</li>"),
+    'zh': ("<li>DXF 导出</li>",
+           "<li>导出为 DXF、CSV、KMZ、DM、STR、OBJ、Shapefile 等格式</li>"),
+    'af': ("<li>DXF-uitvoer</li>",
+           "<li>Uitvoer na DXF, CSV, KMZ, DM, STR, OBJ, Shapefile en ander formate</li>"),
+}
+for _code, _paire in EXPORTS.items():
+    CORRECTIONS.setdefault(_code, []).append(_paire)
+del _code, _paire
+
 
 def capitaliser_titre(corps: str) -> str:
     """Met une majuscule au premier mot de chaque ligne du titre du bandeau.
